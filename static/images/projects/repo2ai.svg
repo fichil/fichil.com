@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Repo2AI project illustration">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#111827"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs>
+  <rect width="640" height="400" rx="32" fill="url(#g)"/>
+  <rect x="72" y="70" width="204" height="260" rx="22" fill="#f8fafc"/>
+  <rect x="364" y="70" width="204" height="260" rx="22" fill="#f8fafc"/>
+  <path d="M112 128h96M112 170h126M112 212h78M112 254h116" stroke="#4f46e5" stroke-width="14" stroke-linecap="round"/>
+  <path d="M396 130h138M396 172h86M396 214h120M396 256h76" stroke="#06b6d4" stroke-width="14" stroke-linecap="round"/>
+  <path d="M286 200h66" stroke="#e0f2fe" stroke-width="12" stroke-linecap="round"/>
+  <path d="M330 170l30 30-30 30" fill="none" stroke="#e0f2fe" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="320" cy="88" r="30" fill="#22c55e"/>
+  <text x="320" y="97" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="800" fill="#fff">AI</text>
+  <text x="174" y="306" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#111827">Repo</text>
+  <text x="466" y="306" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#111827">Context Pack</text>
+</svg>
