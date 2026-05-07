@@ -1,6 +1,6 @@
 baseURL: "https://fichil.com/"
 title: "Fichil | Backend & DevOps Expert"
-theme: "hugo-profile"
+theme: "PaperMod"
 defaultContentLanguage: "en"
 defaultContentLanguageInSubdir: false
 enableRobotsTXT: true

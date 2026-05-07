@@ -21,3 +21,33 @@ node_modules/
 
 # Cache
 .hugo_build.lock
+
+# Hugo generated files
+public/
+resources/_gen/
+
+# Hugo cache
+.hugo_build.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Env
+.env
+.env.*
+
+# Node
+node_modules/
+package-lock.json
+
+# Temporary files
+*.tmp
+*.bak

@@ -1,58 +1,51 @@
 # fichil.com
 
-Personal tech blog powered by Hugo.
+Source code for my personal technical blog: https://fichil.com
+
+This site is built with Hugo and used to publish technical notes, production troubleshooting cases, and open-source project updates.
 
 ## Tech Stack
 
 - Hugo
-- Nginx
-- Markdown
-
-## Run locally
-
-hugo server
-Build
-hugo --minify
-
----
-
-# 五、创建 AGENTS.md（给 AI 用）
-
-notepad AGENTS.md
-
-内容：
-
-# AGENTS.md
-
-## Project Overview
-
-This repository contains the source code for fichil.com.
-
-## Stack
-
-- Hugo
 - Markdown
 - Nginx
+- GitHub
 
-## Rules
+## Local Development
 
-- Do not commit secrets
-- Do not modify generated public files
-- Keep commits small and focused
-- Prefer Markdown content organization
-
-## Commands
-
+```bash
 hugo server
-hugo --minify
-
----
-
-# 六、提交本地代码
-
-执行：
-
-```powershell
-git add .
 ```
 
+Build:
+
+```
+hugo --minify
+```
+
+## Repository Structure
+
+```
+content/      Blog posts and pages
+static/       Static assets
+assets/       Theme assets
+themes/       Hugo themes
+hugo.yaml     Hugo configuration
+```
+
+## Deployment
+
+The generated `public/` directory should not be committed.
+ Deployment is handled separately on the server.
+
+## AI Maintenance
+
+This repository is intended to be maintained with AI-assisted development tools such as ChatGPT Codex.
+
+Before changing this repository:
+
+- Do not commit secrets
+- Do not modify generated `public/` files
+- Keep commits small
+- Run `hugo server` for local preview
+- Run `hugo --minify` before deployment
