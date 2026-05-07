@@ -1,160 +1,139 @@
 ---
-title: "Using AI to Maintain a Hugo Personal Site: From Open Source to Auto Deployment"
+title: "Maintaining a Hugo Website with AI: From Open Source to Auto Deploy"
 date: 2026-05-07
 draft: false
-tags: ["hugo", "github", "github-actions", "ai"]
-categories: ["AI Workflow"]
+description: "How I turned fichil.com into an open-source Hugo repository and prepared it for AI-assisted maintenance and GitHub Actions deployment."
+tags:
+  - AI
+  - Hugo
+  - GitHub Actions
+  - Open Source
+  - DevOps
+categories:
+  - Engineering
 ---
 
-I am moving `fichil.com` into a workflow where the website source code is open, changes are reviewed through Pull Requests, and deployment is handled by GitHub Actions after merge.
+## Background
 
-This post records the workflow I am using now. It is not a complex platform design. It is a practical setup for maintaining a personal Hugo site with AI assistance while keeping final control in my own hands.
+I built fichil.com for a simple reason: I wanted my own technical blog to record development work, deployment notes, troubleshooting steps, and open-source progress.
 
-## Current setup
+As the site grew, keeping it only as files on a server was not enough. I needed the source code, content, deployment steps, and change history to be easy to inspect and repeat.
 
-The site uses a simple stack:
+That is why I started turning fichil.com into an open-source Hugo repository that can be maintained with AI assistance.
 
-- Hugo builds the static site.
-- `hugo-profile` is used as the theme.
-- GitHub stores the source code.
-- GitHub Issues record each change request.
-- ChatGPT works on the `chatgpt` branch.
-- Pull Requests are reviewed before merge.
-- GitHub Actions deploys the site after `main` is updated.
+## Why open-source fichil.com
 
-The repository is:
+Open-sourcing this site is not about asking people to copy the same personal website. The practical reason is to make maintenance visible and traceable.
 
-```text
-https://github.com/fichil/fichil.com.git
-```
+The direct benefits are:
 
-The production site is:
+- Git records every content and configuration change.
+- Hugo config, theme usage, and content structure can be reviewed.
+- GitHub Issues become the task entry point.
+- GitHub Actions can check whether the site builds.
+- AI tools can work from repository context instead of guessing.
 
-```text
-https://fichil.com/
-```
+For a personal site, that is already enough structure to avoid many manual mistakes.
 
-## Why I changed the workflow
+## How I organized the Hugo repository
 
-At the beginning, the site was just a local Hugo project. That was enough for writing a few pages, but it was not enough once I wanted AI to help maintain it.
+The first step was to upload the local Hugo project to GitHub and add the basic project files.
 
-The problems were clear:
-
-- I had to remember where the local project was stored.
-- Changes were easy to make but hard to review.
-- Chinese and English pages could become inconsistent.
-- Broken links or missing images might not be noticed immediately.
-- Direct changes to production were too risky.
-
-So I moved the website source code into GitHub and made the maintenance process more explicit.
-
-## Branch rules
-
-The branch split is simple:
+The core files are:
 
 ```text
-main      production branch
-chatgpt   AI change branch
+README.md
+AGENTS.md
+LICENSE
+.gitignore
+hugo.yaml
+.github/workflows/hugo-check.yml
+.github/workflows/deploy.yml
 ```
 
-The `main` branch is not changed directly by AI.
+`README.md` explains the project for people. `AGENTS.md` gives AI tools the operating rules. `LICENSE` defines the open-source terms. `.gitignore` keeps Hugo build output and local files out of the repository.
 
-For every change, ChatGPT should work on the `chatgpt` branch and create a Pull Request into `main`. I review the PR before merging. After the merge, GitHub Actions handles deployment.
+The theme is managed as a Git submodule, so third-party theme code does not get mixed into the site source.
 
-This gives me a clear review point before any content or configuration reaches the live site.
+## Issue-driven AI maintenance
 
-## Issue-first maintenance
-
-Every change starts with a GitHub Issue.
-
-The Issue should explain:
-
-- what needs to be changed;
-- which files or pages may be affected;
-- how the result should be checked.
-
-This is useful because many website tasks sound small but touch multiple places. For example, changing one blog link may require checking English navigation, Chinese navigation, homepage cards, and blog list pages.
-
-The Issue is the task record. The PR is the actual change.
-
-## Bilingual content rule
-
-The site uses separate content directories:
+The workflow I want is simple:
 
 ```text
-content/en/
-content/zh-cn/
+GitHub Issue
+↓
+AI agent reads the task
+↓
+AI changes the repository and opens a Pull Request
+↓
+GitHub Actions checks the build
+↓
+Human review and merge
+↓
+Automatic deployment to the VPS
 ```
 
-English blog pages use:
+If Copilot coding agent or Codex agent is not available yet, the fallback workflow still works:
 
 ```text
-/blog/
+Write the requirement in a GitHub Issue
+↓
+Ask ChatGPT to analyze the Issue
+↓
+Apply the suggested code or content changes
+↓
+Commit to main
+↓
+Let GitHub Actions deploy the site
 ```
 
-Chinese blog pages use:
+The goal at this stage is not full automation. The goal is to make the task entry point, build check, and deployment path repeatable.
+
+## Deployment path
+
+The site deploys through GitHub Actions. After main is updated, Actions builds the Hugo site and syncs the generated `public/` directory to the VPS path served by Nginx.
+
+The path is roughly:
 
 ```text
-/zh-cn/blog/
+Push to main
+↓
+GitHub Actions
+↓
+hugo --minify
+↓
+rsync public/ to VPS
+↓
+Nginx serves /var/www/fichil
+↓
+https://fichil.com updates
 ```
 
-If a blog post exists in both languages, I want the meaning to stay aligned. The wording does not need to be a sentence-by-sentence translation, but the title, key points, workflow, and conclusion should match.
+This removes the need to upload files by hand after every content change.
 
-This rule is important because the site is not just a Chinese blog with some copied English pages. Both versions should describe the same work.
+## Risk control
 
-## What AI can change
+Using AI to maintain a website does not mean letting AI operate the production server directly.
 
-AI can help with content and routine maintenance:
+The safer boundary is:
 
-- update blog posts;
-- fix broken internal links;
-- keep English and Chinese pages aligned;
-- adjust Hugo configuration when needed;
-- prepare PR descriptions;
-- check whether changed paths are reasonable.
+- AI can edit Markdown content.
+- AI can update README, docs, and small configuration files.
+- AI should not casually edit theme source code.
+- AI should not SSH into the VPS.
+- Production deployment should go through GitHub Actions.
+- Theme, deployment, Nginx, and license changes still need human review.
 
-But there are hard boundaries:
+In short, AI is useful as a development assistant, but release control should stay with the owner.
 
-- do not commit `public/` build output;
-- do not modify `themes/` unless I explicitly ask;
-- do not commit secrets, SSH keys, tokens, or passwords;
-- do not push directly to `main`;
-- do not change GitHub Actions deployment logic unless the task is about deployment.
+## Next steps
 
-These rules keep the site easy to repair when something goes wrong.
+My next steps are:
 
-## Current working process
+1. Improve deployment documentation for VPS, Nginx, Hugo, and HTTPS.
+2. Add more real troubleshooting notes from daily engineering work.
+3. Improve Issue templates so AI tools receive clearer tasks.
+4. Test available AI coding agents for Issue-to-PR workflows.
+5. Automate low-risk content changes first.
 
-The workflow I expect is:
-
-1. I describe the change I want.
-2. ChatGPT creates a GitHub Issue.
-3. ChatGPT modifies files on `chatgpt`.
-4. ChatGPT opens a Pull Request to `main`.
-5. I review the diff.
-6. I merge the PR manually.
-7. GitHub Actions deploys the site.
-8. I check the live page.
-
-This is enough for my current site. It gives me automation without removing review.
-
-## Why this fits a personal website
-
-A personal website does not need a heavy release process. But it still needs basic discipline.
-
-For me, the key point is traceability. When something breaks, I need to know which request caused it, what files changed, and whether the change came from me or AI.
-
-With Issue plus PR, the answer is visible in GitHub.
-
-## What I will improve next
-
-The next improvements are practical:
-
-- keep old `content/blog/` paths out of the project;
-- check all menu links from both homepage and blog pages;
-- make sure English Blog links do not open Chinese pages;
-- keep post pairs consistent between English and Chinese;
-- replace missing images with simple local SVG assets;
-- keep article wording closer to real engineering notes.
-
-The goal is not to make the site look complicated. The goal is to make it easier to maintain and harder to break.
+The direction is practical: keep useful notes, track changes, make deployment repeatable, and use AI where it reduces manual work without increasing production risk.

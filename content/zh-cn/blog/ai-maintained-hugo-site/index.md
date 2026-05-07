@@ -2,159 +2,138 @@
 title: "使用 AI 维护 Hugo 个人网站：从开源到自动部署"
 date: 2026-05-07
 draft: false
-tags: ["hugo", "github", "github-actions", "ai"]
-categories: ["AI 工作流"]
+description: "记录 fichil.com 从个人 Hugo 网站整理为开源仓库，并逐步接入 AI 维护和 GitHub Actions 自动部署的过程。"
+tags:
+  - AI
+  - Hugo
+  - GitHub Actions
+  - Open Source
+  - DevOps
+categories:
+  - Engineering
 ---
 
-我正在把 `fichil.com` 调整成一个更适合长期维护的流程：网站源码开源，修改通过 Pull Request 审核，合并后由 GitHub Actions 自动部署。
+## 背景
 
-这篇文章记录的是我现在实际采用的流程。它不是复杂的平台设计，只是一个适合个人 Hugo 网站的维护方式：让 AI 帮忙处理内容和配置修改，但最终审核权仍然在我自己手里。
+我最初搭建 fichil.com 的目的很简单：有一个自己的技术博客，用来记录开发、部署、排障和开源项目过程。
 
-## 当前方案
+随着内容变多，只把网站文件放在服务器上不够了。我需要让源码、内容、部署步骤和修改记录都能被检查、复用和回滚。
 
-这个网站使用的技术栈很简单：
+所以我开始把 fichil.com 整理成一个可以由 AI 辅助维护的 Hugo 开源仓库。
 
-- Hugo 负责构建静态网站。
-- 主题使用 `hugo-profile`。
-- GitHub 保存网站源码。
-- GitHub Issues 记录每次修改需求。
-- ChatGPT 在 `chatgpt` 分支上修改。
-- Pull Request 合并前由我审核。
-- `main` 更新后由 GitHub Actions 自动部署。
+## 为什么开源 fichil.com
 
-源码仓库是：
+开源这个网站源码，不是为了让别人复制同一个个人网站。更实际的原因是让维护过程更清楚：改了什么、为什么改、出了问题怎么回退。
 
-```text
-https://github.com/fichil/fichil.com.git
-```
+开源后有几个直接收益：
 
-线上网站是：
+- 所有变更都通过 Git 记录，方便回滚和复盘。
+- Hugo 配置、主题、内容结构都能被明确管理。
+- GitHub Issues 可以作为需求入口。
+- GitHub Actions 可以自动验证构建是否成功。
+- AI 工具可以基于仓库上下文给出修改建议。
 
-```text
-https://fichil.com/
-```
+对我来说，这能减少手工维护时的遗漏。
 
-## 为什么要改这个流程
+## 如何整理 Hugo 仓库
 
-一开始，这个网站只是一个本地 Hugo 项目。写几篇文章够用，但如果要让 AI 帮忙维护，就不够稳。
+第一步是把本地 Hugo 项目上传到 GitHub，并把仓库基础文件补齐。
 
-实际问题很明确：
-
-- 我需要记住本地项目放在哪里。
-- 修改很容易，但回看和审核不方便。
-- 中文和英文页面可能慢慢不一致。
-- 链接失效、图片缺失不一定能及时发现。
-- 直接改线上内容风险太高。
-
-所以我把网站源码放到 GitHub，并把维护流程固定下来。
-
-## 分支规则
-
-当前分支规则很简单：
+核心文件包括：
 
 ```text
-main      正式分支
-chatgpt   AI 修改分支
+README.md
+AGENTS.md
+LICENSE
+.gitignore
+hugo.yaml
+.github/workflows/hugo-check.yml
+.github/workflows/deploy.yml
 ```
 
-AI 不允许直接修改 `main`。
+其中 `README.md` 面向人，说明项目如何运行；`AGENTS.md` 面向 AI，告诉 AI 修改代码时应该遵守哪些规则；`LICENSE` 明确开源协议；`.gitignore` 避免提交 Hugo 构建产物和本地临时文件。
 
-每次修改时，ChatGPT 只在 `chatgpt` 分支上改文件，然后创建 Pull Request 到 `main`。我审核 PR 后再合并。合并完成后，GitHub Actions 自动部署线上网站。
+主题使用 Git submodule 管理，避免把第三方主题代码直接混进自己的仓库。
 
-这样每次上线前都有一个明确的审核点。
+## 如何通过 Issue 驱动 AI 修改代码
 
-## 先建 Issue 再修改
-
-每次修改都先创建 GitHub Issue。
-
-Issue 里要写清楚：
-
-- 要改什么；
-- 可能影响哪些文件或页面；
-- 最后应该怎么验收。
-
-这很有必要。网站修改看起来经常只是一个小链接、一张图片、一段文字，但实际可能同时影响英文菜单、中文菜单、首页卡片和博客列表。
-
-Issue 是任务记录，PR 是实际修改。
-
-## 中英文内容规则
-
-网站使用独立的内容目录：
+我想要的流程是：
 
 ```text
-content/en/
-content/zh-cn/
+GitHub Issue
+↓
+AI Agent 读取需求
+↓
+AI 修改仓库并创建 Pull Request
+↓
+GitHub Actions 自动构建检查
+↓
+人工 Review 后合并
+↓
+自动部署到 VPS
 ```
 
-英文博客路径是：
+如果 GitHub Copilot coding agent 或 Codex agent 暂时不可用，也可以先采用半自动模式：
 
 ```text
-/blog/
+GitHub Issue 写需求
+↓
+把 Issue 内容交给 ChatGPT 分析
+↓
+AI 给出代码或内容修改
+↓
+人工提交到 main
+↓
+GitHub Actions 自动部署
 ```
 
-中文博客路径是：
+这个阶段先不追求完全自动化，先把需求入口、构建检查和部署链路跑通。
+
+## 自动部署链路
+
+网站现在通过 GitHub Actions 自动部署。每次 main 分支更新后，Actions 会执行 Hugo 构建，并把生成的 `public/` 内容同步到 VPS 的 Nginx 目录。
+
+部署链路大致是：
 
 ```text
-/zh-cn/blog/
+Push to main
+↓
+GitHub Actions
+↓
+hugo --minify
+↓
+rsync public/ to VPS
+↓
+Nginx serves /var/www/fichil
+↓
+https://fichil.com 更新
 ```
 
-如果一篇文章有中英文两个版本，我希望语义保持一致。它们不需要逐句翻译，但标题、主要观点、工作流程和结论应该对应。
+这样每次改文章或配置后，不需要再手工上传文件。
 
-这个规则很重要。这个网站不应该只是中文博客加几篇随手翻译的英文页面。两个语言版本应该讲的是同一件事。
+## 风险控制
 
-## AI 可以改什么
+让 AI 参与网站维护，不等于让 AI 直接操作生产服务器。
 
-AI 适合处理内容和常规维护：
+更稳妥的边界是：
 
-- 更新博客文章；
-- 修复站内链接；
-- 同步中英文页面；
-- 必要时调整 Hugo 配置；
-- 编写 PR 描述；
-- 检查修改路径是否合理。
+- AI 可以修改 Markdown 内容。
+- AI 可以修改 README、文档和小范围配置。
+- AI 不应该随意修改主题源码。
+- AI 不应该直接登录 VPS。
+- 所有上线动作都应该通过 GitHub Actions 执行。
+- 主题、部署、Nginx、License 等高风险变更仍然需要人工 Review。
 
-但边界必须明确：
+简单说，AI 可以帮我减少重复劳动，但上线控制权不能丢。
 
-- 不提交 `public/` 构建产物；
-- 不修改 `themes/`，除非我明确要求；
-- 不提交 SSH key、token、密码等敏感信息；
-- 不直接推送到 `main`；
-- 不修改 GitHub Actions 部署逻辑，除非需求就是部署相关。
+## 后续计划
 
-这些规则能保证出了问题时比较容易回滚和定位。
+下一步计划：
 
-## 当前工作流程
+1. 完善部署文档，记录 VPS、Nginx、Hugo、HTTPS 的完整流程。
+2. 增加更多真实排障文章，把日常问题沉淀成博客内容。
+3. 优化 Issue 模板，让 AI 更容易理解需求边界。
+4. 尝试接入可用的 AI coding agent，让 Issue 自动生成 Pull Request。
+5. 先自动化低风险内容变更。
 
-我现在期望的流程是：
-
-1. 我描述要修改的内容。
-2. ChatGPT 创建 GitHub Issue。
-3. ChatGPT 在 `chatgpt` 分支修改文件。
-4. ChatGPT 创建 Pull Request 到 `main`。
-5. 我检查 diff。
-6. 我手动合并 PR。
-7. GitHub Actions 自动部署网站。
-8. 我检查线上页面。
-
-对现在的个人网站来说，这个流程已经够用。它能带来自动化，但不会取消人工审核。
-
-## 为什么适合个人网站
-
-个人网站不需要很重的发布流程，但也不能完全随手改。
-
-对我来说，关键是可追溯。哪次修改导致了问题，改了哪些文件，是我自己改的还是 AI 改的，这些信息都应该能查到。
-
-使用 Issue 加 PR，这些记录都会留在 GitHub 里。
-
-## 后续要继续改进的地方
-
-接下来要做的都是具体问题：
-
-- 不再使用旧的 `content/blog/` 路径；
-- 检查首页和博客页里的菜单链接；
-- 确保英文 Blog 不会跳到中文博客；
-- 保持中英文文章数量和语义对应；
-- 对缺失图片补充简单的本地 SVG；
-- 让文章更像真实工程记录，少写空泛总结。
-
-目标不是把网站做复杂，而是让它更容易维护，也更不容易被改坏。
+方向很明确：留下有用的技术记录，让修改可追踪，让部署可重复，让 AI 参与能提高效率但不扩大线上风险。
