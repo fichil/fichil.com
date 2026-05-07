@@ -1,234 +1,47 @@
-# Deployment Guide
+# Deprecated Deployment Notes
 
-This document describes how to build and deploy fichil.com.
+This document is kept only as a historical reference.
 
-## Overview
-
-fichil.com is a static website built with Hugo and served by Nginx on a VPS.
-
-Repository:
+The active deployment guide is now maintained at:
 
 ```text
-https://github.com/fichil/fichil.com
+/deployment.md
 ```
 
-Production domain:
+Do not use the old manual deployment steps that were previously documented here.
 
-```
-https://fichil.com
-```
+Current project rule:
 
-## Stack
+1. Make changes on the `chatgpt` branch.
+2. Open a pull request into `main`.
+3. Wait for manual review and merge.
+4. Let GitHub Actions deploy the website after `main` is updated.
 
-- Hugo
-- Git
-- Nginx
-- Certbot
-- Ubuntu VPS
+Manual `scp`, manual `rsync`, or direct server-side deployment should not be used for normal website updates.
 
-## Local Build
+Use the root-level `deployment.md` as the source of truth.
 
-Clone the repository with submodules:
+---
 
-```
-git clone --recurse-submodules https://github.com/fichil/fichil.com.git
-cd fichil.com
-```
+# 已废弃的部署说明
 
-If the repository was cloned without submodules:
+本文档仅作为历史参考保留。
 
-```
-git submodule update --init --recursive
+当前有效的部署说明已维护在：
+
+```text
+/deployment.md
 ```
 
-Start local preview:
+不要继续使用这里旧的手动部署步骤。
 
-```
-hugo server
-```
+当前项目规则：
 
-Build production files:
+1. 在 `chatgpt` 分支修改。
+2. 创建 Pull Request 到 `main`。
+3. 等待手动审核并合并。
+4. `main` 更新后由 GitHub Actions 自动部署网站。
 
-```
-hugo --minify
-```
+普通网站更新不应再使用手动 `scp`、手动 `rsync` 或直接服务器部署。
 
-The generated static files will be placed in:
-
-```
-public/
-```
-
-Do not commit the `public/` directory.
-
-## Server Directory
-
-Recommended production directory:
-
-```
-/var/www/fichil.com
-```
-
-Alternative directory if using a custom deployment path:
-
-```
-/home/fichil/fichil.com
-```
-
-The Nginx root should point to the generated static site directory.
-
-Example:
-
-```
-server {
-    listen 80;
-    server_name fichil.com www.fichil.com;
-
-    root /var/www/fichil.com;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ =404;
-    }
-}
-```
-
-## Deploy From Local Machine
-
-Build locally:
-
-```
-hugo --minify
-```
-
-Upload generated files to the server:
-
-```
-scp -r public/* user@server_ip:/var/www/fichil.com/
-```
-
-Replace:
-
-```
-user
-server_ip
-/var/www/fichil.com/
-```
-
-with the actual server username, server IP, and deployment directory.
-
-## Deploy From Server
-
-SSH into the server:
-
-```
-ssh user@server_ip
-```
-
-Go to the repository directory:
-
-```
-cd /path/to/fichil.com
-```
-
-Pull latest source code:
-
-```
-git pull
-git submodule update --init --recursive
-```
-
-Build:
-
-```
-hugo --minify
-```
-
-Copy generated files to Nginx root:
-
-```
-sudo rsync -av --delete public/ /var/www/fichil.com/
-```
-
-Reload Nginx:
-
-```
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-## HTTPS
-
-If HTTPS is not configured yet, use Certbot:
-
-```
-sudo certbot --nginx -d fichil.com -d www.fichil.com
-```
-
-Check certificate renewal:
-
-```
-sudo certbot renew --dry-run
-```
-
-## Health Check
-
-Check Nginx status:
-
-```
-sudo systemctl status nginx
-```
-
-Check Nginx config:
-
-```
-sudo nginx -t
-```
-
-Check local response:
-
-```
-curl -I http://127.0.0.1
-```
-
-Check production domain:
-
-```
-curl -I https://fichil.com
-```
-
-## Rollback
-
-If deployment breaks the site, restore the previous version from backup.
-
-Recommended backup before deploy:
-
-```
-sudo cp -r /var/www/fichil.com /var/www/fichil.com.backup
-```
-
-Rollback:
-
-```
-sudo rm -rf /var/www/fichil.com
-sudo mv /var/www/fichil.com.backup /var/www/fichil.com
-sudo systemctl reload nginx
-```
-
-## Deployment Checklist
-
-Before deployment:
-
-- Run `hugo server` locally
-- Run `hugo --minify`
-- Confirm GitHub Actions passed
-- Confirm no secrets are committed
-- Confirm `public/` is not committed
-
-After deployment:
-
-- Open https://fichil.com
-- Check homepage
-- Check blog page
-- Check Chinese page if updated
-- Run `curl -I https://fichil.com`
+以根目录 `deployment.md` 作为唯一可信部署说明。
