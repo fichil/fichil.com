@@ -21,7 +21,7 @@ taxonomies:
   category: "categories"
 
 params:
-  useBootstrapCDN: true # 开启 CDN 以优化全球访问速度
+  useBootstrapCDN: true
   mathjax: false
   animate: true
 
@@ -30,6 +30,7 @@ languages:
   en:
     languageName: "English"
     languageCode: "en-us"
+    contentDir: "content/en"
     weight: 1
     title: "Fichil | Backend, DevOps & Integration Engineer"
     menus:
@@ -64,11 +65,11 @@ languages:
         intro: "Build. Debug. Ship."
         title: "I'm Fichil."
         subtitle: "Backend / DevOps / Enterprise Integration Engineer"
-        content: "I turn production problems into reusable engineering notes: Java backend fixes, logistics workflow changes, Nginx/Linux recovery, SAP/WMS/TMS integrations, and AI-assisted development workflows."
+        content: "I write down the problems I actually handle: Java backend fixes, logistics workflow changes, Nginx/Linux recovery, SAP/WMS/TMS integrations, and practical AI-assisted development."
         image: "/images/profile.svg"
         button:
           enable: true
-          name: "Read My Work"
+          name: "Read the Blog"
           url: "/blog/"
 
       about:
@@ -76,13 +77,13 @@ languages:
         id: "about"
         title: "Engineering Focus"
         content: |-
-          This site is my public engineering log and portfolio. The positioning is simple: solve real system problems, document the root cause, and turn repeatable work into tools.
+          This site is my public engineering notebook and portfolio. I use it to record problems I have solved, the checks that worked, and the tools I am building.
 
           - **Backend Engineering**: Java, Spring, REST APIs, validation rules, SQL troubleshooting, and production defect analysis.
           - **Logistics Platforms**: WMS, TMS, YMS, billing, carrier assignment, dispatch confirmation, proof of delivery, and SAP/ERP integration.
           - **DevOps Operations**: Linux, Nginx, Docker, VPS deployment, HTTPS, GitHub Actions, and incident recovery.
           - **Open Source**: Building Repo2AI to convert repositories into AI-ready context packs for ChatGPT, Claude, Cursor, and coding agents.
-          - **AI Workflow**: Using ChatGPT and Codex as execution accelerators while keeping architecture, testing, and delivery ownership with the engineer.
+          - **AI Workflow**: Using ChatGPT and Codex to speed up implementation while keeping design, testing, and release decisions under human review.
         skills:
           enable: true
           title: "Core Stack"
@@ -100,21 +101,21 @@ languages:
         title: "Current Work"
         items:
           - title: "VPS and Nginx Recovery"
-            content: "A practical recovery case covering DNS, ports, Nginx, Hugo build output, HTTPS, and production verification for fichil.com."
+            content: "A real recovery note covering DNS, ports, Nginx, Hugo build output, HTTPS, and production verification for fichil.com."
             image: "/images/projects/devops.svg"
             featured:
               name: "Read Case"
               link: "/blog/fix-vps-connection/"
             badges: ["Nginx", "Linux", "HTTPS"]
           - title: "Repo2AI"
-            content: "An open-source CLI that converts repositories into structured AI-ready context packs for ChatGPT, Claude, Cursor, and coding agents."
+            content: "An open-source CLI that turns repositories into structured context files for ChatGPT, Claude, Cursor, and coding agents."
             image: "/images/projects/repo2ai.svg"
             featured:
               name: "GitHub"
               link: "https://github.com/fichil/Repo2AI"
             badges: ["Go", "AI Tools", "Open Source"]
           - title: "Enterprise Logistics Integrations"
-            content: "Engineering notes from WMS/TMS/YMS, carrier dispatch, billing, route validation, fee confirmation, and SAP/ERP integration troubleshooting."
+            content: "Notes from WMS/TMS/YMS work: carrier dispatch, billing, route validation, fee confirmation, and SAP/ERP interface troubleshooting."
             image: "/images/projects/logistics.svg"
             featured:
               name: "Contact"
@@ -133,6 +134,7 @@ languages:
   zh-cn:
     languageName: "中文"
     languageCode: "zh-CN"
+    contentDir: "content/zh-cn"
     weight: 2
     title: "Fichil | 后端、运维与企业集成工程师"
     menus:
@@ -161,7 +163,7 @@ languages:
         intro: "构建、排障、交付"
         title: "我是 Fichil"
         subtitle: "后端 / DevOps / 企业系统集成工程师"
-        content: "我把真实生产问题沉淀成可复用的工程记录：Java 后端修复、物流业务流程改造、Nginx/Linux 运维恢复、SAP/WMS/TMS 集成，以及 AI 辅助开发工作流。"
+        content: "我记录自己实际处理过的问题：Java 后端修复、物流业务流程改造、Nginx/Linux 运维恢复、SAP/WMS/TMS 集成，以及 AI 辅助开发实践。"
         image: "/images/profile.svg"
         button:
           enable: true
@@ -173,13 +175,13 @@ languages:
         id: "about"
         title: "工程方向"
         content: |-
-          这个网站不是简历模板，而是我的公开工程日志和长期作品集。定位很明确：解决真实系统问题，复盘根因，把重复工作沉淀成工具。
+          这个网站是我的公开工程笔记和作品集。我用它记录解决过的问题、有效的排查步骤，以及正在做的工具。
 
           - **后端开发**：Java、Spring、REST API、业务校验、SQL 排障、生产缺陷定位。
           - **物流系统**：WMS、TMS、YMS、费用、承运商分配、调度确认、回单、SAP/ERP 集成。
           - **运维部署**：Linux、Nginx、Docker、VPS、HTTPS、GitHub Actions、故障恢复。
           - **开源项目**：维护 Repo2AI，把代码仓库转换成适合 ChatGPT、Claude、Cursor 和 coding agent 阅读的上下文包。
-          - **AI 工作流**：用 ChatGPT/Codex 提升执行效率，但架构判断、测试验证和交付责任仍由工程师负责。
+          - **AI 工作流**：用 ChatGPT/Codex 提高实现效率，但设计、测试和上线判断仍由人来负责。
         skills:
           enable: true
           title: "核心技术栈"
@@ -197,7 +199,7 @@ languages:
         title: "当前重点"
         items:
           - title: "VPS 与 Nginx 恢复"
-            content: "记录 fichil.com 从 DNS、端口、Nginx、Hugo 构建目录、HTTPS 到线上验证的完整恢复路径。"
+            content: "记录 fichil.com 从 DNS、端口、Nginx、Hugo 构建目录、HTTPS 到线上验证的恢复过程。"
             image: "/images/projects/devops.svg"
             featured:
               name: "查看案例"
@@ -211,7 +213,7 @@ languages:
               link: "https://github.com/fichil/Repo2AI"
             badges: ["Go", "AI 工具", "开源"]
           - title: "企业物流系统集成"
-            content: "持续整理 WMS/TMS/YMS、承运商调度、费用确认、路由校验、计费、SAP/ERP 接口联调相关工程记录。"
+            content: "整理 WMS/TMS/YMS、承运商调度、费用确认、路由校验、计费、SAP/ERP 接口联调相关工程记录。"
             image: "/images/projects/logistics.svg"
             featured:
               name: "联系我"
