@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Enterprise logistics integration illustration">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f172a"/><stop offset="1" stop-color="#059669"/></linearGradient></defs>
+  <rect width="640" height="400" rx="32" fill="url(#g)"/>
+  <rect x="76" y="84" width="488" height="232" rx="24" fill="#f8fafc" opacity="0.96"/>
+  <path d="M140 250c74-92 154 86 236-8s116-32 142-88" fill="none" stroke="#2563eb" stroke-width="10" stroke-linecap="round" stroke-dasharray="2 22"/>
+  <circle cx="140" cy="250" r="24" fill="#2563eb"/>
+  <circle cx="302" cy="242" r="24" fill="#22c55e"/>
+  <circle cx="518" cy="154" r="24" fill="#f59e0b"/>
+  <rect x="114" y="126" width="104" height="52" rx="12" fill="#dbeafe"/>
+  <rect x="268" y="126" width="104" height="52" rx="12" fill="#dcfce7"/>
+  <rect x="422" y="214" width="104" height="52" rx="12" fill="#fef3c7"/>
+  <text x="166" y="158" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#1e40af">WMS</text>
+  <text x="320" y="158" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#166534">TMS</text>
+  <text x="474" y="246" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#92400e">SAP</text>
+</svg>
