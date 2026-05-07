@@ -1,0 +1,219 @@
+baseURL: "https://fichil.com/"
+title: "Fichil | Backend & DevOps Expert"
+theme: "hugo-profile"
+defaultContentLanguage: "en"
+defaultContentLanguageInSubdir: false
+enableRobotsTXT: true
+
+pagination:
+  pagerSize: 6
+
+outputs:
+  home: [HTML, RSS, JSON]
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+
+taxonomies:
+  tag: "tags"
+  category: "categories"
+
+params:
+  useBootstrapCDN: true # 开启 CDN 以优化全球访问速度
+  mathjax: false
+  animate: true
+
+languages:
+  # ================= 英文版配置 =================
+  en:
+    languageName: "English"
+    languageCode: "en-us"
+    weight: 1
+    title: "Fichil | Production Problem Solver"
+    menus:
+      main:
+        - identifier: "about"
+          name: "Services"
+          url: "#about"
+          weight: 1
+        - identifier: "projects"
+          name: "Cases"
+          url: "#projects"
+          weight: 2
+        - identifier: "blog"
+          name: "Blog"
+          url: "/blog"
+          weight: 3
+        - identifier: "contact"
+          name: "Contact"
+          url: "#contact"
+          weight: 4
+    params:
+      description: "Specialized in fixing Nginx, API failures, and Enterprise Integrations."
+      favicon: "/fav.png"
+      navbar:
+        align: "ms-auto"
+        stickyNavBar:
+          enable: true
+          showOnScrollUp: true
+
+      hero:
+        enable: true
+        intro: "Production Down?"
+        title: "I'm Fichil."
+        subtitle: "Expert Backend & DevOps Troubleshooter"
+        content: "I specialize in resolving mission-critical production issues: from Nginx 502s and API timeouts to complex SAP/WMS integrations."
+        image: "/images/profile.png"
+        button:
+          enable: true
+          name: "Get Help Now"
+          url: "#contact"
+
+      about:
+        enable: true
+        id: "about"
+        title: "What I Solve"
+        content: |-
+          I focus on real-world reliability. If your system is failing under pressure, I provide:
+          
+          - **Infrastructure Rescue**: Nginx, Linux kernel tuning, and VPS recovery.
+          - **Backend Debugging**: Java/Spring production profiling and API error tracing.
+          - **Cloud Automation**: Fixing broken Docker/CI/CD pipelines.
+          - **Enterprise Bridge**: SAP, WMS, and TMS integration troubleshooting.
+        skills:
+          enable: true
+          title: "Technical Arsenal"
+          items:
+            - "Linux / Nginx Tuning"
+            - "Java / Spring Boot"
+            - "Docker / Kubernetes"
+            - "Enterprise API Integration"
+            - "Performance Profiling"
+
+      projects:
+        enable: true
+        id: "projects"
+        title: "Case Studies"
+        items:
+          - title: "Restoring VPS Reachability"
+            content: "Fixed a critical 'Connection Refused' error by reconfiguring Nginx listeners and firewall chains."
+            image: "/images/projects/default.png"
+            featured:
+              name: "Case Detail"
+              link: "/blog/fix-vps-connection/"
+            badges: ["Nginx", "Linux", "Security"]
+          - title: "Enterprise API Integration"
+            content: "Resolved a multi-day SAP/WMS synchronization failure in a production warehouse environment."
+            image: "/images/projects/default.png"
+            featured:
+              name: "Hire Me"
+              link: "#contact"
+            badges: ["SAP", "API", "WMS"]
+
+      contact:
+        enable: true
+        id: "contact"
+        title: "Urgent Support"
+        content: "Email me with your system logs or error descriptions. I usually respond within 4 hours for production-stop issues."
+        btnName: "Send Ticket"
+        btnLink: "mailto:fichilzhang@gmail.com"
+
+  # ================= 中文版配置 =================
+  zh-cn:
+    languageName: "中文"
+    languageCode: "zh-CN"
+    weight: 2
+    title: "Fichil | 生产环境排障专家"
+    menus:
+      main:
+        - identifier: "about"
+          name: "服务方向"
+          url: "#about"
+          weight: 1
+        - identifier: "projects"
+          name: "排障案例"
+          url: "#projects"
+          weight: 2
+        - identifier: "blog"
+          name: "技术博客"
+          url: "/zh-cn/blog"
+          weight: 3
+        - identifier: "contact"
+          name: "立即联系"
+          url: "#contact"
+          weight: 4
+    params:
+      description: "专注于后端开发、Nginx 优化及企业系统集成排障。"
+      favicon: "/fav.png"
+      hero:
+        enable: true
+        intro: "生产环境告警？"
+        title: "我是 Fichil"
+        subtitle: "后端 / DevOps 排障工程师"
+        content: "我帮助企业解决最棘手的线上故障：从 Nginx 502 到 API 性能瓶颈，以及复杂的 SAP/WMS 系统对接异常。"
+        image: "/images/profile.png"
+        button:
+          enable: true
+          name: "寻求技术支持"
+          url: "#contact"
+
+      about:
+        enable: true
+        id: "about"
+        title: "核心价值"
+        content: |-
+          **拒绝理论，直击痛点。** 我处理的是直接影响业务收益的真实问题：
+          - **服务器急救**：Nginx 调优、Linux 系统崩溃恢复。
+          - **后端深度排障**：Java/Spring 线上内存泄漏、API 超时诊断。
+          - **交付链路修复**：Docker、CI/CD 自动化流水线修复。
+          - **企业集成**：SAP / WMS / TMS 等大型系统接口联调与异常处理。
+        skills:
+          enable: true
+          title: "技术栈"
+          items:
+            - "Java / Spring 开发"
+            - "Linux / Nginx 运维"
+            - "Docker / 容器化"
+            - "API 系统集成"
+            - "线上故障取证"
+
+      projects:
+        enable: true
+        id: "projects"
+        title: "排障实录"
+        items:
+          - title: "修复 VPS 无法访问故障"
+            content: "针对 ERR_CONNECTION_REFUSED，通过重构 Nginx 监听逻辑与防火墙链路实现快速恢复。"
+            image: "/images/projects/default.png"
+            featured:
+              name: "查看详情"
+              link: "/zh-cn/blog/fix-vps-connection/"
+            badges: ["Nginx", "VPS", "实战"]
+          - title: "企业级 ERP 接口联调"
+            content: "定位并修复了生产环境下 SAP 与 WMS 系统之间的数据同步阻塞问题。"
+            image: "/images/projects/default.png"
+            featured:
+              name: "预约服务"
+              link: "#contact"
+            badges: ["接口", "SAP", "WMS"]
+
+      contact:
+        enable: true
+        id: "contact"
+        title: "联系我"
+        content: "如果你的系统正处于宕机或异常状态，请将报错截图或日志发送至我的邮箱。"
+        btnName: "立即发邮件"
+        btnLink: "mailto:fichilzhang@gmail.com"
+
+# ================= 全局页脚配置 =================
+footer:
+  recentPosts:
+    path: "blog"
+    count: 3
+    title: "Recent Posts"
+    enable: true
+  socialNetworks:
+    github: "https://github.com/fichil"
+    email: "mailto:fichilzhang@gmail.com"

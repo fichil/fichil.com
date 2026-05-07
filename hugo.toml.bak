@@ -1,0 +1,26 @@
+[params]
+  title = "Fichil"
+  description = "Backend / DevOps Engineer"
+
+  [params.hero]
+    enable = true
+    intro = "Hi, my name is"
+    title = "Fichil"
+    subtitle = "I fix backend, server, and integration issues"
+    content = "I help companies solve real production problems: Nginx errors, API failures, deployment issues, and enterprise system integration."
+
+  [params.about]
+    enable = true
+    title = "What I do"
+    content = """
+- Nginx / server errors (502, timeout, connection refused)
+- Backend production debugging
+- Deployment failures (Docker / CI/CD)
+- ERP / SAP / WMS / TMS integration issues
+"""
+
+  [params.contact]
+    enable = true
+    title = "Contact"
+    content = "If you need help with backend or server issues, feel free to contact me."
+    email = "fichilzhang@gmail.com"

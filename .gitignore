@@ -1,0 +1,23 @@
+# Hugo generated files
+public/
+resources/_gen/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Env
+.env
+
+# Node
+node_modules/
+
+# Cache
+.hugo_build.lock
