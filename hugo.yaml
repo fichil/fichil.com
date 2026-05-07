@@ -26,7 +26,7 @@ params:
   animate: true
 
 languages:
-  # ================= 英文版配置 =================
+  # ================= English site config =================
   en:
     languageName: "English"
     languageCode: "en-us"
@@ -44,14 +44,14 @@ languages:
           weight: 2
         - identifier: "blog"
           name: "Blog"
-          url: "/blog"
+          url: "/blog/"
           weight: 3
         - identifier: "contact"
           name: "Contact"
           url: "#contact"
           weight: 4
     params:
-      description: "Backend engineer focused on Java, logistics systems, DevOps troubleshooting, open-source tools, and AI-assisted development."
+      description: "Backend and DevOps engineer focused on Java systems, logistics platforms, SAP/WMS/TMS integrations, open-source tools, and AI-assisted development."
       favicon: "/favicon.svg"
       navbar:
         align: "ms-auto"
@@ -64,8 +64,8 @@ languages:
         intro: "Build. Debug. Ship."
         title: "I'm Fichil."
         subtitle: "Backend / DevOps / Enterprise Integration Engineer"
-        content: "I document real engineering work across Java backend systems, logistics platforms, Nginx/Linux operations, SAP/WMS/TMS integrations, and AI-assisted development workflows."
-        image: "/images/profile.png"
+        content: "I turn production problems into reusable engineering notes: Java backend fixes, logistics workflow changes, Nginx/Linux recovery, SAP/WMS/TMS integrations, and AI-assisted development workflows."
+        image: "/images/profile.svg"
         button:
           enable: true
           name: "Read My Work"
@@ -76,13 +76,13 @@ languages:
         id: "about"
         title: "Engineering Focus"
         content: |-
-          This site is my long-term engineering notebook and public portfolio. I focus on practical systems that must keep running under real business pressure.
+          This site is my public engineering log and portfolio. The positioning is simple: solve real system problems, document the root cause, and turn repeatable work into tools.
 
-          - **Backend Engineering**: Java, Spring, API design, data validation, and production debugging.
-          - **Logistics Systems**: WMS, TMS, YMS, billing, carrier workflows, and SAP/ERP integration.
-          - **DevOps Operations**: Linux, Nginx, Docker, VPS deployment, HTTPS, and incident recovery.
-          - **Open Source**: Building Repo2AI to convert repositories into AI-ready context packs.
-          - **AI Workflow**: Using ChatGPT/Codex as an engineering multiplier, not as a replacement for ownership.
+          - **Backend Engineering**: Java, Spring, REST APIs, validation rules, SQL troubleshooting, and production defect analysis.
+          - **Logistics Platforms**: WMS, TMS, YMS, billing, carrier assignment, dispatch confirmation, proof of delivery, and SAP/ERP integration.
+          - **DevOps Operations**: Linux, Nginx, Docker, VPS deployment, HTTPS, GitHub Actions, and incident recovery.
+          - **Open Source**: Building Repo2AI to convert repositories into AI-ready context packs for ChatGPT, Claude, Cursor, and coding agents.
+          - **AI Workflow**: Using ChatGPT and Codex as execution accelerators while keeping architecture, testing, and delivery ownership with the engineer.
         skills:
           enable: true
           title: "Core Stack"
@@ -91,8 +91,8 @@ languages:
             - "MySQL / SQL troubleshooting"
             - "Linux / Nginx / HTTPS"
             - "Docker / GitHub Actions"
-            - "WMS / TMS / SAP integration"
-            - "AI-assisted development"
+            - "WMS / TMS / YMS / SAP integration"
+            - "Go / Repo2AI / AI-assisted development"
 
       projects:
         enable: true
@@ -100,36 +100,36 @@ languages:
         title: "Current Work"
         items:
           - title: "VPS and Nginx Recovery"
-            content: "Documented the path from ERR_CONNECTION_REFUSED to a working HTTPS Hugo deployment on fichil.com."
-            image: "/images/projects/default.png"
+            content: "A practical recovery case covering DNS, ports, Nginx, Hugo build output, HTTPS, and production verification for fichil.com."
+            image: "/images/projects/devops.svg"
             featured:
               name: "Read Case"
               link: "/blog/fix-vps-connection/"
             badges: ["Nginx", "Linux", "HTTPS"]
           - title: "Repo2AI"
             content: "An open-source CLI that converts repositories into structured AI-ready context packs for ChatGPT, Claude, Cursor, and coding agents."
-            image: "/images/projects/default.png"
+            image: "/images/projects/repo2ai.svg"
             featured:
               name: "GitHub"
               link: "https://github.com/fichil/Repo2AI"
             badges: ["Go", "AI Tools", "Open Source"]
           - title: "Enterprise Logistics Integrations"
-            content: "Engineering notes from WMS/TMS/YMS, carrier dispatch, billing, and SAP/ERP integration troubleshooting."
-            image: "/images/projects/default.png"
+            content: "Engineering notes from WMS/TMS/YMS, carrier dispatch, billing, route validation, fee confirmation, and SAP/ERP integration troubleshooting."
+            image: "/images/projects/logistics.svg"
             featured:
               name: "Contact"
               link: "#contact"
-            badges: ["Java", "SAP", "WMS"]
+            badges: ["Java", "SAP", "WMS/TMS"]
 
       contact:
         enable: true
         id: "contact"
         title: "Contact"
-        content: "For collaboration, technical discussions, or open-source feedback, send me a clear problem statement, logs, screenshots, or repository link."
+        content: "For collaboration, technical discussions, open-source feedback, or production troubleshooting, send a clear problem statement with logs, screenshots, data samples, or a repository link."
         btnName: "Send Email"
         btnLink: "mailto:fichilzhang@gmail.com"
 
-  # ================= 中文版配置 =================
+  # ================= Chinese site config =================
   zh-cn:
     languageName: "中文"
     languageCode: "zh-CN"
@@ -147,7 +147,7 @@ languages:
           weight: 2
         - identifier: "blog"
           name: "技术博客"
-          url: "/zh-cn/blog"
+          url: "/zh-cn/blog/"
           weight: 3
         - identifier: "contact"
           name: "立即联系"
@@ -161,8 +161,8 @@ languages:
         intro: "构建、排障、交付"
         title: "我是 Fichil"
         subtitle: "后端 / DevOps / 企业系统集成工程师"
-        content: "这里记录我在 Java 后端、物流业务系统、Linux/Nginx 运维、SAP/WMS/TMS 集成，以及 AI 辅助开发上的长期实践。"
-        image: "/images/profile.png"
+        content: "我把真实生产问题沉淀成可复用的工程记录：Java 后端修复、物流业务流程改造、Nginx/Linux 运维恢复、SAP/WMS/TMS 集成，以及 AI 辅助开发工作流。"
+        image: "/images/profile.svg"
         button:
           enable: true
           name: "阅读技术记录"
@@ -173,13 +173,13 @@ languages:
         id: "about"
         title: "工程方向"
         content: |-
-          这个网站不是简历模板，而是我的长期工程记录。重点放在能落地、能复盘、能持续交付的技术实践。
+          这个网站不是简历模板，而是我的公开工程日志和长期作品集。定位很明确：解决真实系统问题，复盘根因，把重复工作沉淀成工具。
 
-          - **后端开发**：Java、Spring、接口设计、业务校验、生产问题定位。
-          - **物流系统**：WMS、TMS、YMS、费用、承运商、调度、SAP/ERP 集成。
-          - **运维部署**：Linux、Nginx、Docker、VPS、HTTPS、GitHub Actions。
-          - **开源项目**：维护 Repo2AI，把代码仓库转换成适合 AI 阅读的上下文包。
-          - **AI 工作流**：用 ChatGPT/Codex 提升开发效率，但保留工程师对质量和交付的最终责任。
+          - **后端开发**：Java、Spring、REST API、业务校验、SQL 排障、生产缺陷定位。
+          - **物流系统**：WMS、TMS、YMS、费用、承运商分配、调度确认、回单、SAP/ERP 集成。
+          - **运维部署**：Linux、Nginx、Docker、VPS、HTTPS、GitHub Actions、故障恢复。
+          - **开源项目**：维护 Repo2AI，把代码仓库转换成适合 ChatGPT、Claude、Cursor 和 coding agent 阅读的上下文包。
+          - **AI 工作流**：用 ChatGPT/Codex 提升执行效率，但架构判断、测试验证和交付责任仍由工程师负责。
         skills:
           enable: true
           title: "核心技术栈"
@@ -188,8 +188,8 @@ languages:
             - "MySQL / SQL 排障"
             - "Linux / Nginx / HTTPS"
             - "Docker / GitHub Actions"
-            - "WMS / TMS / SAP 集成"
-            - "AI 辅助开发"
+            - "WMS / TMS / YMS / SAP 集成"
+            - "Go / Repo2AI / AI 辅助开发"
 
       projects:
         enable: true
@@ -197,36 +197,36 @@ languages:
         title: "当前重点"
         items:
           - title: "VPS 与 Nginx 恢复"
-            content: "记录 fichil.com 从 ERR_CONNECTION_REFUSED 到 Hugo + HTTPS 正常访问的排障过程。"
-            image: "/images/projects/default.png"
+            content: "记录 fichil.com 从 DNS、端口、Nginx、Hugo 构建目录、HTTPS 到线上验证的完整恢复路径。"
+            image: "/images/projects/devops.svg"
             featured:
               name: "查看案例"
               link: "/zh-cn/blog/fix-vps-connection/"
             badges: ["Nginx", "Linux", "HTTPS"]
           - title: "Repo2AI"
             content: "一个开源 CLI 工具，用于把代码仓库转换成适合 ChatGPT、Claude、Cursor 和 coding agent 阅读的上下文包。"
-            image: "/images/projects/default.png"
+            image: "/images/projects/repo2ai.svg"
             featured:
               name: "GitHub"
               link: "https://github.com/fichil/Repo2AI"
             badges: ["Go", "AI 工具", "开源"]
           - title: "企业物流系统集成"
-            content: "持续整理 WMS/TMS/YMS、承运商调度、费用、计费、SAP/ERP 接口联调相关工程记录。"
-            image: "/images/projects/default.png"
+            content: "持续整理 WMS/TMS/YMS、承运商调度、费用确认、路由校验、计费、SAP/ERP 接口联调相关工程记录。"
+            image: "/images/projects/logistics.svg"
             featured:
               name: "联系我"
               link: "#contact"
-            badges: ["Java", "SAP", "WMS"]
+            badges: ["Java", "SAP", "WMS/TMS"]
 
       contact:
         enable: true
         id: "contact"
         title: "联系我"
-        content: "如果你想交流技术问题、开源项目或工程协作，请把问题背景、日志、截图或仓库链接整理后发给我。"
+        content: "如果你想交流技术问题、开源项目、工程协作或生产问题排障，请把问题背景、日志、截图、数据样例或仓库链接整理后发给我。"
         btnName: "立即发邮件"
         btnLink: "mailto:fichilzhang@gmail.com"
 
-# ================= 全局页脚配置 =================
+# ================= Global footer config =================
 footer:
   recentPosts:
     path: "blog"
