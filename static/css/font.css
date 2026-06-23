@@ -1,0 +1,9 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif !important;
+}
+
+.secondary-font, #secondary-font,
+.primary-font, #primary-font,
+.default-font, #default-font {
+    font-family: inherit;
+}

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://fichil.com/sitemap.xml

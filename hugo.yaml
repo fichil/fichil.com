@@ -5,6 +5,7 @@ defaultContentLanguage: "en"
 defaultContentLanguageInSubdir: false
 enableRobotsTXT: true
 
+
 pagination:
   pagerSize: 6
 
@@ -21,9 +22,13 @@ taxonomies:
   category: "categories"
 
 params:
-  useBootstrapCDN: true
+  useBootstrapCDN: false
   mathjax: false
   animate: true
+  singlePages:
+    socialShare: false
+    tags:
+      openInNewTab: false
 
 languages:
   # ================= English site config =================
@@ -56,9 +61,14 @@ languages:
       favicon: "/favicon.svg"
       navbar:
         align: "ms-auto"
+        disableSearch: true
         stickyNavBar:
           enable: true
           showOnScrollUp: true
+        menus:
+          disableAbout: true
+          disableProjects: true
+          disableContact: true
 
       hero:
         enable: true
@@ -71,6 +81,9 @@ languages:
           enable: true
           name: "Read the Blog"
           url: "/blog/"
+          newPage: false
+        bottomImage:
+          enable: false
 
       about:
         enable: true
@@ -158,6 +171,16 @@ languages:
     params:
       description: "记录 Java 后端、物流系统、DevOps 运维、开源工具和 AI 辅助开发实践。"
       favicon: "/favicon.svg"
+      navbar:
+        align: "ms-auto"
+        disableSearch: true
+        stickyNavBar:
+          enable: true
+          showOnScrollUp: true
+        menus:
+          disableAbout: true
+          disableProjects: true
+          disableContact: true
       hero:
         enable: true
         intro: "构建、排障、交付"
@@ -169,6 +192,9 @@ languages:
           enable: true
           name: "阅读技术记录"
           url: "/zh-cn/blog/"
+          newPage: false
+        bottomImage:
+          enable: false
 
       about:
         enable: true

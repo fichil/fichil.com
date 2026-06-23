@@ -1,0 +1,26 @@
+{{ $posts := first 6 (where .Site.RegularPages "Section" "blog") }}
+{{ if $posts }}
+{{ $isZh := eq .Site.Language.Lang "zh-cn" }}
+<section id="latest-posts" class="py-5">
+    <div class="container px-3 px-sm-5 px-md-5 px-lg-5">
+        <h3 class="text-center">{{ if $isZh }}最新技术记录{{ else }}Latest Engineering Notes{{ end }}</h3>
+        <p class="section-note text-center mb-4">{{ if $isZh }}最近整理的真实排障、后端、运维和 AI 辅助开发记录。{{ else }}Recent field notes from debugging, backend work, DevOps, and AI-assisted development.{{ end }}</p>
+        <div class="row justify-content-center">
+            {{ range $posts }}
+            <div class="col-lg-4 col-md-6 my-3">
+                <article class="card h-100 p-4">
+                    <div class="post-meta mb-2">{{ .Date.Format "2006-01-02" }}</div>
+                    <h5 class="card-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h5>
+                    <p class="card-text secondary-font">{{ .Summary | plainify | truncate 150 }}</p>
+                    {{ with .Params.tags }}
+                    <div class="mt-auto pt-2">
+                        {{ range first 3 . }}<span class="tag-chip">{{ . }}</span>{{ end }}
+                    </div>
+                    {{ end }}
+                </article>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+</section>
+{{ end }}

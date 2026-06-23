@@ -34,4 +34,4 @@ hugo --minify
 - Prefer Markdown content changes over theme-level changes.
 - Before changing navigation or multilingual paths, check `hugo.yaml`.
 - Chinese content should usually go under `content/zh-cn/`.
-- English content should usually go under `content/`.
+- English content should usually go under `content/en/`.

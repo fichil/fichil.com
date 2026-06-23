@@ -1,0 +1,31 @@
+{{ if .Site.Params.hero.enable | default false }}
+{{- $hero := .Site.Language.Params.hero | default .Site.Params.hero -}}
+{{- $button := $hero.button | default .Site.Params.hero.button -}}
+<section id="hero" class="py-5 align-middle">
+    <div class="container px-3 px-sm-5 px-md-5 px-lg-5 pt-lg-3">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-8 content {{ if .Site.Params.animate }}animate{{ end }}" id="primary-font">
+                <span class="subtitle">{{ $hero.intro }}</span>
+                <h1>{{ $hero.title }}</h1>
+                <h2>{{ $hero.subtitle }}</h2>
+                <p class="hero-content">{{ $hero.content | markdownify }}</p>
+                {{ if $button.enable }}
+                <div class="row">
+                    <div class="col-auto h-100">
+                        <a href="{{ $button.url }}" class="btn" {{ if $button.download }}download{{ end }} {{ if $button.newPage | default false }}target="_blank" rel="noopener"{{ end }}>{{ $button.name }}</a>
+                    </div>
+                    <div class="col-auto px-0 h-100">{{- partial "sections/hero/social.html" . -}}</div>
+                </div>
+                {{ end }}
+            </div>
+            <div class="col-sm-12 col-md-12 col-lg-4">
+                <div class="row justify-content-center">
+                    <div class="col-sm-12 col-md-9 pt-5 image {{ if .Site.Params.animate }}animate{{ end }} px-5 px-md-5 px-lg-0 text-center">
+                        <img src="{{ $hero.image }}" class="img-thumbnail mx-auto{{ if $hero.roundImage }} rounded-circle{{ end }}" alt="{{ .Site.Title }} profile image">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{{ end }}

@@ -1,0 +1,103 @@
+{{ $navbar := .Site.Language.Params.navbar | default .Site.Params.navbar }}
+<script>
+    let localStorageValue = localStorage.getItem("pref-theme");
+    let mediaQuery = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    switch (localStorageValue) {
+        case "dark":
+            document.documentElement.classList.add('dark');
+            document.body.classList.add('dark');
+            break;
+        case "light":
+            document.body.classList.remove('dark');
+            document.documentElement.classList.remove('dark');
+            break;
+        default:
+            if (mediaQuery) {
+                document.documentElement.classList.add('dark');
+                document.body.classList.add('dark');
+            }
+            break;
+    }
+</script>
+
+{{ if $navbar.stickyNavBar.enable | default false }}
+{{ $showNavBarOnScrollUp := $navbar.stickyNavBar.showOnScrollUp | default false }}
+<script>
+    var prevScrollPos = window.pageYOffset;
+    window.addEventListener("scroll", function showHeaderOnScroll() {
+        let profileHeaderElem = document.getElementById("profileHeader");
+        let currentScrollPos = window.pageYOffset;
+        let resetHeaderStyle = false;
+        let showNavBarOnScrollUp = {{ $showNavBarOnScrollUp }};
+        let showNavBar = showNavBarOnScrollUp ? prevScrollPos > currentScrollPos : currentScrollPos > 0;
+        if (showNavBar) {
+            profileHeaderElem.classList.add("showHeaderOnTop");
+        } else {
+            resetHeaderStyle = true;
+        }
+        if (currentScrollPos === 0) {
+            resetHeaderStyle = true;
+        }
+        if (resetHeaderStyle) {
+            profileHeaderElem.classList.remove("showHeaderOnTop");
+        }
+        prevScrollPos = currentScrollPos;
+    });
+</script>
+{{ end }}
+
+<header id="profileHeader">
+    <nav class="pt-3 navbar navbar-expand-lg {{ if .Site.Params.animate }}animate{{ end }}">
+        <div class="container-fluid mx-xs-2 mx-sm-5 mx-md-5 mx-lg-5">
+            <a class="navbar-brand primary-font text-wrap" href="{{ .Site.Home.RelPermalink }}" aria-label="{{ .Site.Title }}">
+                {{ if and (or (.Site.Params.favicon) ($navbar.brandLogo)) ($navbar.showBrandLogo | default true) }}
+                <img src="{{ $navbar.brandLogo | default .Site.Params.favicon }}" width="30" height="30" class="d-inline-block align-top" alt="">
+                {{ $navbar.brandName | default .Site.Title }}
+                {{ else }}
+                {{ $navbar.brandName | default .Site.Title }}
+                {{ end }}
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <svg aria-hidden="true" height="24" viewBox="0 0 16 16" width="24"><path fill-rule="evenodd" d="M1 2.75A.75.75 0 011.75 2h12.5a.75.75 0 110 1.5H1.75A.75.75 0 011 2.75zm0 5A.75.75 0 011.75 7h12.5a.75.75 0 110 1.5H1.75A.75.75 0 011 7.75zM1.75 12a.75.75 0 100 1.5h12.5a.75.75 0 100-1.5H1.75z"></path></svg>
+            </button>
+
+            <div class="collapse navbar-collapse text-wrap primary-font" id="navbarContent">
+                <ul class="navbar-nav {{ $navbar.align | default "ms-auto" }} text-center">
+                    {{ range .Site.Menus.main }}
+                    {{ if .HasChildren }}
+                    <li class="nav-item navbar-text dropdown">
+                        <a class="nav-link dropdown-toggle" href="{{ .URL }}" id="navbarDropdown-{{ .Identifier | default .Name | urlize }}" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{ .Title }}">
+                            {{ .Name }}
+                        </a>
+                        <div class="dropdown-menu shadow-lg rounded" aria-labelledby="navbarDropdown-{{ .Identifier | default .Name | urlize }}">
+                            {{ range .Children }}
+                            <a class="dropdown-item text-center nav-link" href="{{ .URL }}" title="{{ .Title }}">{{ .Name }}</a>
+                            {{ end }}
+                        </div>
+                    </li>
+                    {{ else }}
+                    {{ $isExternal := or (hasPrefix .URL "http://") (hasPrefix .URL "https://") }}
+                    <li class="nav-item navbar-text">
+                        <a class="nav-link" href="{{ .URL }}" title="{{ .Title }}" {{ if $isExternal }}target="_blank" rel="noopener"{{ end }}>{{ .Pre }}{{ .Name }}</a>
+                    </li>
+                    {{ end }}
+                    {{ end }}
+
+                    {{- partial "sections/language-switcher.html" . -}}
+
+                    {{ if (not .Site.Params.theme.disableThemeToggle | default false) }}
+                    <li class="nav-item navbar-text">
+                        <div class="text-center">
+                            <button id="theme-toggle" type="button" aria-label="Toggle dark mode">
+                                <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                                <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                            </button>
+                        </div>
+                    </li>
+                    {{ end }}
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
