@@ -58,7 +58,7 @@ languages:
           weight: 4
     params:
       description: "Backend and DevOps engineer focused on Java systems, logistics platforms, SAP/WMS/TMS integrations, open-source tools, and AI-assisted development."
-      favicon: "/favicon.svg"
+      favicon: "/favicon.png"
       navbar:
         align: "ms-auto"
         disableSearch: true
@@ -170,7 +170,7 @@ languages:
           weight: 4
     params:
       description: "记录 Java 后端、物流系统、DevOps 运维、开源工具和 AI 辅助开发实践。"
-      favicon: "/favicon.svg"
+      favicon: "/favicon.png"
       navbar:
         align: "ms-auto"
         disableSearch: true
