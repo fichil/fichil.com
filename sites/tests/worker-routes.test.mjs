@@ -86,4 +86,11 @@ test("preserves only intended compatibility redirects", async () => {
 
   const removed = await fetchPath("/es/blogs/emoji-support/");
   assert.equal(removed.status, 404);
+
+  const removedBlogs = await fetchPath("/blogs/");
+  assert.equal(removedBlogs.status, 404);
+
+  const normalizedBlogs = await fetchPath("/blogs");
+  assert.equal(normalizedBlogs.status, 308);
+  assert.equal(new URL(normalizedBlogs.headers.get("location"), "https://fichil.com").pathname, "/blogs/");
 });
