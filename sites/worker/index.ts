@@ -67,7 +67,7 @@ const worker = {
     const headers = new Headers(request.headers);
     headers.set("x-fichil-locale", url.pathname === "/zh-cn" || url.pathname.startsWith("/zh-cn/") ? "zh-cn" : "en");
     const appUrl = new URL(url);
-    if (/\.(?:xml|txt)$/.test(appUrl.pathname)) appUrl.pathname += "/";
+    if (/\.(?:json|xml|txt)$/.test(appUrl.pathname)) appUrl.pathname += "/";
     return handler.fetch(new Request(new Request(appUrl, request), { headers }), env, ctx);
   },
 };

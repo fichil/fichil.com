@@ -1,8 +1,14 @@
-name: Hugo Build Check
+name: Site Build Check
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -43,6 +49,10 @@ jobs:
         working-directory: sites
         run: npm ci
 
-      - name: Build and test Sites migration
+      - name: Lint Sites application
+        working-directory: sites
+        run: npm run lint
+
+      - name: Build and test Sites application
         working-directory: sites
         run: npm test

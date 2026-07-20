@@ -67,6 +67,17 @@ test("serves RSS, robots, and clean sitemap output", async () => {
   assert.match(await robots.text(), /Sitemap: https:\/\/fichil\.com\/sitemap\.xml/);
 });
 
+test("exposes the deployed source version without caching", async () => {
+  const response = await fetchPath("/version.json");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /application\/json/);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  const version = await response.json();
+  assert.match(version.commit, /^[0-9a-f]{40}$/);
+  assert.equal(version.commit, payload.build.commit);
+  assert.equal(new Date(version.builtAt).toISOString(), version.builtAt);
+});
+
 test("preserves only intended compatibility redirects", async () => {
   const cases = [
     ["/en/blog/", "/blog/"],

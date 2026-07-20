@@ -2,418 +2,128 @@
 
 [English](#english) | [中文](#中文)
 
----
-
 ## English
 
-Source code for my personal technical blog: https://fichil.com
+Source code for [fichil.com](https://fichil.com), a bilingual engineering blog
+and portfolio covering backend systems, DevOps, logistics integrations,
+open-source tools, and AI-assisted development.
 
-This site is built with Hugo and used to publish technical notes, troubleshooting records, open-source project updates, and AI-assisted development experiments.
+### Architecture
 
-### Tech Stack
+- `content/en/` and `content/zh-cn/` are the only article sources.
+- `hugo.yaml` contains shared navigation and homepage copy.
+- Hugo provides local content preview, compatibility validation, and the
+  emergency VPS rollback build.
+- `sites/` is the production vinext/React application hosted by ChatGPT Sites.
+- GitHub `main` is the only production source branch.
 
-- Hugo
-- Markdown
-- Nginx
-- GitHub
-- GitHub Actions
-- hugo-profile theme
+The theme under `themes/hugo-profile` remains a Git submodule. Do not commit
+generated `public/` files or edit generated `sites/generated/` content.
 
-### Repository Structure
+### Local development
 
-```text
-content/en/       English pages and posts
-content/zh-cn/    Chinese pages and posts
-static/           Static files such as images and favicon
-assets/           Theme assets and custom frontend assets
-themes/           Hugo themes managed by Git submodules
-hugo.yaml         Hugo site configuration
-AGENTS.md         AI maintenance rules
-.github/          GitHub Actions workflows
-```
-
-### Local Development
-
-Clone this repository with submodules:
+Clone with submodules, then run either surface:
 
 ```bash
 git clone --recurse-submodules https://github.com/fichil/fichil.com.git
 cd fichil.com
-```
-
-If the repository was cloned without submodules:
-
-```bash
-git submodule update --init --recursive
-```
-
-Start the local Hugo server:
-
-```bash
 hugo server
 ```
 
-Build the site:
+```bash
+cd sites
+npm ci
+npm run dev
+```
+
+Run all release checks:
 
 ```bash
 hugo --minify
+cd sites
+npm run lint
+npm test
 ```
 
-The build output is generated into:
+### Maintenance workflow
 
-```text
-public/
-```
+1. Create a GitHub Issue with scope and acceptance criteria.
+2. Make focused changes on the `chatgpt` branch.
+3. Open a pull request into `main` and wait for owner review.
+4. GitHub Actions validates both Hugo and Sites without deployment credentials.
+5. After merge, a Codex task checks `main` at 10:00 Asia/Shanghai on weekdays
+   and publishes a new validated commit to Sites.
 
-Do not commit the `public/` directory.
+The production commit is exposed at `/version.json`. The scheduled publisher
+uses it to skip unchanged releases and rolls back to the previously known-good
+Sites version if post-deploy smoke checks fail. Sites credentials are always
+short-lived and must never be committed or persisted in Git configuration.
 
-### Theme
-
-This site currently uses:
-
-```yaml
-theme: "hugo-profile"
-```
-
-The theme is managed as a Git submodule:
-
-```text
-themes/hugo-profile
-```
-
-When changing the theme, make sure both `hugo.yaml` and `.gitmodules` stay consistent.
-
-### Content Rules
-
-English content should be placed under:
-
-```text
-content/en/
-```
-
-Chinese content should be placed under:
-
-```text
-content/zh-cn/
-```
-
-The old `content/blog/` directory is no longer used.
-
-English blog URL:
-
-```text
-/blog/
-```
-
-Chinese blog URL:
-
-```text
-/zh-cn/blog/
-```
-
-Use Markdown for posts and pages.
-
-Recommended article types:
-
-- Technical troubleshooting notes
-- Backend development records
-- DevOps and deployment cases
-- Open-source project updates
-- AI-assisted development experiments
-
-### Deployment
-
-Merging into `main` triggers GitHub Actions deployment automatically.
-
-Production site:
-
-```text
-https://fichil.com
-```
-
-Do not commit generated files from `public/`.
-
-### GitHub Actions
-
-This repository includes a Hugo build and deployment workflow.
-
-The workflow runs on changes to `main` and checks whether the site can be built successfully with:
-
-```bash
-hugo --minify
-```
-
-This helps prevent broken configuration, missing themes, or invalid content from being deployed.
-
-### AI Maintenance Workflow
-
-This repository is intended to be maintained with AI-assisted development tools such as ChatGPT Codex.
-
-AI-assisted changes should follow this workflow:
-
-1. Create a GitHub Issue first.
-2. Modify files on the `chatgpt` branch.
-3. Create a Pull Request to `main`.
-4. Wait for manual review.
-5. After merge, GitHub Actions deploys the site automatically.
-
-Before changing this repository:
-
-- Do not commit secrets
-- Do not commit generated `public/` files
-- Do not modify theme submodules unless required
-- Keep commits small and focused
-- Prefer content and configuration changes over deep theme changes
-- Check `hugo.yaml` before changing navigation, multilingual paths, or homepage sections
-- Run `hugo server` for local preview when possible
-- Run `hugo --minify` before deployment when possible
-
-For detailed AI maintenance rules, see:
-
-```text
-AGENTS.md
-```
-
-### Basic Git Workflow
-
-Check current changes:
-
-```bash
-git status
-```
-
-Stage files:
-
-```bash
-git add README.md
-```
-
-Commit changes:
-
-```bash
-git commit -m "Update bilingual README"
-```
-
-Push to GitHub:
-
-```bash
-git push origin chatgpt
-```
+The VPS workflow is manual-only and reserved for explicitly confirmed emergency
+rollback. See [deployment.md](deployment.md) for the complete runbook.
 
 ### License
 
-This repository is open source under the MIT License.
-
-Source code, configuration files, and site structure are licensed under the MIT License.
-
-The Hugo theme is included as a Git submodule and is licensed by its original author. Please refer to the theme repository for its license.
-
-Unless otherwise stated, blog posts and original content in this repository are also released under the MIT License.
-
----
+This repository is available under the MIT License. The Hugo theme retains its
+upstream license.
 
 ## 中文
 
-这是我的个人技术博客源码仓库：https://fichil.com
+这是 [fichil.com](https://fichil.com) 的开源代码仓库。网站用于发布后端开发、
+DevOps、物流系统集成、开源工具和 AI 辅助开发相关的中英文工程记录。
 
-网站使用 Hugo 构建，主要用于记录技术排查、项目修改、开源项目更新，以及 AI 辅助开发过程。
+### 架构
 
-### 技术栈
+- `content/en/` 与 `content/zh-cn/` 是唯一文章来源。
+- `hugo.yaml` 保存公共导航和首页内容。
+- Hugo 用于本地内容预览、兼容性验证和紧急 VPS 回退构建。
+- `sites/` 是部署到 ChatGPT Sites 的正式 vinext/React 应用。
+- GitHub `main` 是唯一生产源码分支。
 
-- Hugo
-- Markdown
-- Nginx
-- GitHub
-- GitHub Actions
-- hugo-profile 主题
-
-### 仓库结构
-
-```text
-content/en/       英文页面和文章
-content/zh-cn/    中文页面和文章
-static/           图片、favicon 等静态资源
-assets/           主题资源和自定义前端资源
-themes/           Hugo 主题，使用 Git submodule 管理
-hugo.yaml         Hugo 网站配置
-AGENTS.md         AI 维护规则
-.github/          GitHub Actions 工作流
-```
+`themes/hugo-profile` 继续作为 Git submodule 管理。不要提交生成的 `public/`
+文件，也不要手工编辑 `sites/generated/`。
 
 ### 本地开发
 
-拉取仓库和子模块：
+拉取仓库与子模块后，可以分别启动 Hugo 或 Sites：
 
 ```bash
 git clone --recurse-submodules https://github.com/fichil/fichil.com.git
 cd fichil.com
-```
-
-如果拉取时没有包含子模块，执行：
-
-```bash
-git submodule update --init --recursive
-```
-
-启动本地 Hugo 服务：
-
-```bash
 hugo server
 ```
 
-构建网站：
+```bash
+cd sites
+npm ci
+npm run dev
+```
+
+执行完整发布检查：
 
 ```bash
 hugo --minify
+cd sites
+npm run lint
+npm test
 ```
 
-构建结果会生成到：
+### 维护流程
 
-```text
-public/
-```
+1. 创建 GitHub Issue，写明范围和验收标准。
+2. 在 `chatgpt` 分支完成小范围修改。
+3. 创建到 `main` 的 Pull Request，等待 owner 审核。
+4. GitHub Actions 在不持有部署凭据的情况下验证 Hugo 与 Sites。
+5. 合并后，Codex 每个工作日北京时间 10:00 检查 `main`，并把通过验证的
+   新提交发布到 Sites。
 
-不要提交 `public/` 目录。
+线上提交可通过 `/version.json` 查询。定时发布任务用它跳过相同版本；发布后
+冒烟检查失败时，会回退到上一个已知正常的 Sites 版本。Sites 凭据必须保持
+短期有效，禁止提交到仓库或保存到 Git 配置。
 
-### 主题
-
-当前网站使用：
-
-```yaml
-theme: "hugo-profile"
-```
-
-主题通过 Git submodule 管理：
-
-```text
-themes/hugo-profile
-```
-
-如果后续更换主题，需要同时检查 `hugo.yaml` 和 `.gitmodules` 是否一致。
-
-### 内容规则
-
-英文内容放在：
-
-```text
-content/en/
-```
-
-中文内容放在：
-
-```text
-content/zh-cn/
-```
-
-旧目录 `content/blog/` 不再使用。
-
-英文博客路径：
-
-```text
-/blog/
-```
-
-中文博客路径：
-
-```text
-/zh-cn/blog/
-```
-
-文章和页面使用 Markdown 编写。
-
-推荐记录的内容：
-
-- 技术问题排查
-- 后端开发记录
-- DevOps 和部署问题
-- 开源项目更新
-- AI 辅助开发实验
-
-### 部署方式
-
-合并到 `main` 后会由 GitHub Actions 自动部署。
-
-线上网站：
-
-```text
-https://fichil.com
-```
-
-不要提交 `public/` 目录里的构建产物。
-
-### GitHub Actions
-
-本仓库包含 Hugo 构建和部署工作流。
-
-工作流会在 `main` 变更后运行，并检查网站是否可以正常构建：
-
-```bash
-hugo --minify
-```
-
-这样可以减少配置错误、主题缺失、内容格式错误导致的线上问题。
-
-### AI 维护流程
-
-本仓库计划使用 ChatGPT Codex 等 AI 开发工具辅助维护。
-
-AI 修改本仓库时，需要按下面流程执行：
-
-1. 先创建 GitHub Issue。
-2. 在 `chatgpt` 分支修改文件。
-3. 创建 Pull Request 到 `main`。
-4. 等待人工审核。
-5. 合并到 `main` 后，由 GitHub Actions 自动部署网站。
-
-修改前需要遵守：
-
-- 不提交敏感信息
-- 不提交生成的 `public/` 文件
-- 非必要不修改主题 submodule
-- 每次提交保持小范围修改
-- 优先修改内容和配置，不直接改主题源码
-- 修改导航、多语言路径、首页区块前先检查 `hugo.yaml`
-- 条件允许时先运行 `hugo server` 本地预览
-- 条件允许时先运行 `hugo --minify` 检查构建
-
-详细 AI 维护规则见：
-
-```text
-AGENTS.md
-```
-
-### 基础 Git 流程
-
-查看当前修改：
-
-```bash
-git status
-```
-
-暂存文件：
-
-```bash
-git add README.md
-```
-
-提交修改：
-
-```bash
-git commit -m "Update bilingual README"
-```
-
-推送到 GitHub：
-
-```bash
-git push origin chatgpt
-```
+VPS workflow 只能手动触发，仅用于明确确认后的紧急回退。完整操作说明见
+[deployment.md](deployment.md)。
 
 ### 许可证
 
-本仓库使用 MIT License 开源。
-
-源码、配置文件和网站结构使用 MIT License。
-
-Hugo 主题通过 Git submodule 引入，主题本身遵循原作者的许可证。
-
-除非特别说明，本仓库中的博客文章和原创内容也按 MIT License 发布。
+本仓库使用 MIT License；Hugo 主题继续遵循其上游许可证。

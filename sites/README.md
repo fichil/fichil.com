@@ -1,8 +1,8 @@
 # fichil.com Sites application
 
-This directory contains the Sites-hosted vinext application for fichil.com.
-The Hugo repository remains the canonical source of content and the rollback
-deployment until the custom-domain cutover is accepted.
+This directory contains the production vinext application hosted by ChatGPT
+Sites. The root Hugo content and configuration remain canonical; Hugo also
+provides a compatibility build and an emergency VPS rollback artifact.
 
 ## Content source
 
@@ -23,7 +23,8 @@ npm run lint
 ```
 
 `npm test` creates the deployment build and checks every canonical article,
-tag, category, feed, sitemap, redirect, and removed legacy route.
+tag, category, feed, sitemap, redirect, removed legacy route, and the public
+`/version.json` release marker.
 
 ## Publishing policy
 
@@ -32,7 +33,11 @@ be built from a committed GitHub SHA, pushed unchanged to the Sites source
 repository, packaged, saved, and deployed through Sites. Never persist a Sites
 write token in a remote URL, Git configuration, file, or log.
 
-The apex and `www` custom domains must not be attached or made public until the
-owner accepts the private Sites deployment. Keep the VPS deployment available
-for at least seven days after cutover. The verified rollback target at the time
-of migration was `104.244.94.201`; re-check DNS before any rollback.
+GitHub Actions validates pull requests and pushes to `main`, but holds no Sites
+credential. A project-scoped Codex task checks `main` every weekday at 10:00
+Asia/Shanghai and publishes only a successfully validated new commit. A failed
+post-deploy smoke check must restore the previously known-good Sites version.
+
+The VPS workflow remains manual-only as an emergency rollback path. Re-check
+the current infrastructure state before using it; normal releases must not
+change custom-domain DNS or Sites access policy.

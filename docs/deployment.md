@@ -15,9 +15,10 @@ Current project rule:
 1. Make changes on the `chatgpt` branch.
 2. Open a pull request into `main`.
 3. Wait for manual review and merge.
-4. Let GitHub Actions deploy the website after `main` is updated.
+4. Let GitHub Actions validate the updated `main` commit.
+5. Let the weekday 10:00 Asia/Shanghai Codex task publish the validated commit to ChatGPT Sites.
 
-Manual `scp`, manual `rsync`, or direct server-side deployment should not be used for normal website updates.
+Manual `scp`, manual `rsync`, or direct server-side deployment should not be used for normal website updates. The VPS workflow is an explicitly confirmed emergency rollback path only.
 
 Use the root-level `deployment.md` as the source of truth.
 
@@ -40,8 +41,9 @@ Use the root-level `deployment.md` as the source of truth.
 1. 在 `chatgpt` 分支修改。
 2. 创建 Pull Request 到 `main`。
 3. 等待手动审核并合并。
-4. `main` 更新后由 GitHub Actions 自动部署网站。
+4. `main` 更新后由 GitHub Actions 验证对应提交。
+5. 每个工作日北京时间 10:00 由 Codex 定时任务把通过验证的提交发布到 ChatGPT Sites。
 
-普通网站更新不应再使用手动 `scp`、手动 `rsync` 或直接服务器部署。
+普通网站更新不应再使用手动 `scp`、手动 `rsync` 或直接服务器部署。VPS workflow 仅作为明确确认后的紧急回退入口。
 
 以根目录 `deployment.md` 作为唯一可信部署说明。
