@@ -12,8 +12,7 @@ open-source tools, and AI-assisted development.
 
 - `content/en/` and `content/zh-cn/` are the only article sources.
 - `hugo.yaml` contains shared navigation and homepage copy.
-- Hugo provides local content preview, compatibility validation, and the
-  emergency VPS rollback build.
+- Hugo provides local content preview and compatibility validation.
 - `sites/` is the production vinext/React application hosted by ChatGPT Sites.
 - GitHub `main` is the only production source branch.
 
@@ -59,8 +58,7 @@ uses it to skip unchanged releases and rolls back to the previously known-good
 Sites version if post-deploy smoke checks fail. Sites credentials are always
 short-lived and must never be committed or persisted in Git configuration.
 
-The VPS workflow is manual-only and reserved for explicitly confirmed emergency
-rollback. See [deployment.md](deployment.md) for the complete runbook.
+See [deployment.md](deployment.md) for the complete release and rollback runbook.
 
 ### License
 
@@ -76,7 +74,7 @@ DevOps、物流系统集成、开源工具和 AI 辅助开发相关的中英文�
 
 - `content/en/` 与 `content/zh-cn/` 是唯一文章来源。
 - `hugo.yaml` 保存公共导航和首页内容。
-- Hugo 用于本地内容预览、兼容性验证和紧急 VPS 回退构建。
+- Hugo 用于本地内容预览和兼容性验证。
 - `sites/` 是部署到 ChatGPT Sites 的正式 vinext/React 应用。
 - GitHub `main` 是唯一生产源码分支。
 
@@ -121,8 +119,7 @@ npm test
 冒烟检查失败时，会回退到上一个已知正常的 Sites 版本。Sites 凭据必须保持
 短期有效，禁止提交到仓库或保存到 Git 配置。
 
-VPS workflow 只能手动触发，仅用于明确确认后的紧急回退。完整操作说明见
-[deployment.md](deployment.md)。
+完整发布与 Sites 版本回退说明见 [deployment.md](deployment.md)。
 
 ### 许可证
 

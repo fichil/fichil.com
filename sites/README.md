@@ -2,7 +2,7 @@
 
 This directory contains the production vinext application hosted by ChatGPT
 Sites. The root Hugo content and configuration remain canonical; Hugo also
-provides a compatibility build and an emergency VPS rollback artifact.
+provides local preview and compatibility validation.
 
 ## Content source
 
@@ -38,6 +38,6 @@ credential. A project-scoped Codex task checks `main` every weekday at 10:00
 Asia/Shanghai and publishes only a successfully validated new commit. A failed
 post-deploy smoke check must restore the previously known-good Sites version.
 
-The VPS workflow remains manual-only as an emergency rollback path. Re-check
-the current infrastructure state before using it; normal releases must not
+Production rollback uses a previously known-good Sites version. The repository
+contains no VPS deployment workflow; normal releases and rollbacks must not
 change custom-domain DNS or Sites access policy.

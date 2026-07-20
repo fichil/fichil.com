@@ -6,7 +6,7 @@
 - Source repository / 源码仓库: `https://github.com/fichil/fichil.com`
 - Production source / 生产源码: GitHub `main`
 - Production runtime / 正式运行环境: ChatGPT Sites (`sites/`)
-- Content compatibility and rollback build / 内容兼容与回退构建: Hugo
+- Content preview and compatibility validation / 内容预览与兼容性验证: Hugo
 
 GitHub remains the source of truth. Sites versions must be built from, pushed
 from, and saved against the same full Git commit SHA. GitHub Actions contains
@@ -76,17 +76,6 @@ Never deploy a dirty worktree or a commit that differs from the packaged build.
 只有在定时任务无法运行、并且准确的 `main` SHA 已通过检查时才进行人工发布。
 人工发布必须遵守相同的构建、临时凭据、源码推送、打包、保存、上线、轮询和冒烟
 检查顺序；禁止发布脏工作区或与构建产物不一致的提交。
-
-## Emergency VPS rollback / VPS 紧急回退
-
-`.github/workflows/deploy.yml` is manual-only. It requires typing
-`DEPLOY-VPS` and must be used only after an explicitly confirmed emergency
-rollback decision. Normal incidents should first redeploy a known-good Sites
-version. Do not change DNS or Sites access policy as part of a normal release.
-
-`.github/workflows/deploy.yml` 只能手动运行，并要求输入 `DEPLOY-VPS`。它仅用于
-明确确认后的紧急 VPS 回退；普通故障应优先重新部署已知正常的 Sites 版本。正常
-发布不得修改 DNS 或 Sites 访问权限。
 
 ## Release checklist / 发布检查清单
 

@@ -62,4 +62,3 @@ npm test
 - The scheduled publisher may deploy only after `Site Build Check` succeeds for the exact `main` SHA.
 - After deployment, verify `/version.json` and the canonical English and Chinese routes. Roll back to the previously known-good Sites version if production smoke checks fail.
 - Do not change Sites access, custom-domain DNS, or theme submodules unless explicitly requested.
-- Keep the VPS workflow manual-only and use it solely as an explicitly confirmed emergency rollback path.
