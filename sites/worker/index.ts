@@ -17,7 +17,7 @@ interface EdgeCache {
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
   HTML_CACHE?: EdgeCache;
-  IMAGES: {
+  IMAGES?: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
         output(options: { format: string; quality: number }): Promise<{ response(): Response }>;
@@ -46,11 +46,7 @@ function withCacheStatus(response: Response, status: "HIT" | "MISS" | "BYPASS"):
 }
 
 function getEdgeCache(env: Env): EdgeCache | undefined {
-  if (env.HTML_CACHE) return env.HTML_CACHE;
-  const runtimeCaches = (globalThis as typeof globalThis & {
-    caches?: CacheStorage & { default?: EdgeCache };
-  }).caches;
-  return runtimeCaches?.default;
+  return env.HTML_CACHE;
 }
 
 function isHtmlRequest(request: Request): boolean {
@@ -149,6 +145,17 @@ const worker = {
     }
 
     if (url.pathname === "/_vinext/image") {
+      if (!env.IMAGES) {
+        const source = url.searchParams.get("url");
+        if (!source || !source.startsWith("/") || source.startsWith("//")) {
+          return new Response("Invalid image source", { status: 400 });
+        }
+        const sourceUrl = new URL(source, request.url);
+        if (!isStaticAssetPath(sourceUrl.pathname)) {
+          return new Response("Image source is not a public site asset", { status: 400 });
+        }
+        return serveStaticAsset(request, env, sourceUrl);
+      }
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
       return handleImageOptimization(request, {
         fetchAsset: (path) => env.ASSETS.fetch(new Request(new URL(path, request.url))),

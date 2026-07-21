@@ -215,6 +215,14 @@ test("serves static assets with explicit browser caching", async () => {
   assert.match(author.headers.get("content-type") ?? "", /image\/png/);
   assert.equal(author.headers.get("cache-control"), "public, max-age=86400");
 
+  const imageFallback = await fetchPath("/_vinext/image?url=%2Fauthor-fichil.png&w=640&q=75");
+  assert.equal(imageFallback.status, 200);
+  assert.match(imageFallback.headers.get("content-type") ?? "", /image\/png/);
+  assert.equal(imageFallback.headers.get("cache-control"), "public, max-age=86400");
+
+  const rejectedImageSource = await fetchPath("/_vinext/image?url=%2Fblog%2F&w=640&q=75");
+  assert.equal(rejectedImageSource.status, 400);
+
   const missing = await fetchPath("/assets/missing.js");
   assert.equal(missing.status, 404);
   assert.notEqual(missing.headers.get("cache-control"), "public, max-age=31536000, immutable");
