@@ -1,6 +1,7 @@
 ---
 title: "制作自定义 Codex 动画宠物：从角色图到可验证精灵表"
 date: 2026-07-10
+lastmod: 2026-07-21
 draft: false
 tags: ["codex", "spritesheet", "animation", "image-generation", "tooling"]
 categories: ["AI 工具"]

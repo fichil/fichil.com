@@ -1,6 +1,7 @@
 ---
 title: "Optimizing a Slow MySQL Wave List Query: From Index Tests to a SQL Rewrite"
 date: 2026-05-22
+lastmod: 2026-07-21
 draft: false
 tags: ["mysql", "sql", "performance", "explain", "wms"]
 categories: ["Backend Engineering"]

@@ -1,6 +1,7 @@
 ---
 title: "Why Gradle Used JDK 21 While java -version Reported JDK 8"
 date: 2026-07-08
+lastmod: 2026-07-21
 draft: false
 tags: ["android", "gradle", "jdk", "java-home", "build"]
 categories: ["Mobile Engineering"]

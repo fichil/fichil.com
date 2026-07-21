@@ -1,6 +1,7 @@
 ---
 title: "一次 MySQL 慢查询优化实战：从索引试错到 SQL 改写"
 date: 2026-05-22
+lastmod: 2026-07-21
 draft: false
 tags: ["mysql", "sql", "performance", "explain", "wms"]
 categories: ["后端开发"]

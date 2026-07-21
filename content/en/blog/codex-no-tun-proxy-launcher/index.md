@@ -1,6 +1,7 @@
 ---
 title: "Launching Codex Without TUN Using the Current Windows Proxy"
 date: 2026-07-14
+lastmod: 2026-07-21
 draft: false
 tags: ["codex", "powershell", "proxy", "windows", "automation"]
 categories: ["DevOps"]
@@ -31,7 +32,7 @@ I also removed the global Codex configuration that forcibly set the old port whi
 
 The small batch-file entry point now preserves its window when PowerShell returns a nonzero status, making the error visible. It closes normally after a successful launch.
 
-## Verification
+## Verification and operating boundary
 
 The safe verification sequence included:
 

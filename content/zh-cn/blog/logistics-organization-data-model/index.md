@@ -1,6 +1,7 @@
 ---
 title: "物流系统中的公司、经营组织、项目和仓库是什么关系"
 date: 2026-07-09
+lastmod: 2026-07-21
 draft: false
 tags: ["wms", "data-modeling", "sql", "multi-tenant", "logistics"]
 categories: ["系统设计"]

@@ -1,139 +1,84 @@
 ---
-title: "Maintaining a Hugo Website with AI: From Open Source to Auto Deploy"
+title: "Building and Operating fichil.com with AI: From Markdown to Auditable Sites Releases"
 date: 2026-05-07
+lastmod: 2026-07-21
 draft: false
-description: "How I turned fichil.com into an open-source Hugo repository and prepared it for AI-assisted maintenance and GitHub Actions deployment."
-tags:
-  - AI
-  - Hugo
-  - GitHub Actions
-  - Open Source
-  - DevOps
-categories:
-  - Engineering
+tags: ["AI", "Hugo", "GitHub Actions", "Open Source", "DevOps", "Sites"]
+categories: ["AI Engineering"]
+description: "How fichil.com keeps Hugo Markdown as its content source while using AI-assisted changes, human review, CI, exact-SHA releases, and Sites version rollback."
 ---
 
-## Background
+fichil.com is not only a place to publish articles. It is also a public engineering project where the content, application, release rules, and production version can be traced to the same Git commit.
 
-I built fichil.com for a simple reason: I wanted my own technical blog to record development work, deployment notes, troubleshooting steps, and open-source progress.
+“AI-assisted development and operations” does not mean giving a model uncontrolled production access. AI reads context, proposes and implements changes, and runs verification. A person remains responsible for the requirement, review, merge, and release decision.
 
-As the site grew, keeping it only as files on a server was not enough. I needed the source code, content, deployment steps, and change history to be easy to inspect and repeat.
+## Separate the content source from the production application
 
-That is why I started turning fichil.com into an open-source Hugo repository that can be maintained with AI assistance.
-
-## Why open-source fichil.com
-
-Open-sourcing this site is not about asking people to copy the same personal website. The practical reason is to make maintenance visible and traceable.
-
-The direct benefits are:
-
-- Git records every content and configuration change.
-- Hugo config, theme usage, and content structure can be reviewed.
-- GitHub Issues become the task entry point.
-- GitHub Actions can check whether the site builds.
-- AI tools can work from repository context instead of guessing.
-
-For a personal site, that is already enough structure to avoid many manual mistakes.
-
-## How I organized the Hugo repository
-
-The first step was to upload the local Hugo project to GitHub and add the basic project files.
-
-The core files are:
+The site keeps two boundaries explicit:
 
 ```text
-README.md
-AGENTS.md
-LICENSE
-.gitignore
-hugo.yaml
-.github/workflows/hugo-check.yml
-.github/workflows/deploy.yml
+content/en + content/zh-cn
+        ↓
+Hugo Markdown (the only article source)
+        ↓
+content generation and bilingual checks
+        ↓
+vinext / React Sites application
+        ↓
+ChatGPT Sites production version
 ```
 
-`README.md` explains the project for people. `AGENTS.md` gives AI tools the operating rules. `LICENSE` defines the open-source terms. `.gitignore` keeps Hugo build output and local files out of the repository.
+Hugo still validates the content structure and compatibility build. The vinext application under `sites/` renders production. Articles are not copied into application components, so a Markdown edit cannot silently diverge from a second hard-coded version.
 
-The theme is managed as a Git submodule, so third-party theme code does not get mixed into the site source.
+## Why the repository remains open and reviewable
 
-## Issue-driven AI maintenance
+The practical value of open source here is not that someone can clone the same personal site. It is that every change has a visible boundary:
 
-The workflow I want is simple:
+- Git records content, component, and configuration differences.
+- `AGENTS.md` defines what an AI agent may change and what remains protected.
+- Pull Requests keep the requirement, implementation, and check results together.
+- CI validates both the Hugo compatibility build and the Sites application.
+- `/version.json` exposes the full commit SHA currently deployed.
+
+That turns “deployed” into a fact that can be checked instead of an assumption based on one terminal message.
+
+## Keep responsibility around AI-assisted work
+
+A normal change follows this sequence:
 
 ```text
-GitHub Issue
-↓
-AI agent reads the task
-↓
-AI changes the repository and opens a Pull Request
-↓
-GitHub Actions checks the build
-↓
-Human review and merge
-↓
-Automatic deployment to the VPS
+define the goal and public-data boundary
+        ↓
+create an isolated workspace from the latest main
+        ↓
+AI edits Markdown, configuration, or application code
+        ↓
+human review of content, privacy, and engineering claims
+        ↓
+Hugo build + lint + complete Sites tests
+        ↓
+Pull Request and CI
+        ↓
+human merge
 ```
 
-If Copilot coding agent or Codex agent is not available yet, the fallback workflow still works:
+AI can accelerate discovery, implementation, and repeated checks. It cannot decide which private facts may be published, and it must not present an unimplemented plan as completed work.
 
-```text
-Write the requirement in a GitHub Issue
-↓
-Ask ChatGPT to analyze the Issue
-↓
-Apply the suggested code or content changes
-↓
-Commit to main
-↓
-Let GitHub Actions deploy the site
-```
+## Bind every release to one exact commit
 
-The goal at this stage is not full automation. The goal is to make the task entry point, build check, and deployment path repeatable.
+Production publishing accepts only a commit already merged into `main` with the required checks passing. The build output, source pushed to Sites, and saved Sites version must all reference the same full SHA.
 
-## Deployment path
+After deployment, the release process verifies:
 
-The site deploys through GitHub Actions. After main is updated, Actions builds the Hugo site and syncs the generated `public/` directory to the VPS path served by Nginx.
+1. `/version.json` returns the target commit;
+2. the English and Chinese home and blog routes work;
+3. core articles, static assets, and language switching remain available;
+4. a failed smoke check can restore the previous known-good version immediately.
 
-The path is roughly:
+Rollback does not depend on logging into a server. It redeploys a saved and previously verified Sites version, keeping release and recovery inside the same version boundary.
 
-```text
-Push to main
-↓
-GitHub Actions
-↓
-hugo --minify
-↓
-rsync public/ to VPS
-↓
-Nginx serves /var/www/fichil
-↓
-https://fichil.com updates
-```
+## What this workflow demonstrates
 
-This removes the need to upload files by hand after every content change.
+An open repository cannot prove every engineering capability. It can show whether changes stay focused, checks are repeatable, production is traceable, and recovery has a defined path.
 
-## Risk control
-
-Using AI to maintain a website does not mean letting AI operate the production server directly.
-
-The safer boundary is:
-
-- AI can edit Markdown content.
-- AI can update README, docs, and small configuration files.
-- AI should not casually edit theme source code.
-- AI should not SSH into the VPS.
-- Production deployment should go through GitHub Actions.
-- Theme, deployment, Nginx, and license changes still need human review.
-
-In short, AI is useful as a development assistant, but release control should stay with the owner.
-
-## Next steps
-
-My next steps are:
-
-1. Improve deployment documentation for VPS, Nginx, Hugo, and HTTPS.
-2. Add more real troubleshooting notes from daily engineering work.
-3. Improve Issue templates so AI tools receive clearer tasks.
-4. Test available AI coding agents for Issue-to-PR workflows.
-5. Automate low-risk content changes first.
-
-The direction is practical: keep useful notes, track changes, make deployment repeatable, and use AI where it reduces manual work without increasing production risk.
+That is the working style I want fichil.com to make visible: establish evidence first, limit the change surface, and finish with a result another person can review.

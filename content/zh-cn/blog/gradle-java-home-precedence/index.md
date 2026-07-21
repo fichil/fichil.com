@@ -1,6 +1,7 @@
 ---
 title: "java -version 是 JDK 8，Gradle 为何仍使用 JDK 21"
 date: 2026-07-08
+lastmod: 2026-07-21
 draft: false
 tags: ["android", "gradle", "jdk", "java-home", "build"]
 categories: ["移动端开发"]

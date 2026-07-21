@@ -1,6 +1,7 @@
 ---
 title: "When a Production Dashboard Shows Zero Despite Having Data"
 date: 2026-07-13
+lastmod: 2026-07-21
 draft: false
 tags: ["oracle", "sql", "performance", "wms", "aggregation"]
 categories: ["Backend Engineering"]
@@ -33,7 +34,7 @@ The endpoint path, request parameters, and response fields stayed unchanged, so 
 
 The frontend also stopped refreshing summary counters on ordinary page navigation. Filters, tab changes, and explicit refreshes still request a new summary. A failed request now displays a placeholder and an actionable message instead of pretending that the value is zero.
 
-## Read-only reconciliation
+## Read-only reconciliation and conclusion
 
 The old and new SQL were compared with the same filters and, for the strictest check, inside the same read-only snapshot. Individual legacy queries took roughly twenty-four seconds. The aggregate versions usually returned in under one second while producing the same distinct totals and node counts.
 

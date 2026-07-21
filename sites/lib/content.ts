@@ -14,6 +14,7 @@ export interface Post {
   slug: string;
   title: string;
   date: string;
+  lastModified: string;
   description: string;
   tags: string[];
   categories: string[];
@@ -24,19 +25,42 @@ export interface Post {
 }
 
 export interface ProjectItem {
+  kicker: string;
   title: string;
   content: string;
   badges: string[];
+  scope: string[];
+  outcomes: string[];
+  proofLinks: Array<{ name: string; link: string }>;
   actionName: string | null;
   actionLink: string | null;
+}
+
+export interface ServiceItem {
+  title: string;
+  content: string;
+  badges: string[];
 }
 
 export interface SiteCopy {
   title: string;
   description: string;
-  hero: { intro: string; title: string; subtitle: string; content: string; buttonName: string };
+  hero: {
+    intro: string;
+    title: string;
+    subtitle: string;
+    content: string;
+    image: string;
+    imageAlt: string;
+    buttonName: string;
+    buttonLink: string;
+    secondaryButtonName: string;
+    secondaryButtonLink: string;
+  };
+  trust: { postsLabel: string; sourceValue: string; sourceLabel: string; releaseValue: string; releaseLabel: string };
+  services: { title: string; intro: string; items: ServiceItem[] };
   about: { title: string; html: string; skillsTitle: string; skills: string[] };
-  projects: { title: string; items: ProjectItem[] };
+  projects: { title: string; intro: string; items: ProjectItem[] };
   contact: { title: string; content: string; buttonName: string; buttonLink: string };
 }
 
@@ -64,6 +88,30 @@ export function getPosts(locale: Locale): Post[] {
 
 export function getPost(locale: Locale, slug: string): Post | undefined {
   return posts.find((post) => post.locale === locale && post.slug === slug);
+}
+
+export function getRelatedPosts(locale: Locale, current: Post, limit = 3): Post[] {
+  const currentTags = new Set(current.tags.map((tag) => taxonomySlug(tag)));
+  const currentCategories = new Set(current.categories.map((category) => taxonomySlug(category)));
+  return getPosts(locale)
+    .filter((post) => post.slug !== current.slug)
+    .map((post) => {
+      const tagScore = post.tags.reduce((score, tag) => score + (currentTags.has(taxonomySlug(tag)) ? 2 : 0), 0);
+      const categoryScore = post.categories.reduce((score, category) => score + (currentCategories.has(taxonomySlug(category)) ? 3 : 0), 0);
+      return { post, score: tagScore + categoryScore };
+    })
+    .sort((a, b) => b.score - a.score || b.post.date.localeCompare(a.post.date) || a.post.slug.localeCompare(b.post.slug))
+    .slice(0, limit)
+    .map(({ post }) => post);
+}
+
+export function getAdjacentPosts(locale: Locale, current: Post): { previous?: Post; next?: Post } {
+  const ordered = getPosts(locale);
+  const index = ordered.findIndex((post) => post.slug === current.slug);
+  return {
+    previous: index >= 0 ? ordered[index + 1] : undefined,
+    next: index > 0 ? ordered[index - 1] : undefined,
+  };
 }
 
 export function getPageCount(locale: Locale): number {

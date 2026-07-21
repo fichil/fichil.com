@@ -1,6 +1,7 @@
 ---
 title: "本地 WMS 看似误连生产：拆解 JDBC、Dubbo、Redis 与多 Tomcat 环境"
 date: 2026-07-03
+lastmod: 2026-07-21
 draft: false
 tags: ["java", "dubbo", "tomcat", "redis", "troubleshooting"]
 categories: ["后端开发"]
@@ -38,7 +39,7 @@ description: "一次本地配置指向测试库、登录与权限却像生产环
 
 网络连接同样是证据。进程连接到哪些远端地址，比某个源码目录里的配置文件更能说明运行时事实。
 
-## 恢复路径
+## 恢复路径与可复用结论
 
 正确做法是保留真正提供页面入口的 Web 实例，然后修正它加载的注册中心、Redis 和权限服务配置。重启前清理或隔离会影响服务发现的缓存，再用端口、进程命令行和实际远端连接验证结果。
 

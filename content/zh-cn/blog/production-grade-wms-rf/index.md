@@ -1,6 +1,7 @@
 ---
 title: "构建生产级 WMS RF：仓库权限、幂等、离线草稿和打印"
 date: 2026-07-16
+lastmod: 2026-07-21
 draft: false
 tags: ["wms", "rf", "ionic", "capacitor", "idempotency"]
 categories: ["系统设计"]
