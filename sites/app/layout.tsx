@@ -9,7 +9,7 @@ import { absoluteUrl, DEFAULT_DESCRIPTION } from "@/lib/seo";
 export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(absoluteUrl("/")),
-    title: { default: "Fichil | Freelance Backend, DevOps & Integration Engineer", template: "%s | Fichil" },
+    title: { default: "Fichil | Backend, DevOps & Integration Engineer", template: "%s | Fichil" },
     description: DEFAULT_DESCRIPTION,
     icons: { icon: "/favicon.png", shortcut: "/favicon.png" },
     openGraph: { siteName: "Fichil | Engineering Notes", images: [{ url: "/og.png", width: 1200, height: 630 }] },
