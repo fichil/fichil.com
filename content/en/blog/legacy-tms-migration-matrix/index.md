@@ -1,6 +1,7 @@
 ---
 title: "Migrating a Legacy TMS with a Capability Matrix and Real Smoke Tests"
 date: 2026-07-15
+lastmod: 2026-07-21
 draft: false
 tags: ["tms", "migration", "spring-boot", "ionic", "testing"]
 categories: ["System Design"]

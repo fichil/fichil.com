@@ -1,6 +1,7 @@
 ---
 title: "无 TUN 启动 Codex：让代理脚本自动适配端口变化"
 date: 2026-07-14
+lastmod: 2026-07-21
 draft: false
 tags: ["codex", "powershell", "proxy", "windows", "automation"]
 categories: ["DevOps"]
@@ -31,7 +32,7 @@ description: "修复一个升级后失效的 Codex 桌面启动脚本：不再�
 
 批处理入口也增加失败处理：PowerShell 返回非零状态时保留窗口并显示原因，成功启动后再正常关闭。
 
-## 验证
+## 验证与适用边界
 
 验证分为不会影响当前工作的安全步骤：
 

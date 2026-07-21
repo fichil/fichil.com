@@ -1,6 +1,7 @@
 ---
 title: "Closing Cross-Module Business Flows with Database-Backed Acceptance Tests"
 date: 2026-07-17
+lastmod: 2026-07-21
 draft: false
 tags: ["integration-testing", "database", "flyway", "smoke-test", "logistics"]
 categories: ["Quality Engineering"]

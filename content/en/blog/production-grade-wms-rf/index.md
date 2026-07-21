@@ -1,6 +1,7 @@
 ---
 title: "Building a Production-Grade WMS RF Application"
 date: 2026-07-16
+lastmod: 2026-07-21
 draft: false
 tags: ["wms", "rf", "ionic", "capacitor", "idempotency"]
 categories: ["System Design"]

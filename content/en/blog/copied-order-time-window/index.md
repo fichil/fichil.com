@@ -1,6 +1,7 @@
 ---
 title: "Why a Copied Outbound Order Disappeared from the Default Dashboard"
 date: 2026-07-06
+lastmod: 2026-07-21
 draft: false
 tags: ["wms", "java", "sql", "data-integrity", "debugging"]
 categories: ["Backend Engineering"]
@@ -33,7 +34,7 @@ A defensive fallback also filled the current time if a creation path still produ
 
 I did not widen the dashboard's default date range. The query correctly represented the page requirement. The defect was the new record carrying historical metadata that did not belong to it.
 
-## Verification
+## Verification and the copy-semantics conclusion
 
 The verification covered three layers:
 

@@ -1,6 +1,7 @@
 ---
 title: "Building a Custom Codex Pet from Character Art to a Verified Spritesheet"
 date: 2026-07-10
+lastmod: 2026-07-21
 draft: false
 tags: ["codex", "spritesheet", "animation", "image-generation", "tooling"]
 categories: ["AI Tools"]

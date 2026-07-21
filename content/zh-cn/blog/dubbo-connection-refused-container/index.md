@@ -1,6 +1,7 @@
 ---
 title: "从 Dubbo Connection Refused 追到容器服务与内存配置"
 date: 2026-07-07
+lastmod: 2026-07-21
 draft: false
 tags: ["dubbo", "docker", "java", "oom", "troubleshooting"]
 categories: ["DevOps"]

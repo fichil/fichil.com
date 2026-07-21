@@ -1,6 +1,7 @@
 ---
 title: "Reliable RF Label Printing on a Lossy Network"
 date: 2026-07-02
+lastmod: 2026-07-21
 draft: false
 tags: ["android", "rf", "printing", "network", "reliability"]
 categories: ["Mobile Engineering"]
@@ -31,7 +32,7 @@ The important question is not simply whether an exception occurred. It is whethe
 
 I also increased the connection window, added a pause between labels, and delayed the final success callback so the device could finish consuming its queue. Logs now include the job position, attempt number, whether the failure is retryable, and whether any data was written.
 
-## Verification
+## Verification and the safe-retry conclusion
 
 The change was built and installed on the physical RF device. Verification included more than checking the UI success message:
 

@@ -1,6 +1,7 @@
 ---
 title: "When a Local WMS Appears to Use Production Data"
 date: 2026-07-03
+lastmod: 2026-07-21
 draft: false
 tags: ["java", "dubbo", "tomcat", "redis", "troubleshooting"]
 categories: ["Backend Engineering"]
@@ -40,7 +41,7 @@ After identifying the real web process, the investigation moved through each run
 
 Network connections provided especially strong evidence. The remote endpoints used by the running process described the effective environment more accurately than a property file in the repository.
 
-## Recovery
+## Recovery and the reusable conclusion
 
 The correct recovery path was to keep the Tomcat instance that actually provided the web entry point, then fix the registry, cache, and authorization dependencies it loaded. Any stale discovery state had to be isolated or cleared before restarting. Afterward, ports, process arguments, and outbound connections could verify that every dependency pointed to the intended environment.
 

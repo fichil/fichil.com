@@ -1,6 +1,7 @@
 ---
 title: "用数据库证据完成跨模块业务流程闭环验收"
 date: 2026-07-17
+lastmod: 2026-07-21
 draft: false
 tags: ["integration-testing", "database", "flyway", "smoke-test", "logistics"]
 categories: ["质量工程"]

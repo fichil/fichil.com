@@ -1,6 +1,7 @@
 ---
 title: "Tracing Dubbo Connection Refused to a Container Memory Failure"
 date: 2026-07-07
+lastmod: 2026-07-21
 draft: false
 tags: ["dubbo", "docker", "java", "oom", "troubleshooting"]
 categories: ["DevOps"]

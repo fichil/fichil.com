@@ -1,6 +1,7 @@
 ---
 title: "Company, Operating Organization, Project, and Warehouse in a Logistics Data Model"
 date: 2026-07-09
+lastmod: 2026-07-21
 draft: false
 tags: ["wms", "data-modeling", "sql", "multi-tenant", "logistics"]
 categories: ["System Design"]

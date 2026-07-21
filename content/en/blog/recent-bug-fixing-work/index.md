@@ -1,83 +1,62 @@
 ---
-title: "Recent Bug Fixes from My Daily Work"
+title: "Why Logistics Bugs Return: Put Business Rules at the Real Execution Boundary"
 date: 2026-05-08
+lastmod: 2026-07-21
 draft: false
-tags: ["java", "bug-fixing", "logistics", "sql"]
-categories: ["Engineering"]
+tags: ["java", "bug-fixing", "logistics", "integration", "validation"]
+categories: ["Backend Engineering"]
+description: "Four apparently unrelated logistics defects shared one cause: business rules protected a visible entry point instead of the boundary where state, data, or integration behavior actually changed."
 ---
 
-Recently I spent a lot of time fixing small but important bugs in logistics systems. Most of them were not difficult because of one single line of code. They were difficult because the same page, status, interface, and database field were used by several business steps.
+Small logistics-system bugs often return even when the rule appears to exist. The rule may protect one button, page, or exception branch without covering every path that can change business state or data.
 
-This post records several examples from my recent work.
+The four examples below come from different features, but they support one conclusion: **business constraints belong at the real execution boundary, and every entry point must share the same result semantics.**
 
-## 1. Fee details should not be editable in every status
+## Editing rules must protect the action, not the button
 
-One issue was about the fee detail page. The expected rule was simple: fee details should only be editable when the fee status is `NEW` or `REJECTED`.
+Fee details were editable only in `NEW` or `REJECTED`. Some buttons were hidden correctly, but a grid event could still open the editor, leaving finance-stage data exposed to change.
 
-The actual behavior was different. Records in later statuses, such as `RELEASED_FINANCE`, could still open the edit dialog. That was risky because users could change data after the fee had already moved into the finance process.
+The safe fix was not another visibility condition. The common edit action had to validate state before opening, and the backend had to reject an invalid update as well. Verification covered row events, shortcuts, and direct requests in addition to the visible button.
 
-The fix was not only to hide a button. I had to check the front-end event path that opened the edit dialog, because some actions were triggered by grid events instead of the visible button state.
+The boundary was “perform an edit,” not “render an edit button.”
 
-The key point was:
+## Partial-success APIs need a record-level boundary
 
-- Check the current fee status before opening the edit form.
-- Allow editing only for `NEW` and `REJECTED`.
-- Block the dialog for finance or confirmed statuses.
-- Keep the rule in one place so future button changes do not bypass it.
+A vehicle batch interface originally stopped the entire request when one item failed. The caller received a failed batch without a usable account of which records were valid and which required correction.
 
-This type of bug is easy to miss if testing only checks whether the button is hidden. The real test is whether the edit dialog can still be opened from any page action.
+When the business contract allows partial success, processing needs a record-level boundary:
 
-## 2. Partial success for an integration interface
+- validate and process each item independently;
+- keep one item failure from cancelling later items;
+- return per-item success, failure, and an actionable reason;
+- retry failed items without repeating records that already succeeded.
 
-Another change was for an interface like `/lrms/vehicle`. The old behavior treated the full request as failed if any item failed validation or processing.
+HTTP 200 can describe completion of the batch request. It cannot replace the business result for every item.
 
-That was not ideal for batch data. If one vehicle record has a problem, the valid records should still be processed, and the response should clearly show which rows succeeded and which rows failed.
+## Calculation rules must cover every data entry path
 
-The implementation direction was:
+Orders could arrive through an integration or be created manually. Net weight and volume had to prefer package-unit configuration and fall back to SKU base values only when package data was absent.
 
-- Process records one by one.
-- Catch item-level errors without stopping the whole batch.
-- Return a result list with success and failure details.
-- Keep enough error information for the caller to fix bad rows.
+Fixing only the page or only the import path would let identical orders produce different values. The calculation therefore belonged in shared domain logic and required four checks: integration input, manual input, package configuration present, and package configuration absent.
 
-For this kind of API, "success" cannot only mean HTTP 200. The response body must tell the caller the real result of each item.
+The boundary was “calculate order weight and volume,” not a particular screen or endpoint.
 
-## 3. Weight and volume should come from package configuration
+## External errors must remain useful without leaking internals
 
-There was also a weight and volume calculation issue. For inbound interface orders and manually created work orders, unit net weight and unit volume should use the SKU package configuration when the package unit exists.
+When SAP or an OpenAPI dependency returned a precise failure reason, replacing it with “call failed” removed the evidence needed for recovery. The user could not tell whether the fault involved networking, data relationships, field mapping, or external state.
 
-The previous logic could fall back to SKU base fields too early. That caused wrong totals when the package unit had its own net weight or volume.
+Passing through an unfiltered stack trace would be unsafe as well. The response should preserve a reviewed business message, correlation identifier, and failure category while removing credentials, internal paths, and sensitive values.
 
-The updated rule was:
+The error boundary is whether the next operator can take action, not whether an exception was caught.
 
-- Keep gross weight using the original SKU value.
-- For net weight and volume, first check the package relation table.
-- Use `quantity * package unit net weight` for net weight when available.
-- Use `quantity * package unit volume` for volume when available.
-- Fall back to SKU base fields only when package data is missing.
+## A repeatable execution-boundary review
 
-This bug needed both front-end and interface scenarios to be checked. A fix that only works for manual creation is not enough if the same order can also enter the system through an API.
+These defects can be anticipated with the same questions:
 
-## 4. Preserve external error messages
+1. Which action actually changes state or data?
+2. Do the page, batch API, import, and retry paths use the same rule?
+3. Is the failure boundary the full batch, one record, or one external call?
+4. Can the response distinguish business, transport, and unknown failures?
+5. Does verification cover bypassed buttons, repeated requests, and alternate entry points?
 
-Some bugs were related to external calls, especially SAP or OpenAPI integration. A common problem was that the lower-level system returned a useful error message, but the page only showed a generic failure.
-
-That makes troubleshooting slower. Users and developers need to see the original external error, for example connection problems, invalid relation data, or missing SAP document numbers.
-
-The fix was to pass the external exception message back to the response instead of replacing it with a vague message.
-
-This does not mean exposing sensitive data. It means keeping the useful part of the failure reason so the next person can identify whether the problem is data, network, mapping, or external system state.
-
-## What I learned
-
-These bugs reminded me of a few practical rules:
-
-- Do not trust the button state alone. Check the real event path.
-- Batch interfaces should return row-level results when partial success is required.
-- Calculation logic must be shared or aligned between manual pages and API imports.
-- External integration errors should not be swallowed by generic messages.
-- A small status rule can affect finance, dispatch, billing, and integration steps.
-
-Most bug fixing work is not about writing clever code. It is about finding the exact place where the system allows a wrong state, a wrong value, or a missing error message to continue.
-
-That is the part I want to keep improving: read the data, follow the call path, change the smallest safe area, and verify the result from the user action instead of only from the code branch.
+Many recurring bugs do not require a clever algorithm. They require one rule to stop being scattered across several entry points. Put the rule at the real execution boundary, then verify the user action and resulting data rather than one convenient code branch.

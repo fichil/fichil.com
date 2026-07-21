@@ -1,6 +1,7 @@
 ---
 title: "用迁移矩阵和真实 Smoke Test 推进遗留 TMS 迁移"
 date: 2026-07-15
+lastmod: 2026-07-21
 draft: false
 tags: ["tms", "migration", "spring-boot", "ionic", "testing"]
 categories: ["系统设计"]
