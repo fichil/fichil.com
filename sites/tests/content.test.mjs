@@ -1,16 +1,37 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
+import { promisify } from "node:util";
 
 const payload = JSON.parse(await readFile(new URL("../generated/content.json", import.meta.url), "utf8"));
 const english = payload.posts.filter((post) => post.locale === "en");
 const chinese = payload.posts.filter((post) => post.locale === "zh-cn");
+const execFileAsync = promisify(execFile);
+
+async function sourceSlugs(locale) {
+  const entries = await readdir(new URL(`../../content/${locale}/blog/`, import.meta.url), { withFileTypes: true });
+  return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
+}
 
 test("migrates all bilingual Markdown posts", () => {
-  assert.equal(payload.posts.length, 32);
-  assert.equal(english.length, 16);
-  assert.equal(chinese.length, 16);
-  assert.deepEqual(english.map((post) => post.slug).sort(), chinese.map((post) => post.slug).sort());
+  return Promise.all([sourceSlugs("en"), sourceSlugs("zh-cn")]).then(([englishSources, chineseSources]) => {
+    assert.ok(englishSources.length > 0);
+    assert.deepEqual(englishSources, chineseSources);
+    assert.deepEqual(english.map((post) => post.slug).sort(), englishSources);
+    assert.deepEqual(chinese.map((post) => post.slug).sort(), chineseSources);
+    assert.equal(payload.posts.length, englishSources.length + chineseSources.length);
+  });
+});
+
+test("records the exact source commit and build time", async () => {
+  const { stdout } = await execFileAsync("git", ["rev-parse", "HEAD"], {
+    cwd: new URL("../..", import.meta.url),
+    encoding: "utf8",
+  });
+  assert.equal(payload.build.commit, stdout.trim());
+  assert.match(payload.build.commit, /^[0-9a-f]{40}$/);
+  assert.equal(new Date(payload.build.builtAt).toISOString(), payload.build.builtAt);
 });
 
 test("keeps required article metadata and safe rendered HTML", () => {

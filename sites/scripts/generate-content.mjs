@@ -1,6 +1,8 @@
+import { execFile } from "node:child_process";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
 import matter from "gray-matter";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
@@ -15,6 +17,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const siteRoot = resolve(scriptDir, "..");
 const repositoryRoot = resolve(siteRoot, "..");
 const outputPath = join(siteRoot, "generated", "content.json");
+const execFileAsync = promisify(execFile);
 
 const markdownProcessor = unified()
   .use(remarkParse)
@@ -142,10 +145,23 @@ async function readSiteCopy(config, locale) {
   };
 }
 
-const [configSource, englishPosts, chinesePosts] = await Promise.all([
+async function readSourceCommit() {
+  const { stdout } = await execFileAsync("git", ["rev-parse", "HEAD"], {
+    cwd: repositoryRoot,
+    encoding: "utf8",
+  });
+  const commit = stdout.trim();
+  if (!/^[0-9a-f]{40}$/.test(commit)) {
+    throw new Error(`Invalid Git commit: ${commit}`);
+  }
+  return commit;
+}
+
+const [configSource, englishPosts, chinesePosts, sourceCommit] = await Promise.all([
   readFile(join(repositoryRoot, "hugo.yaml"), "utf8"),
   readPosts("en"),
   readPosts("zh-cn"),
+  readSourceCommit(),
 ]);
 const config = YAML.parse(configSource);
 
@@ -158,8 +174,13 @@ if (missingTranslations.length) {
   throw new Error(`Missing Chinese translations: ${missingTranslations.map((post) => post.slug).join(", ")}`);
 }
 
+const builtAt = new Date().toISOString();
 const payload = {
-  generatedAt: new Date().toISOString(),
+  generatedAt: builtAt,
+  build: {
+    commit: sourceCommit,
+    builtAt,
+  },
   posts: [...englishPosts, ...chinesePosts],
   site: {
     en: await readSiteCopy(config, "en"),

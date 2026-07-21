@@ -40,9 +40,19 @@ export interface SiteCopy {
   contact: { title: string; content: string; buttonName: string; buttonLink: string };
 }
 
+export interface BuildInfo {
+  commit: string;
+  builtAt: string;
+}
+
 export const PAGE_SIZE = 6;
 const posts = payload.posts as Post[];
 const site = payload.site as Record<Locale, SiteCopy>;
+const build = payload.build as BuildInfo;
+
+export function getBuildInfo(): BuildInfo {
+  return build;
+}
 
 export function getSiteCopy(locale: Locale): SiteCopy {
   return site[locale];

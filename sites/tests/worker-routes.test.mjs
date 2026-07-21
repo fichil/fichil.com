@@ -6,11 +6,56 @@ const payload = JSON.parse(await readFile(new URL("../generated/content.json", i
 const workerUrl = new URL("../dist/server/index.js", import.meta.url);
 workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
 const { default: worker } = await import(workerUrl.href);
-const env = { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } };
-const ctx = { waitUntil() {}, passThroughOnException() {} };
 
-function fetchPath(path, host = "localhost") {
-  return worker.fetch(new Request(`https://${host}${path}`, { headers: { accept: "text/html" } }), env, ctx);
+class MemoryEdgeCache {
+  responses = new Map();
+
+  async match(request) {
+    return this.responses.get(request.url)?.clone();
+  }
+
+  async put(request, response) {
+    this.responses.set(request.url, response.clone());
+  }
+}
+
+function createContext() {
+  const pending = [];
+  return {
+    waitUntil(promise) { pending.push(promise); },
+    passThroughOnException() {},
+    async flush() { await Promise.all(pending.splice(0)); },
+  };
+}
+
+function createEnv(cache) {
+  return {
+    ASSETS: {
+      fetch: async (request) => {
+        const pathname = new URL(request.url).pathname;
+        if (pathname === "/favicon.png") {
+          return new Response(new Uint8Array([137, 80, 78, 71]), { headers: { "content-type": "image/png" } });
+        }
+        if (pathname === "/og.png") {
+          return new Response(new Uint8Array([137, 80, 78, 71]), { headers: { "content-type": "image/png" } });
+        }
+        if (pathname === "/assets/test-deadbeef.js") {
+          return new Response("export default true;", { headers: { "content-type": "text/javascript" } });
+        }
+        return new Response("Not found", { status: 404 });
+      },
+    },
+    ...(cache ? { HTML_CACHE: cache } : {}),
+  };
+}
+
+const env = createEnv();
+const ctx = createContext();
+
+function fetchPath(path, host = "localhost", init = {}, targetEnv = env, targetCtx = ctx) {
+  const headers = new Headers(init.headers);
+  if (!headers.has("accept")) headers.set("accept", "text/html");
+  return worker.fetch(new Request(`https://${host}${path}`, { ...init, headers }), targetEnv, targetCtx);
 }
 
 function slugify(value) {
@@ -65,6 +110,98 @@ test("serves RSS, robots, and clean sitemap output", async () => {
 
   const robots = await fetchPath("/robots.txt");
   assert.match(await robots.text(), /Sitemap: https:\/\/fichil\.com\/sitemap\.xml/);
+});
+
+test("exposes the deployed source version without caching", async () => {
+  const response = await fetchPath("/version.json");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /application\/json/);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  const version = await response.json();
+  assert.match(version.commit, /^[0-9a-f]{40}$/);
+  assert.equal(version.commit, payload.build.commit);
+  assert.equal(new Date(version.builtAt).toISOString(), version.builtAt);
+});
+
+test("caches canonical HTML by source commit and isolates locales", async () => {
+  const cache = new MemoryEdgeCache();
+  const oldCommit = "0".repeat(40);
+  await cache.put(
+    new Request(`https://localhost/?__fichil_version=${oldCommit}`),
+    new Response("stale", { headers: { "content-type": "text/html" } }),
+  );
+  const cacheEnv = createEnv(cache);
+  const cacheCtx = createContext();
+
+  const englishMiss = await fetchPath("/", "localhost", {}, cacheEnv, cacheCtx);
+  assert.equal(englishMiss.headers.get("x-fichil-cache"), "MISS");
+  assert.equal(englishMiss.headers.get("cache-control"), "public, max-age=60, s-maxage=3600, stale-while-revalidate=86400");
+  assert.match(await englishMiss.text(), /<html[^>]+lang="en"/i);
+  await cacheCtx.flush();
+
+  const currentCacheKey = [...cache.responses.keys()].find((key) => key.includes(payload.build.commit));
+  assert.ok(currentCacheKey, "cache key should include the current source commit");
+
+  const englishHit = await fetchPath("/", "localhost", {}, cacheEnv, cacheCtx);
+  assert.equal(englishHit.headers.get("x-fichil-cache"), "HIT");
+  assert.match(await englishHit.text(), /<html[^>]+lang="en"/i);
+
+  const chineseMiss = await fetchPath("/zh-cn/", "localhost", {}, cacheEnv, cacheCtx);
+  assert.equal(chineseMiss.headers.get("x-fichil-cache"), "MISS");
+  assert.match(await chineseMiss.text(), /<html[^>]+lang="zh-CN"/i);
+  await cacheCtx.flush();
+
+  const chineseHit = await fetchPath("/zh-cn/", "localhost", {}, cacheEnv, cacheCtx);
+  assert.equal(chineseHit.headers.get("x-fichil-cache"), "HIT");
+  assert.match(await chineseHit.text(), /<html[^>]+lang="zh-CN"/i);
+});
+
+test("bypasses HTML cache for request-specific and noncanonical requests", async () => {
+  const cacheEnv = createEnv(new MemoryEdgeCache());
+  const cacheCtx = createContext();
+  const cases = [
+    ["/?utm_source=test", {}],
+    ["/", { headers: { cookie: "session=test" } }],
+    ["/", { headers: { authorization: "Bearer test" } }],
+    ["/", { headers: { rsc: "1" } }],
+    ["/", { headers: { "next-router-prefetch": "1" } }],
+    ["/", { headers: { "next-router-segment-prefetch": "1" } }],
+  ];
+  for (const [path, init] of cases) {
+    const response = await fetchPath(path, "localhost", init, cacheEnv, cacheCtx);
+    assert.equal(response.headers.get("x-fichil-cache"), "BYPASS", path);
+    await response.arrayBuffer();
+  }
+
+  const version = await fetchPath("/version.json", "localhost", {}, cacheEnv, cacheCtx);
+  assert.equal(version.headers.get("x-fichil-cache"), "BYPASS");
+  assert.equal(version.headers.get("cache-control"), "no-store");
+});
+
+test("serves static assets with explicit browser caching", async () => {
+  const asset = await fetchPath("/assets/test-deadbeef.js");
+  assert.equal(asset.status, 200);
+  assert.equal(asset.headers.get("cache-control"), "public, max-age=31536000, immutable");
+  assert.equal(asset.headers.get("x-fichil-cache"), "BYPASS");
+
+  const favicon = await fetchPath("/favicon.ico/");
+  assert.equal(favicon.status, 200);
+  assert.match(favicon.headers.get("content-type") ?? "", /image\/png/);
+  assert.equal(favicon.headers.get("cache-control"), "public, max-age=86400");
+
+  const missing = await fetchPath("/assets/missing.js");
+  assert.equal(missing.status, 404);
+  assert.notEqual(missing.headers.get("cache-control"), "public, max-age=31536000, immutable");
+});
+
+test("packages asset binding and source cache rules", async () => {
+  const wrangler = JSON.parse(await readFile(new URL("../dist/server/wrangler.json", import.meta.url), "utf8"));
+  assert.equal(wrangler.assets.binding, "ASSETS");
+  assert.deepEqual(wrangler.assets.run_worker_first, ["/assets/*", "/favicon.ico*", "/favicon.png", "/og.png"]);
+
+  const headers = await readFile(new URL("../public/_headers", import.meta.url), "utf8");
+  assert.match(headers, /\/assets\/\*/);
+  assert.match(headers, /max-age=31536000, immutable/);
 });
 
 test("preserves only intended compatibility redirects", async () => {
