@@ -164,11 +164,17 @@ const worker = {
     }
 
     const htmlCandidate = isHtmlCacheCandidate(request, url);
-    const edgeCache = htmlCandidate ? getEdgeCache(env) : undefined;
-    const cacheKey = htmlCandidate && edgeCache ? htmlCacheKey(url) : undefined;
+    let edgeCache = htmlCandidate ? getEdgeCache(env) : undefined;
+    let cacheKey = htmlCandidate && edgeCache ? htmlCacheKey(url) : undefined;
     if (edgeCache && cacheKey) {
-      const cached = await edgeCache.match(cacheKey);
-      if (cached) return withCacheStatus(cached, "HIT");
+      try {
+        const cached = await edgeCache.match(cacheKey);
+        if (cached) return withCacheStatus(cached, "HIT");
+      } catch (error) {
+        console.error("[fichil] HTML cache read failed; rendering without edge cache", error);
+        edgeCache = undefined;
+        cacheKey = undefined;
+      }
     }
 
     const headers = new Headers(request.headers);
