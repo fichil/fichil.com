@@ -1,5 +1,5 @@
 baseURL: "https://fichil.com/"
-title: "Fichil | Freelance Backend, DevOps & Enterprise Integration"
+title: "Fichil | Backend, DevOps & Enterprise Integration"
 theme: "hugo-profile"
 defaultContentLanguage: "en"
 defaultContentLanguageInSubdir: false
@@ -37,7 +37,7 @@ languages:
     languageCode: "en-us"
     contentDir: "content/en"
     weight: 1
-    title: "Fichil | Freelance Backend, DevOps & Integration Engineer"
+    title: "Fichil | Backend, DevOps & Integration Engineer"
     menus:
       main:
         - identifier: "about"
@@ -57,7 +57,7 @@ languages:
           url: "/#contact"
           weight: 4
     params:
-      description: "Freelance backend, DevOps, and enterprise integration engineer documenting production reliability, logistics systems, and evidence-led delivery."
+      description: "Backend, DevOps, and enterprise integration engineer documenting production reliability, logistics systems, and evidence-led delivery."
       favicon: "/favicon.png"
       navbar:
         align: "ms-auto"
@@ -74,7 +74,7 @@ languages:
         enable: true
         intro: "Fichil · Independent Engineering"
         title: "Make complex systems reliable."
-        subtitle: "Freelance Backend / DevOps / Enterprise Integration Engineer"
+        subtitle: "Backend / DevOps / Enterprise Integration Engineer"
         content: "I investigate production failures, stabilize delivery pipelines, and close enterprise integration flows with evidence that can be reviewed: logs, database state, tests, and release results."
         image: "/author-fichil.png"
         imageAlt: "Abstract geometric portrait used as the Fichil author illustration"
@@ -209,7 +209,7 @@ languages:
     languageCode: "zh-CN"
     contentDir: "content/zh-cn"
     weight: 2
-    title: "Fichil | 自由职业后端、DevOps 与企业集成工程师"
+    title: "Fichil | 后端、DevOps 与企业集成工程师"
     menus:
       main:
         - identifier: "about"
@@ -229,7 +229,7 @@ languages:
           url: "/zh-cn/#contact"
           weight: 4
     params:
-      description: "自由职业后端、DevOps 与企业集成工程师，记录生产可靠性、物流系统和以证据驱动的交付实践。"
+      description: "后端、DevOps 与企业集成工程师，记录生产可靠性、物流系统和以证据驱动的交付实践。"
       favicon: "/favicon.png"
       navbar:
         align: "ms-auto"
@@ -245,7 +245,7 @@ languages:
         enable: true
         intro: "Fichil · 独立工程实践"
         title: "让复杂系统稳定交付"
-        subtitle: "自由职业后端 / DevOps / 企业系统集成工程师"
+        subtitle: "后端 / DevOps / 企业系统集成工程师"
         content: "我处理生产故障、交付链路和企业系统集成，用日志、数据库状态、测试与发布结果把问题定位、修改和验证过程讲清楚。"
         image: "/author-fichil.png"
         imageAlt: "Fichil 作者身份使用的抽象几何头像"

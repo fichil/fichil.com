@@ -3,7 +3,7 @@ import type { Locale } from "@/lib/content";
 
 export const SITE_URL = "https://fichil.com";
 export const DEFAULT_DESCRIPTION =
-  "Freelance backend, DevOps, and enterprise integration engineer documenting production reliability, logistics platforms, and evidence-led delivery.";
+  "Backend, DevOps, and enterprise integration engineer documenting production reliability, logistics platforms, and evidence-led delivery.";
 
 export function absoluteUrl(path: string): string {
   return new URL(path, SITE_URL).toString();

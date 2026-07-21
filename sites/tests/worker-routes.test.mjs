@@ -96,7 +96,7 @@ test("renders localized metadata and article structure", async () => {
   assert.match(chineseHtml, /<html[^>]+lang="zh-CN"/i);
   assert.match(chineseHtml, /让复杂系统稳定交付/);
   assert.match(chineseHtml, /AI 辅助开发与运维的 fichil\.com/);
-  assert.doesNotMatch(chineseHtml, /Repo2AI|VPS 与 Nginx 恢复/);
+  assert.doesNotMatch(chineseHtml, /Repo2AI|VPS 与 Nginx 恢复|自由职业后端/);
 
   const article = await fetchPath("/blog/database-backed-business-flow-acceptance/");
   const articleHtml = await article.text();

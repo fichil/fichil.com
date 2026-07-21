@@ -66,6 +66,7 @@ test("reads localized homepage copy from hugo.yaml", () => {
       assert.ok(item.proofLinks.length >= 1);
     }
     assert.doesNotMatch(JSON.stringify(payload.site[locale]), /Repo2AI|VPS and Nginx Recovery|VPS 与 Nginx 恢复/);
+    assert.doesNotMatch(JSON.stringify(payload.site[locale]), /Freelance Backend|自由职业后端/i);
   }
 });
 
