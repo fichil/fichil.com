@@ -165,6 +165,18 @@ test("caches canonical HTML by source commit and isolates locales", async () => 
   assert.match(await chineseHit.text(), /<html[^>]+lang="zh-CN"/i);
 });
 
+test("renders HTML when the platform edge cache is unavailable", async (t) => {
+  t.mock.method(console, "error", () => {});
+  const failingCache = {
+    async match() { throw new Error("platform cache unavailable"); },
+    async put() { throw new Error("platform cache unavailable"); },
+  };
+  const response = await fetchPath("/zh-cn/", "localhost", {}, createEnv(failingCache), createContext());
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("x-fichil-cache"), "BYPASS");
+  assert.match(await response.text(), /让复杂系统稳定交付/);
+});
+
 test("bypasses HTML cache for request-specific and noncanonical requests", async () => {
   const cacheEnv = createEnv(new MemoryEdgeCache());
   const cacheCtx = createContext();
