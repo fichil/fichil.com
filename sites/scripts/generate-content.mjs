@@ -81,7 +81,9 @@ async function readPosts(locale) {
     const title = String(parsed.data.title || "").trim();
     const dateValue = parsed.data.date;
     const date = dateValue instanceof Date ? dateValue.toISOString().slice(0, 10) : String(dateValue || "").slice(0, 10);
-    if (!title || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    const lastModifiedValue = parsed.data.lastmod || parsed.data.lastModified || dateValue;
+    const lastModified = lastModifiedValue instanceof Date ? lastModifiedValue.toISOString().slice(0, 10) : String(lastModifiedValue || "").slice(0, 10);
+    if (!title || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{4}-\d{2}-\d{2}$/.test(lastModified)) {
       throw new Error(`Invalid front matter in ${sourcePath}`);
     }
 
@@ -93,6 +95,7 @@ async function readPosts(locale) {
       slug: entry.name,
       title,
       date,
+      lastModified,
       description: String(parsed.data.description || plain.slice(0, 180)).trim(),
       tags: toStringArray(parsed.data.tags),
       categories: toStringArray(parsed.data.categories),
@@ -118,7 +121,28 @@ async function readSiteCopy(config, locale) {
       title: params.hero.title,
       subtitle: params.hero.subtitle,
       content: params.hero.content,
+      image: params.hero.image,
+      imageAlt: params.hero.imageAlt,
       buttonName: params.hero.button.name,
+      buttonLink: params.hero.button.url,
+      secondaryButtonName: params.hero.secondaryButton.name,
+      secondaryButtonLink: params.hero.secondaryButton.url,
+    },
+    trust: {
+      postsLabel: params.trust.postsLabel,
+      sourceValue: params.trust.sourceValue,
+      sourceLabel: params.trust.sourceLabel,
+      releaseValue: params.trust.releaseValue,
+      releaseLabel: params.trust.releaseLabel,
+    },
+    services: {
+      title: params.services.title,
+      intro: params.services.intro,
+      items: params.services.items.map((item) => ({
+        title: item.title,
+        content: item.content,
+        badges: item.badges || [],
+      })),
     },
     about: {
       title: params.about.title,
@@ -128,10 +152,15 @@ async function readSiteCopy(config, locale) {
     },
     projects: {
       title: params.projects.title,
+      intro: params.projects.intro,
       items: params.projects.items.map((item) => ({
+        kicker: item.kicker,
         title: item.title,
         content: item.content,
         badges: item.badges || [],
+        scope: item.scope || [],
+        outcomes: item.outcomes || [],
+        proofLinks: (item.proofLinks || []).map((link) => ({ name: link.name, link: link.link })),
         actionName: item.featured?.name || null,
         actionLink: item.featured?.link || null,
       })),

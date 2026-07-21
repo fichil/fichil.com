@@ -16,7 +16,7 @@ const localBindingConfig = {
   compatibility_flags: ["nodejs_compat"],
   assets: {
     binding: "ASSETS",
-    run_worker_first: ["/assets/*", "/favicon.ico*", "/favicon.png", "/og.png"],
+    run_worker_first: ["/assets/*", "/favicon.ico*", "/favicon.png", "/og.png", "/author-fichil.png"],
   },
   d1_databases: d1
     ? [

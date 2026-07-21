@@ -1,5 +1,5 @@
 baseURL: "https://fichil.com/"
-title: "Fichil | Backend, DevOps & AI-Assisted Engineering"
+title: "Fichil | Freelance Backend, DevOps & Enterprise Integration"
 theme: "hugo-profile"
 defaultContentLanguage: "en"
 defaultContentLanguageInSubdir: false
@@ -37,15 +37,15 @@ languages:
     languageCode: "en-us"
     contentDir: "content/en"
     weight: 1
-    title: "Fichil | Backend, DevOps & Integration Engineer"
+    title: "Fichil | Freelance Backend, DevOps & Integration Engineer"
     menus:
       main:
         - identifier: "about"
           name: "Services"
-          url: "/#about"
+          url: "/#services"
           weight: 1
         - identifier: "projects"
-          name: "Cases"
+          name: "Core Cases"
           url: "/#projects"
           weight: 2
         - identifier: "blog"
@@ -57,7 +57,7 @@ languages:
           url: "/#contact"
           weight: 4
     params:
-      description: "Backend and DevOps engineer focused on Java systems, logistics platforms, SAP/WMS/TMS integrations, open-source tools, and AI-assisted development."
+      description: "Freelance backend, DevOps, and enterprise integration engineer documenting production reliability, logistics systems, and evidence-led delivery."
       favicon: "/favicon.png"
       navbar:
         align: "ms-auto"
@@ -72,76 +72,136 @@ languages:
 
       hero:
         enable: true
-        intro: "Build. Debug. Ship."
-        title: "I'm Fichil."
-        subtitle: "Backend / DevOps / Enterprise Integration Engineer"
-        content: "I write down the problems I actually handle: Java backend fixes, logistics workflow changes, Nginx/Linux recovery, SAP/WMS/TMS integrations, and practical AI-assisted development."
-        image: "/images/profile.svg"
+        intro: "Fichil · Independent Engineering"
+        title: "Make complex systems reliable."
+        subtitle: "Freelance Backend / DevOps / Enterprise Integration Engineer"
+        content: "I investigate production failures, stabilize delivery pipelines, and close enterprise integration flows with evidence that can be reviewed: logs, database state, tests, and release results."
+        image: "/author-fichil.png"
+        imageAlt: "Abstract geometric portrait used as the Fichil author illustration"
         button:
           enable: true
-          name: "Read the Blog"
-          url: "/blog/"
+          name: "View Engineering Cases"
+          url: "/#projects"
           newPage: false
+        secondaryButton:
+          name: "Describe Your Project"
+          url: "/#contact"
         bottomImage:
           enable: false
+
+      trust:
+        postsLabel: "bilingual engineering notes"
+        sourceValue: "Open source"
+        sourceLabel: "site repository"
+        releaseValue: "CI + exact SHA"
+        releaseLabel: "release evidence"
+
+      services:
+        title: "Problems I Can Help Close"
+        intro: "Focused engineering support for systems that are difficult to diagnose, risky to change, or spread across several teams and services."
+        items:
+          - title: "Production Reliability & Performance"
+            content: "Trace failures through logs, runtime configuration, database behavior, dependencies, and resource limits; make the smallest safe change and prove the result."
+            badges: ["Incident Analysis", "SQL Performance", "Runtime"]
+          - title: "DevOps & Delivery Engineering"
+            content: "Make builds, CI checks, environment boundaries, release evidence, and rollback paths repeatable without hiding operational risk behind automation."
+            badges: ["CI/CD", "Docker", "Release Safety"]
+          - title: "Enterprise Logistics Integration"
+            content: "Align identity, contracts, state transitions, idempotency, reconciliation, and failure handling across WMS, TMS, YMS, SAP/ERP, carriers, billing, and OpenAPI."
+            badges: ["WMS/TMS/YMS", "SAP/ERP", "OpenAPI"]
 
       about:
         enable: true
         id: "about"
-        title: "Engineering Focus"
+        title: "An Open, Reviewable Way of Working"
         content: |-
-          This site is my public engineering notebook and portfolio. I use it to record problems I have solved, the checks that worked, and the tools I am building.
+          I use this site as both an engineering notebook and a public record of how I work. Each useful case starts from observed behavior, follows the real data and runtime path, limits the change surface, and ends with verification.
 
-          - **Backend Engineering**: Java, Spring, REST APIs, validation rules, SQL troubleshooting, and production defect analysis.
-          - **Logistics Platforms**: WMS, TMS, YMS, billing, carrier assignment, dispatch confirmation, proof of delivery, and SAP/ERP integration.
-          - **DevOps Operations**: Linux, Nginx, Docker, VPS deployment, HTTPS, GitHub Actions, and incident recovery.
-          - **Open Source**: Building Repo2AI to convert repositories into AI-ready context packs for ChatGPT, Claude, Cursor, and coding agents.
-          - **AI Workflow**: Using ChatGPT and Codex to speed up implementation while keeping design, testing, and release decisions under human review.
+          - **Evidence before edits**: logs, process arguments, database state, network paths, and reproducible failures.
+          - **Small, reversible changes**: preserve existing contracts and parallel business flows unless the requirement explicitly changes them.
+          - **Verification at the real boundary**: reconcile data, test retries and failures, build release artifacts, and confirm the deployed version.
+          - **AI-assisted, human-reviewed**: fichil.com is open source and maintained with AI assistance, while design, review, merge, and release decisions remain accountable.
         skills:
           enable: true
           title: "Core Stack"
           items:
             - "Java / Spring / REST APIs"
             - "MySQL / SQL troubleshooting"
-            - "Linux / Nginx / HTTPS"
+            - "Linux / Runtime / Networking"
             - "Docker / GitHub Actions"
             - "WMS / TMS / YMS / SAP integration"
-            - "Go / Repo2AI / AI-assisted development"
+            - "Codex / AI-assisted engineering"
 
       projects:
         enable: true
         id: "projects"
-        title: "Current Work"
+        title: "Selected Engineering Cases"
+        intro: "Public, source-backed examples showing how I diagnose, change, and verify complex systems without exposing client identities or private data."
         items:
-          - title: "VPS and Nginx Recovery"
-            content: "A real recovery note covering DNS, ports, Nginx, Hugo build output, HTTPS, and production verification for fichil.com."
-            image: "/images/projects/devops.svg"
+          - kicker: "Reliability"
+            title: "Production Reliability & Performance"
+            content: "A production dashboard showed zero while business data existed. The request path loaded large detail sets into Java, timed out, and left the UI's default value visible as if it were real data."
+            scope:
+              - "Trace the request from UI state through Java queries and production data volume"
+              - "Move summary calculation into database aggregates without changing the API contract"
+            outcomes:
+              - "Reconciled old and new results with read-only checks"
+              - "Made failures visible instead of presenting them as valid zeroes"
             featured:
-              name: "Read Case"
-              link: "/blog/fix-vps-connection/"
-            badges: ["Nginx", "Linux", "HTTPS"]
-          - title: "Repo2AI"
-            content: "An open-source CLI that turns repositories into structured context files for ChatGPT, Claude, Cursor, and coding agents."
-            image: "/images/projects/repo2ai.svg"
+              name: "Read Core Case"
+              link: "/blog/production-dashboard-aggregation/"
+            proofLinks:
+              - name: "Runtime environment drift"
+                link: "/blog/distributed-runtime-environment-drift/"
+              - name: "Container connection failure"
+                link: "/blog/dubbo-connection-refused-container/"
+            badges: ["SQL", "Performance", "Production"]
+          - kicker: "Open Source"
+            title: "AI-Assisted fichil.com"
+            content: "This site is an open-source delivery system: Hugo Markdown remains the content source, vinext renders the Sites application, and reviewed changes move through CI, exact-SHA release evidence, and version-based rollback."
+            scope:
+              - "Bilingual content and application changes remain reviewable in Git"
+              - "AI assists implementation while humans retain merge and release decisions"
+            outcomes:
+              - "The deployed commit is exposed through /version.json"
+              - "Production rollback uses a previously known-good Sites version"
             featured:
-              name: "GitHub"
-              link: "https://github.com/fichil/Repo2AI"
-            badges: ["Go", "AI Tools", "Open Source"]
-          - title: "Enterprise Logistics Integrations"
-            content: "Notes from WMS/TMS/YMS work: carrier dispatch, billing, route validation, fee confirmation, and SAP/ERP interface troubleshooting."
-            image: "/images/projects/logistics.svg"
+              name: "View Source"
+              link: "https://github.com/fichil/fichil.com"
+            proofLinks:
+              - name: "Read the delivery architecture"
+                link: "/blog/ai-maintained-hugo-site/"
+            badges: ["Open Source", "AI-Assisted", "Sites"]
+          - kicker: "Integration"
+            title: "Enterprise Logistics Integration"
+            content: "Integration work across WMS, TMS, YMS, SAP/ERP, carriers, billing, proof of delivery, and OpenAPI requires more than connecting endpoints: identity, ownership, state, retry, and reconciliation rules must agree."
+            scope:
+              - "Define contracts, ownership boundaries, state mappings, idempotency, and error semantics"
+              - "Close inbound, inventory, outbound, transport, billing, yard, and external API flows"
+            outcomes:
+              - "Verify final state through database reconciliation and full-domain smoke scenarios"
+              - "Keep unavailable third parties outside the platform's internal acceptance decision"
             featured:
-              name: "Contact"
+              name: "Discuss an Integration"
               link: "/#contact"
-            badges: ["Java", "SAP", "WMS/TMS"]
+            proofLinks:
+              - name: "Organization data model"
+                link: "/blog/logistics-organization-data-model/"
+              - name: "TMS migration matrix"
+                link: "/blog/legacy-tms-migration-matrix/"
+              - name: "Production-grade WMS RF"
+                link: "/blog/production-grade-wms-rf/"
+              - name: "Database-backed acceptance"
+                link: "/blog/database-backed-business-flow-acceptance/"
+            badges: ["WMS/TMS/YMS", "SAP/ERP", "Reconciliation"]
 
       contact:
         enable: true
         id: "contact"
-        title: "Contact"
-        content: "For collaboration, technical discussions, open-source feedback, or production troubleshooting, send a clear problem statement with logs, screenshots, data samples, or a repository link."
-        btnName: "Send Email"
-        btnLink: "mailto:fichilzhang@gmail.com"
+        title: "Describe the System, Not Just the Symptom"
+        content: "For production troubleshooting, DevOps delivery work, or logistics integration, send the current behavior, expected result, affected environment, available logs or data samples, and any release constraint. I will respond from the evidence that is actually available."
+        btnName: "Start with an Email"
+        btnLink: "mailto:fichilzhang@gmail.com?subject=Engineering%20project%20brief"
 
   # ================= Chinese site config =================
   zh-cn:
@@ -149,15 +209,15 @@ languages:
     languageCode: "zh-CN"
     contentDir: "content/zh-cn"
     weight: 2
-    title: "Fichil | 后端、运维与企业集成工程师"
+    title: "Fichil | 自由职业后端、DevOps 与企业集成工程师"
     menus:
       main:
         - identifier: "about"
           name: "服务方向"
-          url: "/zh-cn/#about"
+          url: "/zh-cn/#services"
           weight: 1
         - identifier: "projects"
-          name: "排障案例"
+          name: "核心案例"
           url: "/zh-cn/#projects"
           weight: 2
         - identifier: "blog"
@@ -169,7 +229,7 @@ languages:
           url: "/zh-cn/#contact"
           weight: 4
     params:
-      description: "记录 Java 后端、物流系统、DevOps 运维、开源工具和 AI 辅助开发实践。"
+      description: "自由职业后端、DevOps 与企业集成工程师，记录生产可靠性、物流系统和以证据驱动的交付实践。"
       favicon: "/favicon.png"
       navbar:
         align: "ms-auto"
@@ -183,76 +243,136 @@ languages:
           disableContact: true
       hero:
         enable: true
-        intro: "构建、排障、交付"
-        title: "我是 Fichil"
-        subtitle: "后端 / DevOps / 企业系统集成工程师"
-        content: "我记录自己实际处理过的问题：Java 后端修复、物流业务流程改造、Nginx/Linux 运维恢复、SAP/WMS/TMS 集成，以及 AI 辅助开发实践。"
-        image: "/images/profile.svg"
+        intro: "Fichil · 独立工程实践"
+        title: "让复杂系统稳定交付"
+        subtitle: "自由职业后端 / DevOps / 企业系统集成工程师"
+        content: "我处理生产故障、交付链路和企业系统集成，用日志、数据库状态、测试与发布结果把问题定位、修改和验证过程讲清楚。"
+        image: "/author-fichil.png"
+        imageAlt: "Fichil 作者身份使用的抽象几何头像"
         button:
           enable: true
-          name: "阅读技术记录"
-          url: "/zh-cn/blog/"
+          name: "查看工程案例"
+          url: "/zh-cn/#projects"
           newPage: false
+        secondaryButton:
+          name: "说明项目需求"
+          url: "/zh-cn/#contact"
         bottomImage:
           enable: false
+
+      trust:
+        postsLabel: "组中英双语工程记录"
+        sourceValue: "开源可查"
+        sourceLabel: "站点源码"
+        releaseValue: "CI + 精确 SHA"
+        releaseLabel: "发布证据"
+
+      services:
+        title: "我能协助闭环的问题"
+        intro: "面向难定位、改动风险高，或跨越多个团队和服务的系统问题，提供聚焦且可验证的工程协作。"
+        items:
+          - title: "生产可靠性与性能"
+            content: "沿日志、运行配置、数据库行为、依赖链路和资源限制定位故障，控制修改范围，并用真实边界验证结果。"
+            badges: ["故障定位", "SQL 性能", "运行时"]
+          - title: "DevOps 与交付工程"
+            content: "让构建、CI、环境边界、发布证据和回滚路径可重复执行，同时不让自动化掩盖真实运行风险。"
+            badges: ["CI/CD", "Docker", "发布安全"]
+          - title: "企业物流系统集成"
+            content: "在 WMS、TMS、YMS、SAP/ERP、承运商、计费与 OpenAPI 之间对齐身份、契约、状态、幂等、对账和失败处理。"
+            badges: ["WMS/TMS/YMS", "SAP/ERP", "OpenAPI"]
 
       about:
         enable: true
         id: "about"
-        title: "工程方向"
+        title: "公开、可复核的工作方式"
         content: |-
-          这个网站是我的公开工程笔记和作品集。我用它记录解决过的问题、有效的排查步骤，以及正在做的工具。
+          这个网站既是工程笔记，也是我公开展示工作方法的地方。每个值得记录的案例都从可观察现象开始，沿真实数据和运行链路定位，控制改动范围，并以验证结果结束。
 
-          - **后端开发**：Java、Spring、REST API、业务校验、SQL 排障、生产缺陷定位。
-          - **物流系统**：WMS、TMS、YMS、费用、承运商分配、调度确认、回单、SAP/ERP 集成。
-          - **运维部署**：Linux、Nginx、Docker、VPS、HTTPS、GitHub Actions、故障恢复。
-          - **开源项目**：维护 Repo2AI，把代码仓库转换成适合 ChatGPT、Claude、Cursor 和 coding agent 阅读的上下文包。
-          - **AI 工作流**：用 ChatGPT/Codex 提高实现效率，但设计、测试和上线判断仍由人来负责。
+          - **修改前先建立证据**：检查日志、进程参数、数据库状态、网络路径和可复现现象。
+          - **保持改动小且可回退**：除非需求明确改变，否则保留现有契约和并行业务流程。
+          - **在真实边界完成验证**：对账数据，覆盖重试与失败路径，构建发布产物，并核对线上版本。
+          - **AI 辅助、人工负责**：fichil.com 开源并由 AI 辅助维护，但设计、评审、合并和发布判断仍由人负责。
         skills:
           enable: true
           title: "核心技术栈"
           items:
             - "Java / Spring / REST API"
             - "MySQL / SQL 排障"
-            - "Linux / Nginx / HTTPS"
+            - "Linux / 运行时 / 网络"
             - "Docker / GitHub Actions"
             - "WMS / TMS / YMS / SAP 集成"
-            - "Go / Repo2AI / AI 辅助开发"
+            - "Codex / AI 辅助工程"
 
       projects:
         enable: true
         id: "projects"
-        title: "当前重点"
+        title: "核心工程案例"
+        intro: "以下案例只使用公开、可核验的工程事实，展示我如何定位、修改和验证复杂系统，不暴露客户身份和私有数据。"
         items:
-          - title: "VPS 与 Nginx 恢复"
-            content: "记录 fichil.com 从 DNS、端口、Nginx、Hugo 构建目录、HTTPS 到线上验证的恢复过程。"
-            image: "/images/projects/devops.svg"
+          - kicker: "可靠性"
+            title: "生产可靠性与性能"
+            content: "生产统计全部显示为 0，但业务数据实际存在。请求链路把大量明细加载到 Java 内存中并超时，页面却把初始化的 0 显示成了真实结果。"
+            scope:
+              - "从页面状态、Java 查询和生产数据量追踪完整请求链路"
+              - "把统计下推为数据库聚合，同时保持原接口契约不变"
+            outcomes:
+              - "通过只读检查对账新旧统计结果"
+              - "让请求失败显式可见，不再伪装成有效的 0"
             featured:
-              name: "查看案例"
-              link: "/zh-cn/blog/fix-vps-connection/"
-            badges: ["Nginx", "Linux", "HTTPS"]
-          - title: "Repo2AI"
-            content: "一个开源 CLI 工具，用于把代码仓库转换成适合 ChatGPT、Claude、Cursor 和 coding agent 阅读的上下文包。"
-            image: "/images/projects/repo2ai.svg"
+              name: "阅读核心案例"
+              link: "/zh-cn/blog/production-dashboard-aggregation/"
+            proofLinks:
+              - name: "运行环境漂移"
+                link: "/zh-cn/blog/distributed-runtime-environment-drift/"
+              - name: "容器连接故障"
+                link: "/zh-cn/blog/dubbo-connection-refused-container/"
+            badges: ["SQL", "性能", "生产"]
+          - kicker: "开源"
+            title: "AI 辅助开发与运维的 fichil.com"
+            content: "这个站点本身就是一个开源交付系统：Hugo Markdown 保持为内容源，vinext 渲染 Sites 应用，评审后的变更通过 CI、精确 SHA 发布证据和版本回滚进入生产。"
+            scope:
+              - "双语内容和应用修改都在 Git 中保持可审查"
+              - "AI 辅助实现，人负责合并和发布判断"
+            outcomes:
+              - "通过 /version.json 暴露当前线上提交"
+              - "生产回滚使用上一已知正常的 Sites 版本"
             featured:
-              name: "GitHub"
-              link: "https://github.com/fichil/Repo2AI"
-            badges: ["Go", "AI 工具", "开源"]
-          - title: "企业物流系统集成"
-            content: "整理 WMS/TMS/YMS、承运商调度、费用确认、路由校验、计费、SAP/ERP 接口联调相关工程记录。"
-            image: "/images/projects/logistics.svg"
+              name: "查看源码"
+              link: "https://github.com/fichil/fichil.com"
+            proofLinks:
+              - name: "阅读交付架构"
+                link: "/zh-cn/blog/ai-maintained-hugo-site/"
+            badges: ["开源", "AI 辅助", "Sites"]
+          - kicker: "集成"
+            title: "企业物流系统集成"
+            content: "WMS、TMS、YMS、SAP/ERP、承运商、计费、回单和 OpenAPI 的集成不只是连接接口，还必须统一身份、数据归属、状态、重试和对账规则。"
+            scope:
+              - "定义接口契约、身份边界、状态映射、幂等和错误语义"
+              - "闭环入库、库存、出库、运输、计费、园区与外部 API 流程"
+            outcomes:
+              - "用数据库对账和全域 smoke 验证最终状态"
+              - "不让不可控第三方决定平台内部流程是否正确"
             featured:
-              name: "联系我"
+              name: "讨论集成需求"
               link: "/zh-cn/#contact"
-            badges: ["Java", "SAP", "WMS/TMS"]
+            proofLinks:
+              - name: "组织数据模型"
+                link: "/zh-cn/blog/logistics-organization-data-model/"
+              - name: "TMS 迁移矩阵"
+                link: "/zh-cn/blog/legacy-tms-migration-matrix/"
+              - name: "生产级 WMS RF"
+                link: "/zh-cn/blog/production-grade-wms-rf/"
+              - name: "数据库闭环验收"
+                link: "/zh-cn/blog/database-backed-business-flow-acceptance/"
+            badges: ["WMS/TMS/YMS", "SAP/ERP", "数据对账"]
 
       contact:
         enable: true
         id: "contact"
-        title: "联系我"
-        content: "如果你想交流技术问题、开源项目、工程协作或生产问题排障，请把问题背景、日志、截图、数据样例或仓库链接整理后发给我。"
-        btnName: "立即发邮件"
-        btnLink: "mailto:fichilzhang@gmail.com"
+        title: "先说明系统，再说明症状"
+        content: "如果需要生产排障、DevOps 交付或物流系统集成协作，请提供当前表现、预期结果、受影响环境、可用日志或数据样例，以及发布限制。我会从现有证据开始判断。"
+        btnName: "通过邮件开始"
+        btnLink: "mailto:fichilzhang@gmail.com?subject=%E5%B7%A5%E7%A8%8B%E9%A1%B9%E7%9B%AE%E8%83%8C%E6%99%AF"
 
 # ================= Global footer config =================
 footer:

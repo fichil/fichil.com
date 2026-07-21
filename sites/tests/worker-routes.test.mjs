@@ -39,6 +39,9 @@ function createEnv(cache) {
         if (pathname === "/og.png") {
           return new Response(new Uint8Array([137, 80, 78, 71]), { headers: { "content-type": "image/png" } });
         }
+        if (pathname === "/author-fichil.png") {
+          return new Response(new Uint8Array([137, 80, 78, 71]), { headers: { "content-type": "image/png" } });
+        }
         if (pathname === "/assets/test-deadbeef.js") {
           return new Response("export default true;", { headers: { "content-type": "text/javascript" } });
         }
@@ -89,12 +92,18 @@ test("renders localized metadata and article structure", async () => {
   assert.match(englishHtml, /https:\/\/fichil\.com\//);
 
   const chinese = await fetchPath("/zh-cn/");
-  assert.match(await chinese.text(), /<html[^>]+lang="zh-CN"/i);
+  const chineseHtml = await chinese.text();
+  assert.match(chineseHtml, /<html[^>]+lang="zh-CN"/i);
+  assert.match(chineseHtml, /让复杂系统稳定交付/);
+  assert.match(chineseHtml, /AI 辅助开发与运维的 fichil\.com/);
+  assert.doesNotMatch(chineseHtml, /Repo2AI|VPS 与 Nginx 恢复/);
 
   const article = await fetchPath("/blog/database-backed-business-flow-acceptance/");
   const articleHtml = await article.text();
   assert.match(articleHtml, /application\/ld\+json/);
   assert.match(articleHtml, /On this page/);
+  assert.match(articleHtml, /Related Engineering Notes/);
+  assert.match(articleHtml, /Updated/);
 });
 
 test("serves RSS, robots, and clean sitemap output", async () => {
@@ -189,6 +198,11 @@ test("serves static assets with explicit browser caching", async () => {
   assert.match(favicon.headers.get("content-type") ?? "", /image\/png/);
   assert.equal(favicon.headers.get("cache-control"), "public, max-age=86400");
 
+  const author = await fetchPath("/author-fichil.png");
+  assert.equal(author.status, 200);
+  assert.match(author.headers.get("content-type") ?? "", /image\/png/);
+  assert.equal(author.headers.get("cache-control"), "public, max-age=86400");
+
   const missing = await fetchPath("/assets/missing.js");
   assert.equal(missing.status, 404);
   assert.notEqual(missing.headers.get("cache-control"), "public, max-age=31536000, immutable");
@@ -197,11 +211,12 @@ test("serves static assets with explicit browser caching", async () => {
 test("packages asset binding and source cache rules", async () => {
   const wrangler = JSON.parse(await readFile(new URL("../dist/server/wrangler.json", import.meta.url), "utf8"));
   assert.equal(wrangler.assets.binding, "ASSETS");
-  assert.deepEqual(wrangler.assets.run_worker_first, ["/assets/*", "/favicon.ico*", "/favicon.png", "/og.png"]);
+  assert.deepEqual(wrangler.assets.run_worker_first, ["/assets/*", "/favicon.ico*", "/favicon.png", "/og.png", "/author-fichil.png"]);
 
   const headers = await readFile(new URL("../public/_headers", import.meta.url), "utf8");
   assert.match(headers, /\/assets\/\*/);
   assert.match(headers, /max-age=31536000, immutable/);
+  assert.match(headers, /\/author-fichil\.png/);
 });
 
 test("preserves only intended compatibility redirects", async () => {

@@ -3,7 +3,7 @@ import type { Locale } from "@/lib/content";
 
 export const SITE_URL = "https://fichil.com";
 export const DEFAULT_DESCRIPTION =
-  "Backend and DevOps engineer focused on Java systems, logistics platforms, SAP/WMS/TMS integrations, open-source tools, and AI-assisted development.";
+  "Freelance backend, DevOps, and enterprise integration engineer documenting production reliability, logistics platforms, and evidence-led delivery.";
 
 export function absoluteUrl(path: string): string {
   return new URL(path, SITE_URL).toString();
@@ -43,7 +43,7 @@ export function createMetadata(input: MetadataInput): Metadata {
       description: input.description,
       siteName: "Fichil | Engineering Notes",
       locale: input.locale === "zh-cn" ? "zh_CN" : "en_US",
-      images: [{ url: absoluteUrl("/og.png"), width: 1536, height: 1024, alt: "Fichil engineering notes" }],
+      images: [{ url: absoluteUrl("/og.png"), width: 1200, height: 630, alt: "Fichil backend, DevOps, and enterprise systems integration" }],
       ...(input.publishedTime ? { publishedTime: input.publishedTime } : {}),
       ...(input.tags ? { tags: input.tags } : {}),
     },

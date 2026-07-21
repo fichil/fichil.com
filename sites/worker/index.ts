@@ -92,6 +92,7 @@ function isStaticAssetPath(pathname: string): boolean {
   return pathname.startsWith("/assets/")
     || pathname === "/favicon.png"
     || pathname === "/og.png"
+    || pathname === "/author-fichil.png"
     || pathname === "/favicon.ico"
     || pathname === "/favicon.ico/";
 }
@@ -130,7 +131,7 @@ const worker = {
     const legacyRedirects: Record<string, string> = {
       "/posts/fix-err-connection-refused-on-vps/": "/blog/fix-vps-connection/",
       "/posts/fix/": "/blog/fix-vps-connection/",
-      "/page/about/": "/#about",
+      "/page/about/": "/#services",
       "/page/contact/": "/#contact",
     };
     const exactRedirect = legacyRedirects[url.pathname];
