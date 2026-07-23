@@ -120,7 +120,7 @@ languages:
           - **Evidence before edits**: logs, process arguments, database state, network paths, and reproducible failures.
           - **Small, reversible changes**: preserve existing contracts and parallel business flows unless the requirement explicitly changes them.
           - **Verification at the real boundary**: reconcile data, test retries and failures, build release artifacts, and confirm the deployed version.
-          - **AI-assisted, human-reviewed**: fichil.com is open source and maintained with AI assistance, while design, review, merge, and release decisions remain accountable.
+          - **AI-assisted, policy-gated**: people define the delivery policy and remain accountable; narrowly scoped bilingual blog PRs may auto-merge only after protected checks, while other changes remain human-reviewed.
         skills:
           enable: true
           title: "Core Stack"
@@ -158,10 +158,10 @@ languages:
             badges: ["SQL", "Performance", "Production"]
           - kicker: "Open Source"
             title: "AI-Assisted fichil.com"
-            content: "This site is an open-source delivery system: Hugo Markdown remains the content source, vinext renders the Sites application, and reviewed changes move through CI, exact-SHA release evidence, and version-based rollback."
+            content: "This site is an open-source delivery system: Hugo Markdown remains the content source, vinext renders the Sites application, and validated changes move through CI, exact-SHA release evidence, and version-based rollback."
             scope:
               - "Bilingual content and application changes remain reviewable in Git"
-              - "AI assists implementation while humans retain merge and release decisions"
+              - "People define release policy; protected checks can auto-merge narrowly scoped blog updates"
             outcomes:
               - "The deployed commit is exposed through /version.json"
               - "Production rollback uses a previously known-good Sites version"
@@ -291,7 +291,7 @@ languages:
           - **修改前先建立证据**：检查日志、进程参数、数据库状态、网络路径和可复现现象。
           - **保持改动小且可回退**：除非需求明确改变，否则保留现有契约和并行业务流程。
           - **在真实边界完成验证**：对账数据，覆盖重试与失败路径，构建发布产物，并核对线上版本。
-          - **AI 辅助、人工负责**：fichil.com 开源并由 AI 辅助维护，但设计、评审、合并和发布判断仍由人负责。
+          - **AI 辅助、规则门禁**：人负责定义交付规则并承担责任；范围严格受限的双语博客 PR 只有在受保护检查通过后才可自动合并，其他变更仍需人工审核。
         skills:
           enable: true
           title: "核心技术栈"
@@ -329,10 +329,10 @@ languages:
             badges: ["SQL", "性能", "生产"]
           - kicker: "开源"
             title: "AI 辅助开发与运维的 fichil.com"
-            content: "这个站点本身就是一个开源交付系统：Hugo Markdown 保持为内容源，vinext 渲染 Sites 应用，评审后的变更通过 CI、精确 SHA 发布证据和版本回滚进入生产。"
+            content: "这个站点本身就是一个开源交付系统：Hugo Markdown 保持为内容源，vinext 渲染 Sites 应用，通过门禁的变更经由 CI、精确 SHA 发布证据和版本回滚进入生产。"
             scope:
               - "双语内容和应用修改都在 Git 中保持可审查"
-              - "AI 辅助实现，人负责合并和发布判断"
+              - "人定义发布规则；受保护检查可自动合并范围严格受限的博客更新"
             outcomes:
               - "通过 /version.json 暴露当前线上提交"
               - "生产回滚使用上一已知正常的 Sites 版本"

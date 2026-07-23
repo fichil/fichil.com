@@ -18,7 +18,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           submodules: recursive
+
+      - name: Validate automated blog pull request scope
+        if: github.event_name == 'pull_request' && github.head_ref == 'chatgpt'
+        env:
+          BLOG_AUTOMATION_MARKER: ${{ contains(github.event.pull_request.body, '<!-- codex-workday-bilingual-blog -->') }}
+          BLOG_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: bash tools/check-blog-pr-scope.sh
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3

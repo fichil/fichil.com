@@ -59,6 +59,13 @@ npm test
 - A Sites version must be built from, pushed from, and saved against the same full Git commit SHA.
 - Never persist a Sites source token in a remote URL, Git configuration, file, automation prompt output, or log.
 - Keep GitHub Actions credential-free: it validates builds but does not deploy to Sites.
+- Protect `main`: all changes must arrive through a pull request that is current
+  with `main` and passes the GitHub Actions `build` and `sites` checks. Do not
+  bypass these requirements, including with administrator privileges.
+- Reserve the long-lived `chatgpt` branch for the weekday bilingual blog task.
+  That task may enable GitHub native auto-merge only for a marked pull request
+  whose complete diff contains paired English and Chinese blog `index.md` files
+  and no other paths. Other changes remain human-reviewed.
 - The scheduled publisher may deploy only after `Site Build Check` succeeds for the exact `main` SHA.
 - After deployment, verify `/version.json` and the canonical English and Chinese routes. Roll back to the previously known-good Sites version if production smoke checks fail.
 - Do not change Sites access, custom-domain DNS, or theme submodules unless explicitly requested.

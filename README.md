@@ -47,9 +47,13 @@ npm test
 ### Maintenance workflow
 
 1. Create a GitHub Issue with scope and acceptance criteria.
-2. Make focused changes on the `chatgpt` branch.
-3. Open a pull request into `main` and wait for owner review.
-4. GitHub Actions validates both Hugo and Sites without deployment credentials.
+2. Use the long-lived `chatgpt` branch only for the weekday bilingual blog;
+   use a dedicated branch for every other focused change.
+3. Open a marked Draft PR into protected `main`. The weekday bilingual blog
+   task may enable native auto-merge after validating that the full diff contains
+   only paired article files; other changes wait for owner review.
+4. GitHub Actions validates both Hugo and Sites without deployment credentials;
+   `build` and `sites` must pass against the latest `main` before merge.
 5. After merge, a Codex task checks `main` at 10:00 Asia/Shanghai on weekdays
    and publishes a new validated commit to Sites.
 
@@ -109,9 +113,11 @@ npm test
 ### 维护流程
 
 1. 创建 GitHub Issue，写明范围和验收标准。
-2. 在 `chatgpt` 分支完成小范围修改。
-3. 创建到 `main` 的 Pull Request，等待 owner 审核。
-4. GitHub Actions 在不持有部署凭据的情况下验证 Hugo 与 Sites。
+2. 长期 `chatgpt` 分支只用于工作日双语博客；其他小范围修改使用各自的专用分支。
+3. 创建到受保护 `main` 的带标记 Draft PR。工作日双语博客任务确认完整 diff 只含
+   成对文章文件后，可以启用 GitHub 原生自动合并；其他变更等待 owner 审核。
+4. GitHub Actions 在不持有部署凭据的情况下验证 Hugo 与 Sites；PR 必须基于最新
+   `main`，且 `build` 与 `sites` 均通过后才能合并。
 5. 合并后，Codex 每个工作日北京时间 10:00 检查 `main`，并把通过验证的
    新提交发布到 Sites。
 
