@@ -18,14 +18,32 @@ GitHub 始终是唯一可信源码。Sites 的构建、源仓库推送和版本�
 ## Change and review workflow / 修改与审核流程
 
 1. Create a bilingual Issue with scope and acceptance criteria.
-2. Update the `chatgpt` branch without rewriting remote history.
+2. Use the long-lived `chatgpt` branch only for the weekday bilingual blog;
+   use a dedicated branch for every other change.
 3. Validate Hugo and Sites locally.
-4. Open a Draft PR from `chatgpt` to `main`.
-5. The owner reviews and merges the PR manually.
-6. `Site Build Check` validates the exact `main` commit.
+4. Open a Draft PR from the selected branch to `main`.
+5. For the weekday bilingual blog task, validate the complete PR scope, mark it
+   ready, and enable GitHub native auto-merge. Other changes require owner review.
+6. GitHub merges only after the protected `build` and `sites` checks pass on a
+   PR that is current with `main`.
+7. `Site Build Check` validates the exact merged `main` commit.
 
-对应中文流程：先创建双语 Issue，在 `chatgpt` 分支修改并验证，创建到 `main` 的
-Draft PR，由 owner 人工审核合并，再由 `Site Build Check` 验证准确的生产提交。
+对应中文流程：先创建双语 Issue。工作日双语博客使用长期 `chatgpt` 分支，其他
+变更使用各自的专用分支；修改并验证后创建到 `main` 的 Draft PR。博客任务核对
+完整 PR 范围后启用 GitHub 原生自动合并，其他变更仍由 owner 人工审核。PR 必须
+基于最新 `main`，并通过受保护的 `build` 与 `sites` 检查；合并后再由
+`Site Build Check` 验证准确的生产提交。
+
+The `chatgpt` branch is reserved for the weekday bilingual blog task. Its PR
+body must contain `<!-- codex-workday-bilingual-blog -->`, and its complete diff
+may contain only paired `content/en/blog/<slug>/index.md` and
+`content/zh-cn/blog/<slug>/index.md` files. The automation must never use an
+administrator bypass, force-push, rebase, or delete the long-lived branch.
+
+`chatgpt` 分支专用于工作日双语博客任务。PR 正文必须包含
+`<!-- codex-workday-bilingual-blog -->`，完整 diff 只能包含 slug 一致、成对出现的
+中英文博客 `index.md`。自动化不得使用管理员绕过、强推、rebase，也不得删除该
+长期分支。
 
 Do not publish an unmerged branch. English and Chinese articles must keep the
 same slug and must stay under `content/en/blog/` and `content/zh-cn/blog/`.
@@ -79,7 +97,8 @@ Never deploy a dirty worktree or a commit that differs from the packaged build.
 
 ## Release checklist / 发布检查清单
 
-- The change is linked to an Issue and reviewed through a PR.
+- The change is linked to an Issue and validated through a protected PR; changes
+  outside the narrowly scoped blog automation remain human-reviewed.
 - `main` is the exact source being released.
 - Hugo build, Sites lint, and Sites tests pass.
 - No generated `public/`, `sites/generated/`, cache, key, password, or token is committed.
