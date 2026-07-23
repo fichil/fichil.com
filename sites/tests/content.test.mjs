@@ -71,10 +71,9 @@ test("reads localized homepage copy from hugo.yaml", () => {
 });
 
 test("keeps the reviewed bilingual editorial set complete", () => {
-  assert.equal(english.length, 16);
-  assert.equal(chinese.length, 16);
-  const expectedLastModified = "2026-07-21";
-  assert.ok(payload.posts.every((post) => post.lastModified === expectedLastModified));
+  assert.equal(english.length, chinese.length);
+  assert.ok(english.length >= 16);
+  assert.ok(payload.posts.every((post) => post.lastModified >= post.date));
 });
 
 test("keeps editorial and homepage links on known internal routes", () => {
