@@ -18,6 +18,7 @@ build input under `generated/`. Do not edit that output manually.
 ```text
 npm install
 npm run dev
+npm run security:audit
 npm test
 npm run lint
 ```
@@ -25,6 +26,20 @@ npm run lint
 `npm test` creates the deployment build and checks every canonical article,
 tag, category, feed, sitemap, redirect, removed legacy route, and the public
 `/version.json` release marker.
+
+## Dependency security
+
+The required `sites` check blocks high or critical findings in the complete npm
+dependency tree and moderate-or-higher findings in production dependencies.
+Dependabot proposes grouped weekly updates for the Next and Cloudflare/Vite
+stacks; these non-blog changes remain subject to owner review.
+
+The root overrides for `postcss` and `sharp` temporarily replace vulnerable
+versions pinned by Next and Miniflare. Keep them at exact reviewed versions and
+remove them only when the upstream packages resolve to patched versions without
+an override, `npm audit` remains clean, and the image-processing smoke test and
+complete Sites checks pass. Track removal in
+[GitHub Issue #38](https://github.com/fichil/fichil.com/issues/38).
 
 ## Publishing policy
 
