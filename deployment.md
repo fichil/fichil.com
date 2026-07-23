@@ -6,6 +6,7 @@
 - Source repository / 源码仓库: `https://github.com/fichil/fichil.com`
 - Production source / 生产源码: GitHub `main`
 - Production runtime / 正式运行环境: ChatGPT Sites (`sites/`)
+- Mainland China availability mirror / 中国大陆可用性镜像: BandwagonHost Hugo mirror
 - Content preview and compatibility validation / 内容预览与兼容性验证: Hugo
 
 GitHub remains the source of truth. Sites versions must be built from, pushed
@@ -95,6 +96,54 @@ Never deploy a dirty worktree or a commit that differs from the packaged build.
 人工发布必须遵守相同的构建、临时凭据、源码推送、打包、保存、上线、轮询和冒烟
 检查顺序；禁止发布脏工作区或与构建产物不一致的提交。
 
+## Mainland China mirror / 中国大陆镜像
+
+ChatGPT Sites remains the default runtime. AWS Route 53 geolocation records may
+return the BandwagonHost IPv4 address for DNS queries classified as mainland
+China while returning the existing Sites records everywhere else.
+`cn.fichil.com` is the explicit mirror address for clients whose recursive DNS
+resolver is misclassified. DNS geolocation is best effort; BandwagonHost is
+still an overseas host and is not a mainland availability guarantee.
+
+ChatGPT Sites 仍是默认运行环境。AWS Route 53 可以对识别为中国大陆的 DNS
+查询返回 BandwagonHost IPv4，其他地区保持现有 Sites 记录。当递归 DNS
+解析器地域识别不准确时，用户可直接访问 `cn.fichil.com`。板瓦工仍是境外
+主机，本方案是最佳努力的第二路径，不是大陆稳定性承诺。
+
+The mirror polls every ten minutes but does not publish the latest repository
+head directly. It reads the live Sites `/version.json`, requires that commit to
+be contained in `origin/main`, requires a successful `Site Build Check` push run
+for the exact SHA, initializes the pinned theme submodule, and builds Hugo from
+a detached worktree. A new release is activated with an atomic symlink only
+after the bilingual HTML, RSS, sitemap, and version files pass smoke checks.
+
+镜像每 10 分钟检查一次，但不会直接发布仓库最新 HEAD。它只跟随线上 Sites
+`/version.json` 报告的提交；该提交必须属于 `origin/main`，并且与成功的
+`Site Build Check` push 运行 SHA 完全一致。Hugo 在脱离 worktree 中构建，中英文
+HTML、RSS、sitemap 与版本文件通过冒烟检查后，才以原子软链接切换新版本。
+
+Use `fichil-mirrorctl status` and `fichil-mirrorctl list` for inspection.
+`fichil-mirrorctl rollback <sha>` atomically restores a retained release and
+creates a hold so the timer cannot immediately overwrite the rollback. Run
+`fichil-mirrorctl resume` only after the incident is resolved. Route 53 health
+checks fall back to the default Sites record when the mirror is unhealthy.
+
+使用 `fichil-mirrorctl status` 与 `fichil-mirrorctl list` 检查镜像状态。
+`fichil-mirrorctl rollback <sha>` 会原子回退到保留版本并自动暂停定时更新；只在
+故障处理完成后运行 `fichil-mirrorctl resume`。镜像健康检查失败时，Route 53
+回退到默认 Sites 记录。
+
+The deployment assets are maintained under `deploy/bandwagon/`. GitHub Actions
+checks their syntax but holds no SSH, AWS, or certificate credential. The
+server pulls the public repository and the certificate renewer uses a
+least-privilege Route 53 identity stored only on the server.
+
+Do not run the geolocation `--apply` step until `cn.fichil.com` has a valid
+certificate, the Route 53 health check is healthy, and direct HTTPS probes from
+mainland China succeed. The final script requires the explicit
+`MIRROR_CHINA_PROBE_APPROVED=YES` gate. If regional probes fail, leave the
+default Sites records unchanged.
+
 ## Release checklist / 发布检查清单
 
 - The change is linked to an Issue and validated through a protected PR; changes
@@ -105,6 +154,8 @@ Never deploy a dirty worktree or a commit that differs from the packaged build.
 - No Sites credential appears in a remote URL, Git configuration, file, or log.
 - `/version.json` reports the released full SHA after deployment.
 - Canonical English and Chinese routes return successful responses.
+- The mirror `/version.json` matches Sites before geolocation records are enabled.
+- The default Route 53 records still point to Sites and the complete previous DNS zone is recoverable.
 
 中文检查重点：Issue 与 PR 完整、发布源必须是准确的 `main`、Hugo 与 Sites 检查
 全部通过、没有提交生成文件或凭据、线上版本接口返回发布 SHA、中英文核心路径正常。

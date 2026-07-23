@@ -62,6 +62,12 @@ uses it to skip unchanged releases and rolls back to the previously known-good
 Sites version if post-deploy smoke checks fail. Sites credentials are always
 short-lived and must never be committed or persisted in Git configuration.
 
+ChatGPT Sites remains the default runtime. A BandwagonHost Hugo mirror can serve
+DNS queries classified as mainland China through Route 53 geolocation routing.
+The mirror follows the exact live Sites commit only after the corresponding
+`Site Build Check` succeeds, and `cn.fichil.com` remains an explicit fallback.
+No deployment credential is stored in GitHub Actions.
+
 See [deployment.md](deployment.md) for the complete release and rollback runbook.
 
 ### License
@@ -125,7 +131,11 @@ npm test
 冒烟检查失败时，会回退到上一个已知正常的 Sites 版本。Sites 凭据必须保持
 短期有效，禁止提交到仓库或保存到 Git 配置。
 
-完整发布与 Sites 版本回退说明见 [deployment.md](deployment.md)。
+ChatGPT Sites 仍是默认运行环境。AWS Route 53 可以把识别为中国大陆的 DNS 查询
+路由到 BandwagonHost Hugo 镜像。镜像只跟随已通过 `Site Build Check` 的线上 Sites
+精确提交，`cn.fichil.com` 用于显式兜底；GitHub Actions 不保存任何部署凭据。
+
+完整发布、地域镜像与 Sites 版本回退说明见 [deployment.md](deployment.md)。
 
 ### 许可证
 

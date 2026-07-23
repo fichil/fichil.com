@@ -1,0 +1,16 @@
+[Unit]
+Description=Update the fichil.com Bandwagon Hugo mirror
+After=network-online.target nginx.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=fichil-mirror
+Group=www-data
+EnvironmentFile=-/etc/default/fichil-mirror
+ExecStart=/usr/local/sbin/fichil-mirror-update
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/opt/fichil-mirror /srv/www/fichil /var/lib/fichil-mirror

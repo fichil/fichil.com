@@ -1,0 +1,6 @@
+deploy/bandwagon/*.sh text eol=lf
+deploy/bandwagon/*.conf text eol=lf
+deploy/bandwagon/*.service text eol=lf
+deploy/bandwagon/*.timer text eol=lf
+deploy/bandwagon/*.json text eol=lf
+deploy/bandwagon/tests/*.sh text eol=lf
