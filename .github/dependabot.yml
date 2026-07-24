@@ -1,0 +1,38 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /sites
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Shanghai
+    groups:
+      next-stack:
+        patterns:
+          - next
+          - eslint-config-next
+          - "@next/*"
+          - react
+          - react-dom
+          - react-server-dom-webpack
+          - vinext
+      cloudflare-vite-stack:
+        patterns:
+          - vite
+          - "@vitejs/*"
+          - "@cloudflare/*"
+          - wrangler
+          - miniflare
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:30"
+      timezone: Asia/Shanghai
+    groups:
+      github-actions:
+        patterns:
+          - "*"

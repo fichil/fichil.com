@@ -60,6 +60,10 @@ jobs:
         working-directory: sites
         run: npm ci
 
+      - name: Audit Sites dependencies
+        working-directory: sites
+        run: npm run security:audit
+
       - name: Lint Sites application
         working-directory: sites
         run: npm run lint
