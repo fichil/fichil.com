@@ -28,6 +28,9 @@ jobs:
           BLOG_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: bash tools/check-blog-pr-scope.sh
 
+      - name: Validate Bandwagon mirror tooling
+        run: bash deploy/bandwagon/tests/run.sh
+
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:

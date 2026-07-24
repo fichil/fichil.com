@@ -1,0 +1,12 @@
+[Unit]
+Description=Poll the verified live Sites version for the fichil.com mirror
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=10min
+RandomizedDelaySec=2min
+Persistent=true
+Unit=fichil-mirror-update.service
+
+[Install]
+WantedBy=timers.target
