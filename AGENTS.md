@@ -59,6 +59,13 @@ npm test
 - A Sites version must be built from, pushed from, and saved against the same full Git commit SHA.
 - Never persist a Sites source token in a remote URL, Git configuration, file, automation prompt output, or log.
 - Keep GitHub Actions credential-free: it validates builds but does not deploy to Sites.
+- Keep ChatGPT Sites as the default production runtime. The BandwagonHost Hugo
+  mirror is a regional availability path, not an independent content source.
+- The BandwagonHost mirror may activate only a commit reported by the live
+  Sites `/version.json`, contained in `origin/main`, and covered by a successful
+  `Site Build Check` push run for that exact SHA.
+- Keep BandwagonHost, Route 53, Certbot, and SSH credentials out of the
+  repository, GitHub Actions, Git configuration, remote URLs, and logs.
 - Protect `main`: all changes must arrive through a pull request that is current
   with `main` and passes the GitHub Actions `build` and `sites` checks. Do not
   bypass these requirements, including with administrator privileges.
@@ -69,3 +76,5 @@ npm test
 - The scheduled publisher may deploy only after `Site Build Check` succeeds for the exact `main` SHA.
 - After deployment, verify `/version.json` and the canonical English and Chinese routes. Roll back to the previously known-good Sites version if production smoke checks fail.
 - Do not change Sites access, custom-domain DNS, or theme submodules unless explicitly requested.
+- Before changing authoritative DNS or geolocation records, preserve the full
+  current zone, verify the mirror over HTTPS, and keep a default Sites record.
