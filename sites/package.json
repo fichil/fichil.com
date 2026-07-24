@@ -49,7 +49,7 @@
   },
   "optionalDependencies": {
     "@next/swc-linux-x64-gnu": "16.2.11",
-    "@rolldown/binding-linux-x64-gnu": "1.0.1",
+    "@rolldown/binding-linux-x64-gnu": "1.2.0",
     "lightningcss-linux-x64-gnu": "1.33.0"
   },
   "overrides": {
