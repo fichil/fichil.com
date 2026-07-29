@@ -1,7 +1,7 @@
 ---
 title: "从 Dubbo Connection Refused 追到容器服务与内存配置"
 date: 2026-07-07
-lastmod: 2026-07-21
+lastmod: 2026-07-29
 draft: false
 tags: ["dubbo", "docker", "java", "oom", "troubleshooting"]
 categories: ["DevOps"]
@@ -35,7 +35,7 @@ description: "一次 Dubbo 消费端连接被拒绝的排查：从最深层异�
 
 调整后采用强制重建，而不是只执行普通 restart。镜像内容没有变化时无需盲目重新拉取镜像，重点是让新的资源配置进入容器。
 
-## 验证闭环
+## 验证修复是否完整
 
 验证不止是“容器显示 running”：
 

@@ -1,7 +1,7 @@
 ---
 title: "Tracing Dubbo Connection Refused to a Container Memory Failure"
 date: 2026-07-07
-lastmod: 2026-07-21
+lastmod: 2026-07-29
 draft: false
 tags: ["dubbo", "docker", "java", "oom", "troubleshooting"]
 categories: ["DevOps"]
@@ -35,7 +35,7 @@ Restarting it restored the port temporarily but kept the same failure condition.
 
 After adjusting the memory budget, the service was force-recreated so the new configuration actually applied. Re-pulling the image was unnecessary because the image content itself had not changed.
 
-## Closing the verification loop
+## Verify the full recovery
 
 A green container status was not enough. Verification included:
 

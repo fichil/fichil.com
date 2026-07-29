@@ -1,7 +1,7 @@
 ---
 title: "Building a Production-Grade WMS RF Application"
 date: 2026-07-16
-lastmod: 2026-07-21
+lastmod: 2026-07-29
 draft: false
 tags: ["wms", "rf", "ionic", "capacitor", "idempotency"]
 categories: ["System Design"]
@@ -38,8 +38,8 @@ Printing, scanning, and permission handling are all wrapped in native adapters i
 
 ## Layered verification
 
-The gates covered backend module tests, client unit tests, browser smoke tests, TypeScript production builds, Capacitor synchronization, Android unit tests, and Debug APK assembly. The delivery also included a migration matrix, privacy and permission documentation, a parallel-cutover guide, and dedicated smoke tooling.
+The automated checks covered backend module tests, client unit tests, browser smoke tests, TypeScript production builds, Capacitor synchronization, Android unit tests, and Debug APK assembly. The delivery also included a migration matrix, privacy and permission documentation, a parallel-cutover guide, and dedicated smoke-test tools.
 
-All software gates passed, while physical RF and printer checks remained explicit field acceptance items. Automated validation can prove API, state, and build behavior, but it cannot substitute for scan latency, wireless quality, and printed output on the actual device.
+All software checks passed, while physical RF and printer checks remained field acceptance items. Automated validation can prove API, state, and build behavior, but it cannot substitute for scan latency, wireless quality, and printed output on the actual device.
 
 A production RF application is defined less by its page count than by its guarantees: every scan and confirmation is traceable, retryable without duplication, and permanently constrained to the operator's warehouse scope.
