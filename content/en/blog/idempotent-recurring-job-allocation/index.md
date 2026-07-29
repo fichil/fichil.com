@@ -1,17 +1,18 @@
 ---
-title: "Idempotent Sequence Allocation for Recurring Paid Jobs"
+title: "Assigning Incrementing Job IDs Without Duplicating Paid Work on Retry"
 date: 2026-07-28
+lastmod: 2026-07-29
 draft: false
 tags: ["automation", "idempotency", "scheduling", "state-management", "reliability"]
 categories: ["DevOps"]
-description: "How a stable allocation key, a process lock, and explicit task IDs let a recurring paid pipeline create multiple jobs per period without duplicating work after retries."
+description: "How a stable allocation key and a process lock let a recurring paid pipeline create several jobs per period without duplicating work when a scheduled run retries."
 ---
 
 A weekly media pipeline needed to support more than one release in the same ISO week. A simple weekly identifier was no longer unique, so task directories and history records were changed to a versioned form such as `2026-W32-0`, `2026-W32-1`, and `2026-W32-2`.
 
 That solved only half of the problem. A scheduler may restart after it has allocated a task but before it records success. If every retry asks for “the next sequence,” one logical run can consume several identifiers. In a paid pipeline, the consequence can be worse than untidy folders: a later command may initialize a second job and submit duplicate provider requests.
 
-## Evidence and failure model
+## Why a retry can create duplicate work
 
 The workflow had to satisfy two requirements that look contradictory:
 
@@ -20,9 +21,9 @@ The workflow had to satisfy two requirements that look contradictory:
 
 Using only the current maximum sequence satisfies the first requirement but violates the second. Using only a fixed weekly name makes retries safe but prevents legitimate additional releases. A timestamp is also insufficient: it makes every retry unique, which is exactly the behavior that must be avoided.
 
-The missing concept was the identity of the allocation attempt itself. The scheduler already knew which logical invocation it was executing, but that identity was not persisted with the allocated task.
+The missing information was a stable identifier for the scheduled invocation itself. The scheduler already knew which logical invocation it was executing, but that identifier was not saved with the allocated task.
 
-## Separate period, sequence, and allocation identity
+## Separate the period, sequence, and scheduled invocation
 
 The task identity was split into three fields:
 
@@ -30,7 +31,7 @@ The task identity was split into three fields:
 - `sequence` gives the zero-based position within that week;
 - `episode_id` combines them into the unique persistent identifier used by directories, state, history, and later commands.
 
-Allocation also accepts a stable `allocation_key`. A scheduled run derives this key from its own schedule identity, for example `scheduled-run:2026-08-07`. The exact format is less important than one rule: every retry of the same logical invocation must reuse the same key.
+Allocation also accepts a stable allocation key, `allocation_key`. A scheduled run derives it from its own schedule identity, for example `scheduled-run:2026-08-07`. The exact format is less important than one rule: every retry of the same logical invocation must reuse the same key.
 
 Under the pipeline lock, the allocator performs this sequence:
 
@@ -40,7 +41,7 @@ Under the pipeline lock, the allocator performs this sequence:
 4. if the key is already associated with another week or multiple tasks, fail closed;
 5. otherwise calculate `max(sequence) + 1`, persist the new task, and return its ID.
 
-The lock matters because idempotency alone does not serialize two first-time callers. Without mutual exclusion, both callers could observe the same maximum and allocate the same next sequence. Conversely, a lock without a stable allocation key would serialize retries while still assigning each one a new number. Both controls are required.
+The process lock ensures that only one allocation runs at a time. Without it, two first-time callers could observe the same maximum and allocate the same next sequence. Conversely, a lock without a stable allocation key would serialize retries while still assigning each one a new number. Both controls are required.
 
 ## Keep allocation separate from paid execution
 
@@ -75,7 +76,7 @@ The two migrated tasks also passed end-to-end read-only checks. Their artifacts,
 
 ## Lessons and limits
 
-An incrementing suffix is a naming convention, not an idempotency design. Reliable recurring allocation needs a durable attempt identity, mutual exclusion, and a fail-closed mapping between the two.
+An incrementing suffix is a naming convention, not an idempotency design. Reliable recurring allocation needs a durable invocation identity and mutual exclusion. If one allocation key is associated with multiple tasks or weeks, the allocator must stop instead of guessing which task to reuse.
 
 This pattern applies beyond media generation. It is useful for recurring exports, billing batches, model-evaluation runs, report snapshots, and any scheduler that may legitimately create several jobs per period while also retrying after uncertain completion.
 

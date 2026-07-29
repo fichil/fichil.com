@@ -1,6 +1,7 @@
 ---
 title: "Filter Before You Rank and Aggregate: Taking a 27-Second Query Down to About One Second"
 date: 2026-07-27
+lastmod: 2026-07-29
 draft: false
 tags: ["oracle", "sql", "performance", "pagination", "query-optimization"]
 categories: ["Backend"]
@@ -41,11 +42,11 @@ Every dependent dataset then joins to that candidate set:
 2. rank circulation records only for those orders;
 3. aggregate package, inspection, and detail facts only for those orders;
 4. assemble the existing response fields and status rules;
-5. apply the unchanged sort and pagination contract.
+5. preserve the existing sort and pagination behavior.
 
 The same structure was applied to both inbound and outbound queries. Unused joins were removed only where they contributed no selected field or filter. No database definition, API parameter, controller, response type, or front-end behavior changed.
 
-This is more than a cosmetic CTE refactor. The candidate set acts as an explicit cardinality boundary: later operations cannot accidentally expand back to the full historical tables.
+This is more than a cosmetic CTE refactor. The candidate set limits later operations to the orders already selected, so the amount of data being processed cannot accidentally expand back to the full historical tables.
 
 ## Verification
 

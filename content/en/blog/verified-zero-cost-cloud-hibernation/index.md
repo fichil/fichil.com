@@ -1,6 +1,7 @@
 ---
 title: "Hibernating a Cloud Deployment to Zero Paid Resources Without Losing Recovery Proof"
 date: 2026-07-24
+lastmod: 2026-07-29
 draft: false
 tags: ["cloud", "backup", "disaster-recovery", "cost-control", "operations"]
 categories: ["DevOps"]
@@ -15,9 +16,9 @@ The safe objective is therefore not simply deletion. It is a state with three se
 - recovery material is complete, readable, and stored outside the resources being released;
 - the provider reports no remaining paid resources in scope.
 
-## Evidence before release
+## Verify recovery material before releasing resources
 
-The first gate was a final application-aware backup to storage outside the primary cloud account. The backup was not accepted because a snapshot command returned success. It was restored into an isolated database, and the restored schema inventory was reconciled with the source. This proved that the archive, credentials, database engine, and restore procedure worked together.
+The first prerequisite was a final application-aware backup to storage outside the primary cloud account. The backup was not accepted merely because a snapshot command returned success. It was restored into an isolated database, and the restored schema inventory was reconciled with the source. This proved that the archive, credentials, database engine, and restore procedure worked together.
 
 The recovery package also contained the deployment manifest, restore instructions, and the minimum configuration needed to rebuild the environment. Sensitive material was encrypted for the operator account, then decrypted and read back in a separate verification step. Checksums were recorded after the package was finalized so later corruption or accidental replacement could be detected.
 
@@ -29,10 +30,10 @@ The dangerous assumption in cloud shutdown work is that each control proves more
 
 - a provider snapshot proves that an object exists, not that the application can be restored;
 - stopping a virtual machine proves that compute is inactive, not that all billable dependencies are gone;
-- an empty resource page proves current control-plane state, not that delayed billing records have already settled;
+- an empty resource page proves what the provider's resource-management view shows at that moment, not that delayed billing records have already settled;
 - a successful database restore proves data readability, not that deployment automation cannot start the system again.
 
-The treatment had to close all four boundaries: data, runtime, automation, and billing.
+The procedure therefore had to address four areas together: data, runtime, automation, and billing.
 
 ## Recovery-first hibernation sequence
 

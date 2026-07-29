@@ -1,7 +1,7 @@
 ---
 title: "Building and Operating fichil.com with AI: From Markdown to Auditable Sites Releases"
 date: 2026-05-07
-lastmod: 2026-07-21
+lastmod: 2026-07-29
 draft: false
 tags: ["AI", "Hugo", "GitHub Actions", "Open Source", "DevOps", "Sites"]
 categories: ["AI Engineering"]
@@ -64,9 +64,9 @@ human merge
 
 AI can accelerate discovery, implementation, and repeated checks. It cannot decide which private facts may be published, and it must not present an unimplemented plan as completed work.
 
-## Bind every release to one exact commit
+## Make every release correspond to one exact commit
 
-Production publishing accepts only a commit already merged into `main` with the required checks passing. The build output, source pushed to Sites, and saved Sites version must all reference the same full SHA.
+Every production release must correspond to a commit already merged into `main` with the required checks passing. The build output, source pushed to Sites, and saved Sites version must all use the same full SHA; source and artifacts from different commits cannot be mixed.
 
 After deployment, the release process verifies:
 
@@ -75,7 +75,7 @@ After deployment, the release process verifies:
 3. core articles, static assets, and language switching remain available;
 4. a failed smoke check can restore the previous known-good version immediately.
 
-Rollback does not depend on logging into a server. It redeploys a saved and previously verified Sites version, keeping release and recovery inside the same version boundary.
+Rollback does not depend on logging into a server. It redeploys a saved and previously verified Sites version, so release and recovery use the same unambiguous version reference.
 
 ## What this workflow demonstrates
 

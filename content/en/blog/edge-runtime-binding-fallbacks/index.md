@@ -1,14 +1,14 @@
 ---
 title: "Safe Edge-Worker Fallbacks for Missing Runtime Bindings"
 date: 2026-07-21
-lastmod: 2026-07-23
+lastmod: 2026-07-29
 draft: false
 tags: ["edge-worker", "cache", "runtime-bindings", "fallback", "testing"]
 categories: ["Web Engineering"]
-description: "An edge deployment where basic HTTP smoke checks passed but browser navigation returned 500 until optional cache and image capabilities gained explicit fallbacks."
+description: "An edge deployment where basic HTTP checks passed but browser navigation returned 500 until optional cache and image capabilities gained tested fallback behavior."
 ---
 
-A new edge-hosted site passed its build, unit tests, and repeated basic HTTP smoke checks. Real browser navigation still returned 500 on the first HTML request. Simple probes usually stayed green, while requests with browser-oriented headers reproduced the failure consistently.
+A new edge-hosted site passed its build, unit tests, and repeated basic HTTP smoke checks. Real browser navigation still returned 500 on the first HTML request. Runtime bindings are capabilities such as caching or image processing that the platform injects at deployment. Simple probes usually stayed green, while requests with browser-oriented headers reproduced the failure consistently.
 
 That difference mattered. A route returning a response does not prove that every browser path is safe. HTML caching, image optimization, and similar features may only run for particular request shapes.
 
@@ -31,7 +31,7 @@ The real defect was not an unreliable cache. It was the absence of defined behav
 
 ## Implementing safe degradation
 
-The corrected Worker follows explicit capability checks:
+The corrected Worker checks each optional capability before using it:
 
 - HTML cache access runs only when a dedicated cache binding exists; otherwise the request renders without edge caching.
 - Image optimization runs only when its binding exists; otherwise a public static asset is served in its original form.
@@ -48,6 +48,6 @@ After redeployment, production checks covered both language homepages, blog rout
 
 ## Lessons and limits
 
-Caching, image optimization, and observability are usually enhancements. They should not become single points of failure for HTML availability. Edge code should treat every runtime binding as an explicit capability contract: use it when present and follow a tested safe path when absent.
+Caching, image optimization, and observability are usually enhancements. They should not become single points of failure for HTML availability. Edge code should check every optional runtime binding before use and follow a tested safe path when it is absent.
 
 Fallback behavior still needs boundaries. Returning anything available may restore a status code while weakening source controls or cache semantics. Reliability and access safety have to be designed together.
