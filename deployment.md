@@ -96,6 +96,34 @@ Never deploy a dirty worktree or a commit that differs from the packaged build.
 人工发布必须遵守相同的构建、临时凭据、源码推送、打包、保存、上线、轮询和冒烟
 检查顺序；禁止发布脏工作区或与构建产物不一致的提交。
 
+## AI blog data and administration / AI 博客数据与管理
+
+The AI-readable article API is generated from the same reviewed Markdown as the
+human pages. Dynamic request totals and comments use the logical Sites D1
+binding `DB`; the schema source is `sites/db/schema.ts`, and reviewed additive
+migrations are packaged from `sites/drizzle/`. Never create a second article
+copy in D1.
+
+Configure `AI_BLOG_FINGERPRINT_SECRET` and `AI_BLOG_ADMIN_EMAILS` only as Sites
+runtime values. The first must be a long random value used to create rotating
+HMAC rate-limit fingerprints; the second is a comma-separated allowlist for
+the ChatGPT-authenticated owner page. Do not store either value in GitHub,
+files, source credentials, or logs.
+
+面向 AI 的文章接口与人类页面使用同一份已审稿 Markdown。动态请求数量和评论使用
+Sites 的逻辑 D1 绑定 `DB`；schema 位于 `sites/db/schema.ts`，已审查的增量迁移从
+`sites/drizzle/` 打包。不得把文章正文复制到 D1 中形成第二内容源。
+
+`AI_BLOG_FINGERPRINT_SECRET` 与 `AI_BLOG_ADMIN_EMAILS` 只能配置为 Sites 运行时值。
+前者用于生成按日轮换的 HMAC 限流指纹，后者是 ChatGPT 登录后的站长邮箱白名单；
+两者都不得进入 GitHub、文件、源码凭据或日志。
+
+Before deployment, confirm the migration is packaged and the exact `main` SHA
+passes the Sites checks. After deployment, verify `/llms.txt`, the AI manifest,
+one English and one Chinese machine article, an empty-or-valid stats response,
+and that an unauthenticated admin request redirects to ChatGPT sign-in. Comment
+writes are tested before production so smoke checks do not create public data.
+
 ## Mainland China mirror / 中国大陆镜像
 
 ChatGPT Sites remains the default runtime. AWS Route 53 geolocation records may

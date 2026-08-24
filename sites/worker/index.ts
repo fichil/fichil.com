@@ -2,6 +2,9 @@
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
 import payload from "@/generated/content.json";
+import { detectAiAgent, matchApiArticle, matchHtmlArticle } from "@/lib/ai-agents";
+import { handleAiBlogApi, handleAiDiscovery, protectAdminPage, recordAiVisit } from "@/lib/ai-blog-api";
+import type { AiBlogEnv } from "@/lib/d1";
 
 const BUILD_COMMIT = (payload as { build: { commit: string } }).build.commit;
 const HTML_CACHE_CONTROL = "public, max-age=60, s-maxage=3600, stale-while-revalidate=86400";
@@ -14,7 +17,7 @@ interface EdgeCache {
   put(request: Request, response: Response): Promise<void>;
 }
 
-interface Env {
+interface Env extends AiBlogEnv {
   ASSETS: { fetch(request: Request): Promise<Response> };
   HTML_CACHE?: EdgeCache;
   IMAGES?: {
@@ -39,9 +42,16 @@ function cloneResponse(response: Response, headers: Headers): Response {
   });
 }
 
+function applySecurityHeaders(headers: Headers): void {
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+}
+
 function withCacheStatus(response: Response, status: "HIT" | "MISS" | "BYPASS"): Response {
   const headers = new Headers(response.headers);
   headers.set(CACHE_STATUS_HEADER, status);
+  applySecurityHeaders(headers);
   return cloneResponse(response, headers);
 }
 
@@ -53,8 +63,16 @@ function isHtmlRequest(request: Request): boolean {
   return request.headers.get("accept")?.toLowerCase().includes("text/html") === true;
 }
 
+function isPrefetchRequest(request: Request): boolean {
+  return request.headers.has("next-router-prefetch")
+    || request.headers.has("next-router-segment-prefetch")
+    || request.headers.get("purpose")?.toLowerCase().includes("prefetch") === true
+    || request.headers.get("sec-purpose")?.toLowerCase().includes("prefetch") === true;
+}
+
 function isHtmlCacheCandidate(request: Request, url: URL): boolean {
   if (request.method !== "GET" || !isHtmlRequest(request) || url.search) return false;
+  if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) return false;
   if (url.pathname.startsWith("/_vinext/") || url.pathname.startsWith("/__vinext/")) return false;
   if (/\.(?:json|xml|txt)$/.test(url.pathname)) return false;
   for (const header of [
@@ -66,6 +84,8 @@ function isHtmlCacheCandidate(request: Request, url: URL): boolean {
     "next-router-prefetch",
     "next-router-segment-prefetch",
     "next-url",
+    "oai-authenticated-user-id",
+    "oai-authenticated-user-email",
   ]) {
     if (request.headers.has(header)) return false;
   }
@@ -103,6 +123,7 @@ async function serveStaticAsset(request: Request, env: Env, url: URL): Promise<R
   const response = await env.ASSETS.fetch(new Request(assetUrl, request));
   const headers = new Headers(response.headers);
   headers.set(CACHE_STATUS_HEADER, "BYPASS");
+  applySecurityHeaders(headers);
   if (response.ok) {
     headers.set("Cache-Control", isHashedAsset ? IMMUTABLE_ASSET_CACHE_CONTROL : ROOT_ASSET_CACHE_CONTROL);
   }
@@ -118,6 +139,7 @@ async function serveStaticAsset(request: Request, env: Env, url: URL): Promise<R
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+    const detectedAi = request.method === "GET" && !isPrefetchRequest(request) ? detectAiAgent(request) : null;
 
     if (url.hostname.toLowerCase() === "www.fichil.com") {
       url.hostname = "fichil.com";
@@ -142,6 +164,25 @@ const worker = {
     if (pageOneMatch) {
       url.pathname = pageOneMatch[1] || "/";
       return Response.redirect(url, 308);
+    }
+
+    const discovery = handleAiDiscovery(request, url);
+    if (discovery) return discovery;
+
+    const apiResponse = await handleAiBlogApi(request, env, ctx, url);
+    if (apiResponse) {
+      const apiArticle = request.method === "GET" ? matchApiArticle(url.pathname) : null;
+      if (apiArticle && detectedAi && env.DB && apiResponse.status === 200) {
+        ctx.waitUntil(recordAiVisit(env.DB, apiArticle.locale, apiArticle.slug, detectedAi.family).catch((error) => {
+          console.error("[fichil] AI visit counter write failed", error);
+        }));
+      }
+      return apiResponse;
+    }
+
+    if (url.pathname === "/admin/ai-blog/comments" || url.pathname === "/admin/ai-blog/comments/") {
+      const protectedResponse = protectAdminPage(request, env);
+      if (protectedResponse) return protectedResponse;
     }
 
     if (url.pathname === "/_vinext/image") {
@@ -170,13 +211,21 @@ const worker = {
       return serveStaticAsset(request, env, url);
     }
 
+    const htmlArticle = request.method === "GET" ? matchHtmlArticle(url.pathname) : null;
     const htmlCandidate = isHtmlCacheCandidate(request, url);
     let edgeCache = htmlCandidate ? getEdgeCache(env) : undefined;
     let cacheKey = htmlCandidate && edgeCache ? htmlCacheKey(url) : undefined;
     if (edgeCache && cacheKey) {
       try {
         const cached = await edgeCache.match(cacheKey);
-        if (cached) return withCacheStatus(cached, "HIT");
+        if (cached) {
+          if (htmlArticle && detectedAi && env.DB && cached.status === 200) {
+            ctx.waitUntil(recordAiVisit(env.DB, htmlArticle.locale, htmlArticle.slug, detectedAi.family).catch((error) => {
+              console.error("[fichil] AI visit counter write failed", error);
+            }));
+          }
+          return withCacheStatus(cached, "HIT");
+        }
       } catch (error) {
         console.error("[fichil] HTML cache read failed; rendering without edge cache", error);
         edgeCache = undefined;
@@ -190,6 +239,20 @@ const worker = {
     if (/\.(?:json|xml|txt)$/.test(appUrl.pathname)) appUrl.pathname += "/";
     const response = await handler.fetch(new Request(new Request(appUrl, request), { headers }), env, ctx);
 
+    if (url.pathname === "/admin/ai-blog/comments" || url.pathname === "/admin/ai-blog/comments/") {
+      const adminHeaders = new Headers(response.headers);
+      adminHeaders.set("Cache-Control", "private, no-store");
+      adminHeaders.set(CACHE_STATUS_HEADER, "BYPASS");
+      applySecurityHeaders(adminHeaders);
+      return cloneResponse(response, adminHeaders);
+    }
+
+    if (htmlArticle && detectedAi && env.DB && response.status === 200) {
+      ctx.waitUntil(recordAiVisit(env.DB, htmlArticle.locale, htmlArticle.slug, detectedAi.family).catch((error) => {
+        console.error("[fichil] AI visit counter write failed", error);
+      }));
+    }
+
     if (!htmlCandidate || !edgeCache || !cacheKey || !isCacheableHtmlResponse(response)) {
       return isHtmlRequest(request) ? withCacheStatus(response, "BYPASS") : response;
     }
@@ -197,6 +260,7 @@ const worker = {
     const responseHeaders = new Headers(response.headers);
     responseHeaders.set("Cache-Control", HTML_CACHE_CONTROL);
     responseHeaders.set(CACHE_STATUS_HEADER, "MISS");
+    applySecurityHeaders(responseHeaders);
     const optimized = cloneResponse(response, responseHeaders);
     ctx.waitUntil(edgeCache.put(cacheKey, optimized.clone()).catch((error) => {
       console.error("[fichil] HTML cache write failed", error);

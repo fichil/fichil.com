@@ -9,6 +9,21 @@ export interface TocItem {
   text: string;
 }
 
+export interface AiSolution {
+  schemaVersion: 1;
+  problem: string;
+  symptoms: string[];
+  evidence: string[];
+  rootCause: string;
+  resolutionSteps: string[];
+  verification: string[];
+  limitations: string[];
+  appliesTo: string[];
+  keywords: string[];
+  structureSource: "authored" | "legacy-derived";
+  completeness: "complete" | "partial";
+}
+
 export interface Post {
   locale: Locale;
   slug: string;
@@ -18,6 +33,8 @@ export interface Post {
   description: string;
   tags: string[];
   categories: string[];
+  contentMarkdown: string;
+  ai: AiSolution;
   html: string;
   toc: TocItem[];
   readingMinutes: number;
@@ -69,13 +86,22 @@ export interface BuildInfo {
   builtAt: string;
 }
 
+export interface ContentPolicy {
+  aiSchemaRequiredFrom: string;
+}
+
 export const PAGE_SIZE = 6;
 const posts = payload.posts as Post[];
 const site = payload.site as Record<Locale, SiteCopy>;
 const build = payload.build as BuildInfo;
+const contentPolicy = payload.contentPolicy as ContentPolicy;
 
 export function getBuildInfo(): BuildInfo {
   return build;
+}
+
+export function getContentPolicy(): ContentPolicy {
+  return contentPolicy;
 }
 
 export function getSiteCopy(locale: Locale): SiteCopy {
