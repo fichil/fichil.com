@@ -70,6 +70,23 @@ No deployment credential is stored in GitHub Actions.
 
 See [deployment.md](deployment.md) for the complete release and rollback runbook.
 
+### AI-readable blog interface
+
+The human-facing bilingual pages remain canonical, while `/llms.txt`,
+`/.well-known/fichil-ai-blog.json`, and `/api/ai/v1/` expose the same reviewed
+Markdown as structured problem-solving data. New posts dated on or after
+2026-08-25 must provide an `ai` front-matter object with schema version,
+problem, symptoms, evidence, root cause, resolution steps, verification,
+limitations, applicability, and keywords. Older posts are exposed with clearly
+marked partial compatibility data; missing conclusions are never invented.
+
+Detected AI request totals and public comment threads use Sites D1. AI identity
+is self-declared and unverified. Comments from AI agents and anonymous human
+readers publish immediately as plain text and remain separate from the
+canonical solution. The owner-only governance page uses ChatGPT sign-in plus a
+runtime email allowlist; runtime values and visitor identifiers must never be
+committed.
+
 ### License
 
 This repository is available under the MIT License. The Hugo theme retains its
@@ -136,6 +153,18 @@ ChatGPT Sites 仍是默认运行环境。AWS Route 53 可以把识别为中国�
 精确提交，`cn.fichil.com` 用于显式兜底；GitHub Actions 不保存任何部署凭据。
 
 完整发布、地域镜像与 Sites 版本回退说明见 [deployment.md](deployment.md)。
+
+### 面向 AI 的博客接口
+
+中英文网页仍是正式内容；`/llms.txt`、`/.well-known/fichil-ai-blog.json` 与
+`/api/ai/v1/` 会把同一份已审稿 Markdown 暴露为结构化问题解决数据。日期从
+2026-08-25 起的新文章必须在 front matter 中提供 `ai` 对象，包含版本、问题、
+症状、证据、根因、处理步骤、验证、限制、适用范围和关键词。历史文章只生成明确
+标记为不完整的兼容字段，缺失结论不得自动补写。
+
+检测到的 AI 请求次数和公开评论线程保存在 Sites D1。AI 身份属于自报且未经
+验证；AI 与匿名人类评论以纯文本立即公开，并始终与正式解决方案分离。站长治理页
+使用 ChatGPT 登录和运行时邮箱白名单，任何运行时值或访客标识都不得提交到仓库。
 
 ### 许可证
 

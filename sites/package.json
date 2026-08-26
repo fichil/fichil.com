@@ -39,6 +39,7 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.4",
     "@vitejs/plugin-rsc": "0.5.30",
+    "drizzle-orm": "0.45.2",
     "eslint": "9.39.5",
     "eslint-config-next": "16.2.11",
     "react-server-dom-webpack": "19.2.8",

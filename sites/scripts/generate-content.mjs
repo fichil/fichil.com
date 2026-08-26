@@ -18,6 +18,7 @@ const siteRoot = resolve(scriptDir, "..");
 const repositoryRoot = resolve(siteRoot, "..");
 const outputPath = join(siteRoot, "generated", "content.json");
 const execFileAsync = promisify(execFile);
+const AI_SCHEMA_REQUIRED_FROM = "2026-08-25";
 
 const markdownProcessor = unified()
   .use(remarkParse)
@@ -66,6 +67,101 @@ function toStringArray(value) {
   return Array.isArray(value) ? value.map(String) : [String(value)];
 }
 
+const sectionAliases = {
+  problem: ["problem", "symptom", "symptoms", "phenomenon", "issue", "现象", "问题", "问题现象", "故障现象", "症状"],
+  evidence: ["evidence", "observations", "investigation", "证据", "观察与证据", "排查证据", "调查证据"],
+  rootCause: ["root cause", "cause", "why it happened", "根因", "根本原因", "原因"],
+  resolution: ["resolution", "implementation", "fix", "solution", "handling", "解决方案", "处理", "实现", "修复", "处理方式", "实施"],
+  verification: ["verification", "validation", "result", "results", "验证", "验证结果", "结果"],
+  limitations: ["limitations", "limits", "boundaries", "caveats", "经验与限制", "限制", "适用边界", "边界", "局限"],
+  appliesTo: ["applies to", "scope", "applicability", "适用范围", "范围"],
+};
+
+function normalizeHeading(value) {
+  return value.normalize("NFKC").trim().toLowerCase().replace(/[：:]/g, "").replace(/\s+/g, " ");
+}
+
+function markdownSections(markdown) {
+  const sections = [];
+  let current = null;
+  for (const line of markdown.split(/\r?\n/)) {
+    const heading = line.match(/^#{2,3}\s+(.+?)\s*#*$/);
+    if (heading) {
+      if (current) sections.push(current);
+      current = { heading: normalizeHeading(heading[1]), body: [] };
+    } else if (current) {
+      current.body.push(line);
+    }
+  }
+  if (current) sections.push(current);
+  return sections.map((section) => ({ ...section, body: section.body.join("\n").trim() }));
+}
+
+function findSection(sections, aliases) {
+  return sections.find((section) => aliases.some((alias) => section.heading === alias || section.heading.includes(alias)))?.body || "";
+}
+
+function sectionItems(markdown) {
+  if (!markdown) return [];
+  const blocks = markdown
+    .split(/\n\s*\n|\n(?=\s*(?:[-*+] |\d+[.)] ))/)
+    .map((value) => stripMarkdown(value))
+    .filter(Boolean);
+  return blocks.length ? blocks : [stripMarkdown(markdown)].filter(Boolean);
+}
+
+function requireText(value, field, sourcePath) {
+  const result = typeof value === "string" ? value.trim() : "";
+  if (!result) throw new Error(`Invalid ai.${field} in ${sourcePath}`);
+  return result;
+}
+
+function requireTextArray(value, field, sourcePath) {
+  const result = Array.isArray(value) ? value.map((item) => String(item).trim()).filter(Boolean) : [];
+  if (!result.length) throw new Error(`Invalid ai.${field} in ${sourcePath}`);
+  return result;
+}
+
+function authoredAi(data, sourcePath) {
+  if (!data || Number(data.schema_version) !== 1) {
+    throw new Error(`Invalid ai.schema_version in ${sourcePath}`);
+  }
+  return {
+    schemaVersion: 1,
+    problem: requireText(data.problem, "problem", sourcePath),
+    symptoms: requireTextArray(data.symptoms, "symptoms", sourcePath),
+    evidence: requireTextArray(data.evidence, "evidence", sourcePath),
+    rootCause: requireText(data.root_cause, "root_cause", sourcePath),
+    resolutionSteps: requireTextArray(data.resolution_steps, "resolution_steps", sourcePath),
+    verification: requireTextArray(data.verification, "verification", sourcePath),
+    limitations: requireTextArray(data.limitations, "limitations", sourcePath),
+    appliesTo: requireTextArray(data.applies_to, "applies_to", sourcePath),
+    keywords: requireTextArray(data.keywords, "keywords", sourcePath),
+    structureSource: "authored",
+    completeness: "complete",
+  };
+}
+
+function legacyAi(markdown, description, tags) {
+  const sections = markdownSections(markdown);
+  const problemSection = findSection(sections, sectionAliases.problem);
+  const rootCauseSection = findSection(sections, sectionAliases.rootCause);
+  return {
+    schemaVersion: 1,
+    problem: stripMarkdown(problemSection) || description,
+    symptoms: sectionItems(problemSection),
+    evidence: sectionItems(findSection(sections, sectionAliases.evidence)),
+    rootCause: stripMarkdown(rootCauseSection),
+    resolutionSteps: sectionItems(findSection(sections, sectionAliases.resolution)),
+    verification: sectionItems(findSection(sections, sectionAliases.verification)),
+    limitations: sectionItems(findSection(sections, sectionAliases.limitations)),
+    appliesTo: sectionItems(findSection(sections, sectionAliases.appliesTo)),
+    keywords: tags,
+    structureSource: "legacy-derived",
+    completeness: "partial",
+  };
+}
+
 async function readPosts(locale) {
   const blogRoot = join(repositoryRoot, "content", locale, "blog");
   const entries = await readdir(blogRoot, { withFileTypes: true });
@@ -89,6 +185,14 @@ async function readPosts(locale) {
 
     const rendered = await renderMarkdown(parsed.content);
     const plain = stripMarkdown(parsed.content);
+    const description = String(parsed.data.description || plain.slice(0, 180)).trim();
+    const tags = toStringArray(parsed.data.tags);
+    if (date >= AI_SCHEMA_REQUIRED_FROM && !parsed.data.ai) {
+      throw new Error(`Missing required ai front matter in ${sourcePath}`);
+    }
+    const ai = parsed.data.ai
+      ? authoredAi(parsed.data.ai, sourcePath)
+      : legacyAi(parsed.content, description, tags);
     const units = parsed.content.match(/[\u3400-\u9fff]|[A-Za-z0-9]+/g)?.length ?? 0;
     posts.push({
       locale,
@@ -96,9 +200,11 @@ async function readPosts(locale) {
       title,
       date,
       lastModified,
-      description: String(parsed.data.description || plain.slice(0, 180)).trim(),
-      tags: toStringArray(parsed.data.tags),
+      description,
+      tags,
       categories: toStringArray(parsed.data.categories),
+      contentMarkdown: parsed.content.trim(),
+      ai,
       html: rendered.html,
       toc: rendered.toc,
       readingMinutes: Math.max(1, Math.ceil(units / (locale === "zh-cn" ? 350 : 220))),
@@ -206,6 +312,9 @@ if (missingTranslations.length) {
 const builtAt = new Date().toISOString();
 const payload = {
   generatedAt: builtAt,
+  contentPolicy: {
+    aiSchemaRequiredFrom: AI_SCHEMA_REQUIRED_FROM,
+  },
   build: {
     commit: sourceCommit,
     builtAt,

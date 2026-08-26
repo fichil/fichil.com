@@ -5,6 +5,7 @@ import { articlePath, getAdjacentPosts, getRelatedPosts, getSiteCopy, taxonomyPa
 import { PostCard } from "@/components/PostCard";
 import { labels } from "@/lib/i18n";
 import { absoluteUrl } from "@/lib/seo";
+import { AiEngagement } from "@/components/AiEngagement";
 
 export function ArticlePage({ locale, post }: { locale: Locale; post: Post }) {
   const copy = labels[locale];
@@ -37,6 +38,7 @@ export function ArticlePage({ locale, post }: { locale: Locale; post: Post }) {
         </header>
         <div className="article-grid">
           <div className="article-main"><div className="prose" dangerouslySetInnerHTML={{ __html: post.html }} /><div className="article-taxonomy"><div><strong>{copy.tags}</strong>{post.tags.map((tag) => <Link className="chip" key={tag} href={taxonomyPath(locale, "tags", taxonomySlug(tag))}>{tag}</Link>)}</div><div><strong>{copy.categories}</strong>{post.categories.map((category) => <Link className="chip" key={category} href={taxonomyPath(locale, "categories", taxonomySlug(category))}>{category}</Link>)}</div></div>
+            <AiEngagement locale={locale} slug={post.slug} />
             <nav className="article-adjacent" aria-label={copy.articleNavigation}><div>{adjacent.previous ? <><span>{copy.previousArticle}</span><Link href={articlePath(locale, adjacent.previous.slug)}>← {adjacent.previous.title}</Link></> : null}</div><div>{adjacent.next ? <><span>{copy.nextArticle}</span><Link href={articlePath(locale, adjacent.next.slug)}>{adjacent.next.title} →</Link></> : null}</div></nav>
           </div>
           <aside className="toc-panel"><div className="toc-title">{copy.toc}</div><nav aria-label={copy.toc}>{post.toc.map((item) => <a className={item.depth === 3 ? "toc-subitem" : ""} key={item.id} href={`#${item.id}`}>{item.text}</a>)}</nav></aside>

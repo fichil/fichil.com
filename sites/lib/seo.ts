@@ -18,6 +18,7 @@ interface MetadataInput {
   type?: "website" | "article";
   publishedTime?: string;
   tags?: string[];
+  machinePath?: string;
 }
 
 export function createMetadata(input: MetadataInput): Metadata {
@@ -35,6 +36,7 @@ export function createMetadata(input: MetadataInput): Metadata {
         "zh-CN": absoluteUrl(chinesePath),
         "x-default": absoluteUrl(englishPath),
       },
+      ...(input.machinePath ? { types: { "application/json": absoluteUrl(input.machinePath) } } : {}),
     },
     openGraph: {
       type: input.type ?? "website",

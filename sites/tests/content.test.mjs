@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { readFile, readdir } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import test from "node:test";
 import { promisify } from "node:util";
 
@@ -74,6 +74,39 @@ test("keeps the reviewed bilingual editorial set complete", () => {
   assert.equal(english.length, chinese.length);
   assert.ok(english.length >= 16);
   assert.ok(payload.posts.every((post) => post.lastModified >= post.date));
+});
+
+test("exposes non-invented AI compatibility data for every historical post", () => {
+  assert.equal(payload.contentPolicy.aiSchemaRequiredFrom, "2026-08-25");
+  for (const post of payload.posts) {
+    assert.equal(post.ai.schemaVersion, 1);
+    assert.equal(post.ai.structureSource, "legacy-derived");
+    assert.equal(post.ai.completeness, "partial");
+    assert.ok(post.ai.problem);
+    assert.equal(typeof post.contentMarkdown, "string");
+    assert.ok(post.contentMarkdown.length > 100);
+    for (const key of ["symptoms", "evidence", "resolutionSteps", "verification", "limitations", "appliesTo", "keywords"]) {
+      assert.ok(Array.isArray(post.ai[key]), `${post.slug} ${key}`);
+    }
+  }
+});
+
+test("rejects a new article that omits required AI front matter", async () => {
+  const slug = `zz-ai-schema-test-${process.pid}`;
+  const roots = [new URL(`../../content/en/blog/${slug}/`, import.meta.url), new URL(`../../content/zh-cn/blog/${slug}/`, import.meta.url)];
+  const source = `---\ntitle: "Future article missing AI schema"\ndate: 2099-01-01\ndraft: false\ntags: ["test"]\ncategories: ["test"]\ndescription: "A deliberate test fixture that must be rejected by the AI schema policy."\n---\n\n## Problem\n\nThis fixture intentionally omits the required AI front matter.\n`;
+  try {
+    for (const root of roots) {
+      await mkdir(root, { recursive: true });
+      await writeFile(new URL("index.md", root), source, "utf8");
+    }
+    await assert.rejects(
+      execFileAsync(process.execPath, ["scripts/generate-content.mjs"], { cwd: new URL("..", import.meta.url), encoding: "utf8" }),
+      /Missing required ai front matter/,
+    );
+  } finally {
+    await Promise.all(roots.map((root) => rm(root, { recursive: true, force: true })));
+  }
 });
 
 test("keeps editorial and homepage links on known internal routes", () => {

@@ -118,7 +118,11 @@ test("serves RSS, robots, and clean sitemap output", async () => {
   assert.doesNotMatch(xml, /\/es\/|\/fr\/|\/blogs\//);
 
   const robots = await fetchPath("/robots.txt");
-  assert.match(await robots.text(), /Sitemap: https:\/\/fichil\.com\/sitemap\.xml/);
+  const robotsText = await robots.text();
+  assert.match(robotsText, /Sitemap: https:\/\/fichil\.com\/sitemap\.xml/);
+  assert.match(robotsText, /User-agent: OAI-SearchBot/);
+  assert.match(robotsText, /User-agent: Claude-SearchBot/);
+  assert.match(robotsText, /User-agent: Perplexity-User/);
 });
 
 test("exposes the deployed source version without caching", async () => {
@@ -237,6 +241,15 @@ test("packages asset binding and source cache rules", async () => {
   assert.match(headers, /\/assets\/\*/);
   assert.match(headers, /max-age=31536000, immutable/);
   assert.match(headers, /\/author-fichil\.png/);
+
+  const hosting = JSON.parse(await readFile(new URL("../dist/.openai/hosting.json", import.meta.url), "utf8"));
+  assert.deepEqual(Object.keys(hosting).sort(), ["d1", "project_id", "r2"]);
+  assert.equal(hosting.d1, "DB");
+  assert.equal(hosting.r2, null);
+  const migration = await readFile(new URL("../dist/.openai/drizzle/0000_tidy_doomsday.sql", import.meta.url), "utf8");
+  assert.match(migration, /CREATE TABLE `ai_visit_daily`/);
+  assert.match(migration, /CREATE TABLE `comments`/);
+  assert.match(migration, /PRAGMA optimize/);
 });
 
 test("preserves only intended compatibility redirects", async () => {
