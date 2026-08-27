@@ -69,10 +69,17 @@ npm test
 - Protect `main`: all changes must arrive through a pull request that is current
   with `main` and passes the GitHub Actions `build` and `sites` checks. Do not
   bypass these requirements, including with administrator privileges.
+- Review public content with the installed `fichil-content-qa` skill before
+  publication. Keep a content pull request in Draft until its QA report is
+  `review_ready` and the user explicitly approves the exact current head SHA.
+  The PR body may contain the machine-readable approval marker only after that
+  approval; any later head change invalidates the marker and requires a full QA
+  rerun and new approval.
 - Reserve the long-lived `chatgpt` branch for the weekday bilingual blog task.
   That task may enable GitHub native auto-merge only for a marked pull request
   whose complete diff contains paired English and Chinese blog `index.md` files
-  and no other paths. Other changes remain human-reviewed.
+  and no other paths, whose current head SHA has a valid
+  `fichil-content-qa-approval:v1` marker. Other changes remain human-reviewed.
 - The scheduled publisher may deploy only after `Site Build Check` succeeds for the exact `main` SHA.
 - After deployment, verify `/version.json` and the canonical English and Chinese routes. Roll back to the previously known-good Sites version if production smoke checks fail.
 - Do not change Sites access, custom-domain DNS, or theme submodules unless explicitly requested.
