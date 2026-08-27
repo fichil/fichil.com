@@ -21,6 +21,21 @@ Natural phrasing is preferred over sentence-by-sentence translation. Never add
 client names, private identifiers, credentials, unsupported metrics, or a claim
 that planned work has already succeeded.
 
+## Pre-publication review gate
+
+Run the installed `fichil-content-qa` skill for every new or modified public
+article. Bind factual claims to public or safely labelled internal evidence,
+complete terminology and logic review, and inspect both required mobile
+viewports. A `review_ready` report is evidence for human review, not permission
+to publish.
+
+Keep the content PR in Draft until the user explicitly approves its exact head
+SHA. Record the generated `fichil-content-qa-approval:v1` marker in the PR body
+only after approval. Any later commit makes that marker stale and requires a
+new QA report and approval. Historical baseline findings remain a backlog and
+do not block unrelated new content; a historical article modified by a PR must
+pass the current policy.
+
 ## Image and diagram rules
 
 - Use selectable Markdown tables, code blocks, and text flows for technical
