@@ -51,6 +51,6 @@ The decisive validation started isolated service instances and executed a real s
 - replay an OpenAPI request;
 - inspect final database state.
 
-Runtime validation exposed a URL interpolation defect in the smoke script. It was not a product-service bug, but unit tests alone would never have found it. After correcting the script, the complete flow was rerun from the beginning before the isolated services were stopped and module commits were finalized.
+Runtime validation exposed a URL interpolation defect confined to the smoke script. Unit tests alone would never have found it. After correcting the script, the complete flow was rerun from the beginning before the isolated services were stopped and module commits were finalized.
 
 The completion criterion for a legacy migration should not be code volume or menu count. Every old capability needs an explicit destination, critical workflows must reach valid final states, retries and failures must be explainable, and the database result must be verifiable. The migration matrix controls scope; the runtime smoke test confirms that the workflow actually reaches its final state.
