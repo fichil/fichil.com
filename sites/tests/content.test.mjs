@@ -76,9 +76,12 @@ test("keeps the reviewed bilingual editorial set complete", () => {
   assert.ok(payload.posts.every((post) => post.lastModified >= post.date));
 });
 
-test("exposes non-invented AI compatibility data for every historical post", () => {
-  assert.equal(payload.contentPolicy.aiSchemaRequiredFrom, "2026-08-25");
-  for (const post of payload.posts) {
+test("exposes non-invented AI compatibility data for historical posts", () => {
+  const requiredFrom = payload.contentPolicy.aiSchemaRequiredFrom;
+  assert.equal(requiredFrom, "2026-08-25");
+  const historical = payload.posts.filter((post) => post.date < requiredFrom);
+  assert.ok(historical.length > 0);
+  for (const post of historical) {
     assert.equal(post.ai.schemaVersion, 1);
     assert.equal(post.ai.structureSource, "legacy-derived");
     assert.equal(post.ai.completeness, "partial");
@@ -87,6 +90,25 @@ test("exposes non-invented AI compatibility data for every historical post", () 
     assert.ok(post.contentMarkdown.length > 100);
     for (const key of ["symptoms", "evidence", "resolutionSteps", "verification", "limitations", "appliesTo", "keywords"]) {
       assert.ok(Array.isArray(post.ai[key]), `${post.slug} ${key}`);
+    }
+  }
+});
+
+test("requires complete authored AI data for posts at or after the policy date", () => {
+  const requiredFrom = payload.contentPolicy.aiSchemaRequiredFrom;
+  const authored = payload.posts.filter((post) => post.date >= requiredFrom);
+  for (const post of authored) {
+    assert.equal(post.ai.schemaVersion, 1);
+    assert.equal(post.ai.structureSource, "authored");
+    assert.equal(post.ai.completeness, "complete");
+    assert.ok(post.ai.problem.trim(), `${post.slug} problem`);
+    assert.ok(post.ai.rootCause.trim(), `${post.slug} rootCause`);
+    assert.equal(typeof post.contentMarkdown, "string");
+    assert.ok(post.contentMarkdown.length > 100);
+    for (const key of ["symptoms", "evidence", "resolutionSteps", "verification", "limitations", "appliesTo", "keywords"]) {
+      assert.ok(Array.isArray(post.ai[key]), `${post.slug} ${key}`);
+      assert.ok(post.ai[key].length > 0, `${post.slug} ${key}`);
+      assert.ok(post.ai[key].every((value) => typeof value === "string" && value.trim()), `${post.slug} ${key}`);
     }
   }
 });
