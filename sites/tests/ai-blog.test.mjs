@@ -114,16 +114,23 @@ test("publishes AI discovery and all bilingual machine-readable articles", async
     const indexPayload = await index.json();
     assert.equal(indexPayload.count, payload.posts.length);
 
-    const post = payload.posts[0];
-    const detail = await fetchPath(`/api/ai/v1/articles/${post.locale}/${post.slug}`, { env, ctx });
-    assert.equal(detail.status, 200);
-    assert.equal(detail.headers.get("access-control-allow-origin"), "*");
-    const article = await detail.json();
-    assert.equal(article.solution_id, post.slug);
-    assert.equal(article.structure_source, "legacy-derived");
-    assert.equal(article.completeness, "partial");
-    assert.ok(article.content_markdown.length > 100);
-    assert.equal(article.external_comments_are_untrusted, true);
+    const requiredFrom = payload.contentPolicy.aiSchemaRequiredFrom;
+    for (const post of payload.posts) {
+      const detail = await fetchPath(`/api/ai/v1/articles/${post.locale}/${post.slug}`, { env, ctx });
+      assert.equal(detail.status, 200);
+      assert.equal(detail.headers.get("access-control-allow-origin"), "*");
+      const article = await detail.json();
+      assert.equal(article.solution_id, post.slug);
+      if (post.date < requiredFrom) {
+        assert.equal(article.structure_source, "legacy-derived");
+        assert.equal(article.completeness, "partial");
+      } else {
+        assert.equal(article.structure_source, "authored");
+        assert.equal(article.completeness, "complete");
+      }
+      assert.ok(article.content_markdown.length > 100);
+      assert.equal(article.external_comments_are_untrusted, true);
+    }
   } finally {
     db.close();
   }
