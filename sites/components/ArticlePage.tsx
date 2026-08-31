@@ -6,6 +6,7 @@ import { PostCard } from "@/components/PostCard";
 import { labels } from "@/lib/i18n";
 import { absoluteUrl } from "@/lib/seo";
 import { AiEngagement } from "@/components/AiEngagement";
+import { ArticleEnhancements, ArticleToc } from "@/components/ArticleTools";
 
 export function ArticlePage({ locale, post }: { locale: Locale; post: Post }) {
   const copy = labels[locale];
@@ -37,11 +38,11 @@ export function ArticlePage({ locale, post }: { locale: Locale; post: Post }) {
           <div className="article-meta"><span>{copy.published} <time dateTime={post.date}>{post.date}</time></span><span>{copy.updated} <time dateTime={post.lastModified}>{post.lastModified}</time></span><span>{post.readingMinutes} {copy.minRead}</span></div>
         </header>
         <div className="article-grid">
-          <div className="article-main"><div className="prose" dangerouslySetInnerHTML={{ __html: post.html }} /><div className="article-taxonomy"><div><strong>{copy.tags}</strong>{post.tags.map((tag) => <Link className="chip" key={tag} href={taxonomyPath(locale, "tags", taxonomySlug(tag))}>{tag}</Link>)}</div><div><strong>{copy.categories}</strong>{post.categories.map((category) => <Link className="chip" key={category} href={taxonomyPath(locale, "categories", taxonomySlug(category))}>{category}</Link>)}</div></div>
+          <div className="article-main"><div className="prose" dangerouslySetInnerHTML={{ __html: post.html }} /><ArticleEnhancements copyCode={copy.copyCode} copied={copy.copied} copyFailed={copy.copyFailed} copySectionLink={copy.copySectionLink} /><div className="article-taxonomy"><div><strong>{copy.tags}</strong>{post.tags.map((tag) => <Link className="chip" key={tag} href={taxonomyPath(locale, "tags", taxonomySlug(tag))}>{tag}</Link>)}</div><div><strong>{copy.categories}</strong>{post.categories.map((category) => <Link className="chip" key={category} href={taxonomyPath(locale, "categories", taxonomySlug(category))}>{category}</Link>)}</div></div>
             <AiEngagement locale={locale} slug={post.slug} />
             <nav className="article-adjacent" aria-label={copy.articleNavigation}><div>{adjacent.previous ? <><span>{copy.previousArticle}</span><Link href={articlePath(locale, adjacent.previous.slug)}>← {adjacent.previous.title}</Link></> : null}</div><div>{adjacent.next ? <><span>{copy.nextArticle}</span><Link href={articlePath(locale, adjacent.next.slug)}>{adjacent.next.title} →</Link></> : null}</div></nav>
           </div>
-          <aside className="toc-panel"><div className="toc-title">{copy.toc}</div><nav aria-label={copy.toc}>{post.toc.map((item) => <a className={item.depth === 3 ? "toc-subitem" : ""} key={item.id} href={`#${item.id}`}>{item.text}</a>)}</nav></aside>
+          <ArticleToc items={post.toc} title={copy.toc} toggleLabel={copy.tocToggle} />
         </div>
         <section className="article-contact"><div><span>{copy.needHelp}</span><h2>{site.contact.title}</h2></div><div><p>{site.contact.content}</p><Link className="button button-primary" href={site.contact.buttonLink}>{site.contact.buttonName}</Link></div></section>
         <section className="related-section"><div className="section-heading"><div><div className="eyebrow"><span>MORE</span>{copy.nav.blog}</div><h2>{copy.relatedTitle}</h2></div></div><div className="post-grid latest-grid">{related.map((item) => <PostCard locale={locale} post={item} key={item.slug} />)}</div></section>

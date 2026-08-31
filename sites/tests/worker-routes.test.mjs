@@ -89,12 +89,13 @@ test("renders localized metadata and article structure", async () => {
   const englishHtml = await english.text();
   assert.match(englishHtml, /<html[^>]+lang="en"/i);
   assert.match(englishHtml, /Build\. Debug\. Ship\./);
+  assert.match(englishHtml, /Trace the failure\. Keep the evidence\./);
   assert.match(englishHtml, /https:\/\/fichil\.com\//);
 
   const chinese = await fetchPath("/zh-cn/");
   const chineseHtml = await chinese.text();
   assert.match(chineseHtml, /<html[^>]+lang="zh-CN"/i);
-  assert.match(chineseHtml, /让复杂系统稳定交付/);
+  assert.match(chineseHtml, /定位系统问题，留下可复核证据/);
   assert.match(chineseHtml, /AI 辅助开发与运维的 fichil\.com/);
   assert.doesNotMatch(chineseHtml, /Repo2AI|VPS 与 Nginx 恢复|自由职业后端/);
 
@@ -104,6 +105,31 @@ test("renders localized metadata and article structure", async () => {
   assert.match(articleHtml, /On this page/);
   assert.match(articleHtml, /Related Engineering Notes/);
   assert.match(articleHtml, /Updated/);
+});
+
+test("keeps the glass reading interface discoverable and accessible", async () => {
+  const home = await fetchPath("/");
+  const homeHtml = await home.text();
+  const latestEnglish = payload.posts.find((post) => post.locale === "en");
+  assert.ok(latestEnglish);
+  assert.match(homeHtml, /class="mobile-nav-trigger"[^>]+aria-expanded="false"[^>]+aria-controls="mobile-site-nav"/);
+  assert.match(homeHtml, /class="theme-toggle"[^>]+aria-label="Switch to dark theme"[^>]+aria-pressed="false"/);
+  assert.match(homeHtml, new RegExp(`href="/blog/${latestEnglish.slug}/"[^>]+button button-primary`));
+  assert.match(homeHtml, /class="topic-grid" aria-label="Categories"/);
+  assert.match(homeHtml, /class="post-card post-card-featured"/);
+
+  const article = await fetchPath(`/blog/${latestEnglish.slug}/`);
+  const articleHtml = await article.text();
+  assert.match(articleHtml, /class="toc-disclosure" open=""/);
+  assert.match(articleHtml, /aria-current="location"/);
+
+  const articleTools = await readFile(new URL("../components/ArticleTools.tsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(articleTools, /navigator\.clipboard\.writeText/);
+  assert.match(articleTools, /IntersectionObserver/);
+  assert.match(articleTools, /window\.history\.replaceState/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(styles, /backdrop-filter: blur/);
 });
 
 test("serves RSS, robots, and clean sitemap output", async () => {
@@ -178,7 +204,7 @@ test("renders HTML when the platform edge cache is unavailable", async (t) => {
   const response = await fetchPath("/zh-cn/", "localhost", {}, createEnv(failingCache), createContext());
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("x-fichil-cache"), "BYPASS");
-  assert.match(await response.text(), /让复杂系统稳定交付/);
+  assert.match(await response.text(), /定位系统问题，留下可复核证据/);
 });
 
 test("bypasses HTML cache for request-specific and noncanonical requests", async () => {
