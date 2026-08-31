@@ -6,7 +6,7 @@ import { AiVisitBadge } from "@/components/AiVisitBadge";
 export function PostCard({ locale, post, featured = false }: { locale: Locale; post: Post; featured?: boolean }) {
   const copy = labels[locale];
   return (
-    <article className={`post-card${featured ? " post-card-featured" : ""}`}>
+    <article className={`post-card${featured ? " post-card-featured" : ""}`} data-reveal>
       <div className="post-card-meta"><time dateTime={post.date}>{post.date}</time>{post.categories[0] ? <Link href={taxonomyPath(locale, "categories", taxonomySlug(post.categories[0]))}>{post.categories[0]}</Link> : null}<span>{post.readingMinutes} {copy.minRead}</span></div>
       <h3><Link href={articlePath(locale, post.slug)}>{post.title}</Link></h3>
       <p>{post.description || post.excerpt}</p>

@@ -72,20 +72,20 @@ languages:
 
       hero:
         enable: true
-        intro: "Fichil · Independent Engineering"
-        title: "Make complex systems reliable."
-        subtitle: "Backend / DevOps / Enterprise Integration Engineer"
-        content: "I investigate production failures, stabilize delivery pipelines, and close enterprise integration flows with evidence that can be reviewed: logs, database state, tests, and release results."
+        intro: "Fichil · Engineering Field Notes"
+        title: "Trace the failure. Keep the evidence."
+        subtitle: "Production systems, delivery pipelines, and enterprise integration—from symptom to verification."
+        content: "Explore bilingual investigations grounded in logs, database state, tests, and release results. Each note explains what changed, why it changed, and how the real system boundary was verified."
         image: "/author-fichil.png"
         imageAlt: "Abstract geometric portrait used as the Fichil author illustration"
         button:
           enable: true
-          name: "View Engineering Cases"
-          url: "/#projects"
+          name: "Read the Latest Investigation"
+          url: "/blog/"
           newPage: false
         secondaryButton:
-          name: "Describe Your Project"
-          url: "/#contact"
+          name: "Browse All Engineering Notes"
+          url: "/blog/"
         bottomImage:
           enable: false
 
@@ -243,25 +243,25 @@ languages:
           disableContact: true
       hero:
         enable: true
-        intro: "Fichil · 独立工程实践"
-        title: "让复杂系统稳定交付"
-        subtitle: "后端 / DevOps / 企业系统集成工程师"
-        content: "我处理生产故障、交付链路和企业系统集成，用日志、数据库状态、测试与发布结果把问题定位、修改和验证过程讲清楚。"
+        intro: "Fichil · 工程现场记录"
+        title: "定位系统问题，留下可复核证据"
+        subtitle: "从生产故障、交付链路到企业集成，按现象、定位、修改与验证完整记录"
+        content: "这里整理中英双语工程记录，证据包括日志、数据库状态、测试与发布结果。每篇记录说明改了什么、为什么改，以及如何在真实边界完成验证。"
         image: "/author-fichil.png"
         imageAlt: "Fichil 作者身份使用的抽象几何头像"
         button:
           enable: true
-          name: "查看工程案例"
-          url: "/zh-cn/#projects"
+          name: "阅读最新排障记录"
+          url: "/zh-cn/blog/"
           newPage: false
         secondaryButton:
-          name: "说明项目需求"
-          url: "/zh-cn/#contact"
+          name: "浏览全部工程记录"
+          url: "/zh-cn/blog/"
         bottomImage:
           enable: false
 
       trust:
-        postsLabel: "组中英双语工程记录"
+        postsLabel: "中英双语工程记录"
         sourceValue: "开源可查"
         sourceLabel: "站点源码"
         releaseValue: "CI + 精确 SHA"

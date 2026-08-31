@@ -24,7 +24,7 @@ export function ReadingProgress({ label }: { label: string }) {
   return (
     <>
       <div className="reading-progress" aria-hidden="true"><span style={{ width: `${progress}%` }} /></div>
-      {showTop ? <button className="back-to-top" type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>{label}</button> : null}
+      {showTop ? <button className="back-to-top" type="button" aria-label={label} onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}><span aria-hidden="true">↑</span>{label}</button> : null}
     </>
   );
 }
