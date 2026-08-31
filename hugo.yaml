@@ -22,6 +22,22 @@ taxonomies:
   category: "categories"
 
 params:
+  color:
+    textColor: "#0B1720"
+    secondaryTextColor: "#465D68"
+    textLinkColor: "#006E68"
+    backgroundColor: "#F4F7F8"
+    secondaryBackgroundColor: "#E8EFF1"
+    primaryColor: "#006E68"
+    secondaryColor: "#FFFFFF"
+    darkmode:
+      textColor: "#EAF5F7"
+      secondaryTextColor: "#9AB0BB"
+      textLinkColor: "#62E6D2"
+      backgroundColor: "#071019"
+      secondaryBackgroundColor: "#162B38"
+      primaryColor: "#62E6D2"
+      secondaryColor: "#0E1E2A"
   useBootstrapCDN: false
   mathjax: false
   animate: true
@@ -76,8 +92,23 @@ languages:
         title: "Trace the failure. Keep the evidence."
         subtitle: "Production systems, delivery pipelines, and enterprise integration—from symptom to verification."
         content: "Explore bilingual investigations grounded in logs, database state, tests, and release results. Each note explains what changed, why it changed, and how the real system boundary was verified."
-        image: "/author-fichil.png"
-        imageAlt: "Abstract geometric portrait used as the Fichil author illustration"
+        signal:
+          eyebrow: "Live engineering system"
+          title: "From system signal to exact release"
+          releaseLabel: "Exact reviewed build"
+          phases:
+            - code: "OBSERVE"
+              label: "Observe"
+              detail: "Capture reproducible runtime signals."
+            - code: "ISOLATE"
+              label: "Isolate"
+              detail: "Narrow the real failure boundary."
+            - code: "VERIFY"
+              label: "Verify"
+              detail: "Confirm the repair with reviewable evidence."
+            - code: "RELEASE"
+              label: "Release"
+              detail: "Deliver the exact reviewed commit."
         button:
           enable: true
           name: "Read the Latest Investigation"
@@ -247,8 +278,23 @@ languages:
         title: "定位系统问题，留下可复核证据"
         subtitle: "从生产故障、交付链路到企业集成，按现象、定位、修改与验证完整记录"
         content: "这里整理中英双语工程记录，证据包括日志、数据库状态、测试与发布结果。每篇记录说明改了什么、为什么改，以及如何在真实边界完成验证。"
-        image: "/author-fichil.png"
-        imageAlt: "Fichil 作者身份使用的抽象几何头像"
+        signal:
+          eyebrow: "实时工程系统"
+          title: "从系统信号到精确发布"
+          releaseLabel: "精确审阅版本"
+          phases:
+            - code: "OBSERVE"
+              label: "观测"
+              detail: "捕获可复现信号。"
+            - code: "ISOLATE"
+              label: "定界"
+              detail: "收窄真实故障边界。"
+            - code: "VERIFY"
+              label: "验证"
+              detail: "用可复核证据确认修复。"
+            - code: "RELEASE"
+              label: "发布"
+              detail: "交付精确审阅提交。"
         button:
           enable: true
           name: "阅读最新排障记录"

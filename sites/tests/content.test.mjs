@@ -58,6 +58,10 @@ test("reads localized homepage copy from hugo.yaml", () => {
   assert.equal(payload.site.en.projects.items.length, 3);
   assert.equal(payload.site["zh-cn"].projects.items.length, 3);
   for (const locale of ["en", "zh-cn"]) {
+    assert.equal(payload.site[locale].hero.signal.phases.length, 4);
+    assert.deepEqual(payload.site[locale].hero.signal.phases.map((phase) => phase.code), ["OBSERVE", "ISOLATE", "VERIFY", "RELEASE"]);
+    assert.equal(payload.site[locale].hero.image, undefined);
+    assert.equal(payload.site[locale].hero.imageAlt, undefined);
     assert.equal(payload.site[locale].services.items.length, 3);
     for (const item of payload.site[locale].projects.items) {
       assert.ok(item.kicker);
@@ -132,7 +136,7 @@ test("rejects a new article that omits required AI front matter", async () => {
 });
 
 test("keeps editorial and homepage links on known internal routes", () => {
-  const knownRoutes = new Set(["/", "/author-fichil.png", "/blog/", "/zh-cn/", "/zh-cn/blog/", "/version.json"]);
+  const knownRoutes = new Set(["/", "/blog/", "/zh-cn/", "/zh-cn/blog/", "/version.json"]);
   for (const post of payload.posts) {
     knownRoutes.add(post.locale === "zh-cn" ? `/zh-cn/blog/${post.slug}/` : `/blog/${post.slug}/`);
   }

@@ -19,10 +19,11 @@ export function TaxonomyIndexPage({ locale, kind }: { locale: Locale; kind: Taxo
 export function TaxonomyTermPage({ locale, kind, slug, name }: { locale: Locale; kind: TaxonomyKind; slug: string; name: string }) {
   const copy = labels[locale];
   const posts = getPostsByTerm(locale, kind, slug);
+  const primaryCategories = kind === "categories" ? getTerms(locale, "categories").slice(0, 6) : [];
   return (
     <AppShell locale={locale} alternatePath={alternateTaxonomyPath(locale, kind, slug)}>
       <header className="page-hero section"><div className="eyebrow"><span>{kind === "tags" ? "TAG" : "TYPE"}</span>{kind === "tags" ? copy.tags : copy.categories}</div><h1>{name}</h1><p>{posts.length} {copy.articles}</p></header>
-      <section className="section"><div className="post-grid blog-grid">{posts.map((post) => <PostCard key={post.slug} locale={locale} post={post} />)}</div></section>
+      <section className="section taxonomy-browser">{kind === "categories" ? <nav className="category-nav" aria-label={copy.categories}>{primaryCategories.map((category) => <Link aria-current={category.slug === slug ? "page" : undefined} className="chip" href={taxonomyPath(locale, "categories", category.slug)} key={category.slug}>{category.name} <span>{category.count}</span></Link>)}<Link className="chip category-all" href={taxonomyPath(locale, "categories")}>{copy.allCategories} <span aria-hidden="true">→</span></Link></nav> : null}<div className="post-grid blog-grid">{posts.map((post) => <PostCard key={post.slug} locale={locale} post={post} />)}</div></section>
     </AppShell>
   );
 }

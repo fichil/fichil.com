@@ -4,26 +4,17 @@ import { useEffect } from "react";
 
 export function ScrollReveal() {
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
     const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
-    if (!("IntersectionObserver" in window)) {
-      elements.forEach((element) => element.classList.add("is-visible"));
-      return;
-    }
-
-    document.documentElement.classList.add("reveal-ready");
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
-        entry.target.classList.add("is-visible");
+        entry.target.classList.add("reveal-enter");
         observer.unobserve(entry.target);
       }
-    }, { rootMargin: "0px 0px -10%", threshold: 0.08 });
-
+    }, { rootMargin: "0px 0px -8%", threshold: 0.08 });
     elements.forEach((element) => observer.observe(element));
-    return () => {
-      observer.disconnect();
-      document.documentElement.classList.remove("reveal-ready");
-    };
+    return () => observer.disconnect();
   }, []);
 
   return null;

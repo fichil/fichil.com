@@ -39,9 +39,6 @@ function createEnv(cache) {
         if (pathname === "/og.png") {
           return new Response(new Uint8Array([137, 80, 78, 71]), { headers: { "content-type": "image/png" } });
         }
-        if (pathname === "/author-fichil.png") {
-          return new Response(new Uint8Array([137, 80, 78, 71]), { headers: { "content-type": "image/png" } });
-        }
         if (pathname === "/assets/test-deadbeef.js") {
           return new Response("export default true;", { headers: { "content-type": "text/javascript" } });
         }
@@ -66,7 +63,12 @@ function slugify(value) {
 }
 
 function canonicalPaths() {
-  const paths = ["/", "/blog/", "/blog/page/2/", "/blog/page/3/", "/tags/", "/categories/", "/zh-cn/", "/zh-cn/blog/", "/zh-cn/blog/page/2/", "/zh-cn/blog/page/3/", "/zh-cn/tags/", "/zh-cn/categories/"];
+  const paths = ["/", "/blog/", "/tags/", "/categories/", "/zh-cn/", "/zh-cn/blog/", "/zh-cn/tags/", "/zh-cn/categories/"];
+  for (const locale of ["en", "zh-cn"]) {
+    const count = payload.posts.filter((post) => post.locale === locale).length;
+    const prefix = locale === "zh-cn" ? "/zh-cn" : "";
+    for (let page = 2; page <= Math.ceil(count / 6); page += 1) paths.push(`${prefix}/blog/page/${page}/`);
+  }
   for (const post of payload.posts) {
     const prefix = post.locale === "zh-cn" ? "/zh-cn" : "";
     paths.push(`${prefix}/blog/${post.slug}/`);
@@ -107,7 +109,7 @@ test("renders localized metadata and article structure", async () => {
   assert.match(articleHtml, /Updated/);
 });
 
-test("keeps the glass reading interface discoverable and accessible", async () => {
+test("keeps the engineering signal reading interface discoverable and accessible", async () => {
   const home = await fetchPath("/");
   const homeHtml = await home.text();
   const latestEnglish = payload.posts.find((post) => post.locale === "en");
@@ -115,21 +117,29 @@ test("keeps the glass reading interface discoverable and accessible", async () =
   assert.match(homeHtml, /class="mobile-nav-trigger"[^>]+aria-expanded="false"[^>]+aria-controls="mobile-site-nav"/);
   assert.match(homeHtml, /class="theme-toggle"[^>]+aria-label="Switch to dark theme"[^>]+aria-pressed="false"/);
   assert.match(homeHtml, new RegExp(`href="/blog/${latestEnglish.slug}/"[^>]+button button-primary`));
-  assert.match(homeHtml, /class="topic-grid" aria-label="Categories"/);
+  assert.match(homeHtml, /class="topic-grid topic-grid-home" aria-label="Categories"/);
   assert.match(homeHtml, /class="post-card post-card-featured"/);
+  assert.match(homeHtml, /role="tablist"[^>]+From system signal to exact release/);
+  assert.match(homeHtml, /Exact reviewed build/);
+  assert.match(homeHtml, /href="\/version\.json"/);
+  assert.doesNotMatch(homeHtml, /author-fichil|fetchpriority="high"/i);
+  assert.match(homeHtml, /class="skip-link" href="#main-content"/);
 
   const article = await fetchPath(`/blog/${latestEnglish.slug}/`);
   const articleHtml = await article.text();
-  assert.match(articleHtml, /class="toc-disclosure" open=""/);
+  assert.match(articleHtml, /class="toc-desktop"/);
+  assert.match(articleHtml, /<details class="toc-mobile">/);
   assert.match(articleHtml, /aria-current="location"/);
 
   const articleTools = await readFile(new URL("../components/ArticleTools.tsx", import.meta.url), "utf8");
   const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(articleTools, /navigator\.clipboard\.writeText/);
-  assert.match(articleTools, /IntersectionObserver/);
+  assert.match(articleTools, /requestAnimationFrame/);
+  assert.match(articleTools, /role="status"/);
   assert.match(articleTools, /window\.history\.replaceState/);
   assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(styles, /backdrop-filter: blur/);
+  assert.doesNotMatch(styles, /reveal-ready/);
 });
 
 test("serves RSS, robots, and clean sitemap output", async () => {
@@ -240,15 +250,11 @@ test("serves static assets with explicit browser caching", async () => {
   assert.match(favicon.headers.get("content-type") ?? "", /image\/png/);
   assert.equal(favicon.headers.get("cache-control"), "public, max-age=86400");
 
-  const author = await fetchPath("/author-fichil.png");
-  assert.equal(author.status, 200);
-  assert.match(author.headers.get("content-type") ?? "", /image\/png/);
-  assert.equal(author.headers.get("cache-control"), "public, max-age=86400");
-
   const imageFallback = await fetchPath("/_vinext/image?url=%2Fauthor-fichil.png&w=640&q=75");
-  assert.equal(imageFallback.status, 200);
-  assert.match(imageFallback.headers.get("content-type") ?? "", /image\/png/);
-  assert.equal(imageFallback.headers.get("cache-control"), "public, max-age=86400");
+  assert.equal(imageFallback.status, 400);
+
+  const compatibilityImage = await readFile(new URL("../public/author-fichil.png", import.meta.url));
+  assert.deepEqual([...compatibilityImage.subarray(0, 4)], [137, 80, 78, 71]);
 
   const rejectedImageSource = await fetchPath("/_vinext/image?url=%2Fblog%2F&w=640&q=75");
   assert.equal(rejectedImageSource.status, 400);
@@ -261,12 +267,12 @@ test("serves static assets with explicit browser caching", async () => {
 test("packages asset binding and source cache rules", async () => {
   const wrangler = JSON.parse(await readFile(new URL("../dist/server/wrangler.json", import.meta.url), "utf8"));
   assert.equal(wrangler.assets.binding, "ASSETS");
-  assert.deepEqual(wrangler.assets.run_worker_first, ["/assets/*", "/favicon.ico*", "/favicon.png", "/og.png", "/author-fichil.png"]);
+  assert.deepEqual(wrangler.assets.run_worker_first, ["/assets/*", "/favicon.ico*", "/favicon.png", "/og.png"]);
 
   const headers = await readFile(new URL("../public/_headers", import.meta.url), "utf8");
   assert.match(headers, /\/assets\/\*/);
   assert.match(headers, /max-age=31536000, immutable/);
-  assert.match(headers, /\/author-fichil\.png/);
+  assert.doesNotMatch(headers, /\/author-fichil\.png/);
 
   const hosting = JSON.parse(await readFile(new URL("../dist/.openai/hosting.json", import.meta.url), "utf8"));
   assert.deepEqual(Object.keys(hosting).sort(), ["d1", "project_id", "r2"]);

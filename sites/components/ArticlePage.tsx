@@ -28,7 +28,7 @@ export function ArticlePage({ locale, post }: { locale: Locale; post: Post }) {
     publisher: { "@type": "Person", name: "Fichil" },
   };
   return (
-    <AppShell locale={locale} alternatePath={alternate}>
+    <AppShell locale={locale} alternatePath={alternate} readingTools>
       <ReadingProgress label={copy.backToTop} />
       <article className="article-layout section">
         <header className="article-header">
