@@ -21,7 +21,7 @@
     "@fontsource-variable/ibm-plex-sans": "5.3.0",
     "@fontsource/ibm-plex-mono": "5.3.0",
     "gray-matter": "4.0.3",
-    "next": "16.2.11",
+    "next": "16.3.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "rehype-highlight": "7.0.2",
@@ -44,15 +44,15 @@
     "@vitejs/plugin-rsc": "0.5.30",
     "drizzle-orm": "0.45.2",
     "eslint": "9.39.5",
-    "eslint-config-next": "16.2.11",
+    "eslint-config-next": "16.3.3",
     "react-server-dom-webpack": "19.2.8",
     "typescript": "6.0.3",
-    "vinext": "0.0.45",
+    "vinext": "0.2.1",
     "vite": "8.1.5",
     "wrangler": "4.114.0"
   },
   "optionalDependencies": {
-    "@next/swc-linux-x64-gnu": "16.2.11",
+    "@next/swc-linux-x64-gnu": "16.3.3",
     "@rolldown/binding-linux-x64-gnu": "1.2.0",
     "lightningcss-linux-x64-gnu": "1.33.0"
   },
