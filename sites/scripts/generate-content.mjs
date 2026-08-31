@@ -227,8 +227,16 @@ async function readSiteCopy(config, locale) {
       title: params.hero.title,
       subtitle: params.hero.subtitle,
       content: params.hero.content,
-      image: params.hero.image,
-      imageAlt: params.hero.imageAlt,
+      signal: {
+        eyebrow: params.hero.signal.eyebrow,
+        title: params.hero.signal.title,
+        releaseLabel: params.hero.signal.releaseLabel,
+        phases: params.hero.signal.phases.map((phase) => ({
+          code: phase.code,
+          label: phase.label,
+          detail: phase.detail,
+        })),
+      },
       buttonName: params.hero.button.name,
       buttonLink: params.hero.button.url,
       secondaryButtonName: params.hero.secondaryButton.name,

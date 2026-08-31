@@ -365,7 +365,7 @@ test("protects admin APIs and supports hide, restore, and delete governance", as
     assert.match(await authorizedPage.text(), /AI blog comment governance/);
     const chinesePage = await fetchPath("/admin/ai-blog/comments/?ui=zh-cn", { env, ctx, headers: { ...authHeaders, accept: "text/html" } });
     assert.equal(chinesePage.status, 200);
-    assert.match(await chinesePage.text(), /AI 博客评论管理/);
+    assert.match(await chinesePage.text(), /AI 博客评论治理/);
   } finally {
     db.close();
   }

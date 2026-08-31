@@ -59,6 +59,12 @@ export interface ServiceItem {
   badges: string[];
 }
 
+export interface SignalPhase {
+  code: "OBSERVE" | "ISOLATE" | "VERIFY" | "RELEASE";
+  label: string;
+  detail: string;
+}
+
 export interface SiteCopy {
   title: string;
   description: string;
@@ -67,8 +73,12 @@ export interface SiteCopy {
     title: string;
     subtitle: string;
     content: string;
-    image: string;
-    imageAlt: string;
+    signal: {
+      eyebrow: string;
+      title: string;
+      releaseLabel: string;
+      phases: SignalPhase[];
+    };
     buttonName: string;
     buttonLink: string;
     secondaryButtonName: string;

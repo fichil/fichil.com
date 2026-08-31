@@ -84,3 +84,11 @@ jobs:
       - name: Build and test Sites application
         working-directory: sites
         run: npm test
+
+      - name: Install browser regression runtime
+        working-directory: sites
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser and accessibility regressions
+        working-directory: sites
+        run: npm run test:e2e

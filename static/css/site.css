@@ -52,3 +52,46 @@
     border-radius: 8px;
     color: var(--text-color);
 }
+/* Project-owned engineering signal core. The Hugo mirror keeps the same visual
+   language and reading rhythm without shipping client-side interaction. */
+.hero-actions-static { gap: .75rem; }
+.hero-actions-static .btn { margin-top: 32px !important; min-height: 46px; padding-inline: 1.15rem; }
+.hero-actions-static > div:first-child .btn { background: #006e68; border-color: #006e68; color: #fff !important; }
+.hero-actions-static > div:first-child .btn:hover { background: #005c57 !important; color: #fff !important; }
+.hero-actions-static .btn-quiet { background: transparent; border: 1px solid rgba(11, 23, 32, .28); color: inherit; }
+.signal-core-static { background: #081720; border: 1px solid rgba(139, 243, 227, .24); border-radius: 28px; box-shadow: 0 30px 80px rgba(6, 24, 33, .24); color: #edfafa; margin: 1.5rem auto 0; max-width: 430px; overflow: hidden; padding: 1.25rem; position: relative; }
+.signal-core-static::before { background-image: linear-gradient(rgba(98, 230, 210, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(98, 230, 210, .08) 1px, transparent 1px); background-size: 28px 28px; content: ""; inset: 0; mask-image: linear-gradient(to bottom, #000, transparent 72%); pointer-events: none; position: absolute; }
+.signal-core-static > * { position: relative; z-index: 1; }
+.signal-core-static header, .signal-core-static footer { align-items: center; display: flex; font-family: monospace; font-size: .68rem; justify-content: space-between; letter-spacing: .08em; text-transform: uppercase; }
+.signal-core-static .signal-live { align-items: center; color: #8bf3e3; display: inline-flex; gap: .5rem; }
+.signal-core-static .signal-live i { background: #62e6d2; border-radius: 50%; box-shadow: 0 0 13px #62e6d2; height: 7px; width: 7px; }
+.signal-orbit-static { border: 1px dashed rgba(98, 230, 210, .22); border-radius: 50%; height: 180px; margin: 1.15rem auto; position: relative; width: 180px; }
+.signal-orbit-static::before, .signal-orbit-static::after { border: 1px solid rgba(154, 140, 255, .4); border-radius: 50%; content: ""; inset: 23px; position: absolute; }
+.signal-orbit-static::after { background: radial-gradient(circle at 36% 32%, #8bf3e3, #087d78 38%, #09151a 72%); border-color: rgba(139, 243, 227, .6); box-shadow: 0 0 42px rgba(98, 230, 210, .25); inset: 56px; }
+.signal-orbit-static i { background: #ffb547; border-radius: 50%; box-shadow: 0 0 12px rgba(255, 181, 71, .72); height: 5px; position: absolute; width: 5px; }
+.signal-orbit-static i:nth-child(1) { left: 12px; top: 55px; }
+.signal-orbit-static i:nth-child(2) { right: 8px; top: 110px; }
+.signal-orbit-static i:nth-child(3) { background: #9a8cff; bottom: 7px; left: 68px; }
+.signal-core-static .signal-static-copy h2 { color: #edfafa; font-size: 1.2rem !important; letter-spacing: -.035em !important; margin: 0 0 .8rem !important; }
+.signal-static-copy ol { display: grid; gap: .35rem; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; margin: 0; padding: 0; }
+.signal-static-copy li { background: rgba(255, 255, 255, .035); border: 1px solid rgba(237, 250, 250, .13); border-radius: 8px; min-width: 0; padding: .55rem .35rem; text-align: center; }
+.signal-static-copy li:first-child { background: rgba(98, 230, 210, .12); border-color: #62e6d2; }
+.signal-static-copy code, .signal-static-copy strong { display: block; }
+.signal-static-copy code { color: #91aab3; font-size: .52rem; }
+.signal-static-copy strong { color: #edfafa; font-size: .7rem; }
+.signal-static-copy li span { display: none; }
+.signal-core-static footer { border-top: 1px solid rgba(237, 250, 250, .12); color: #91aab3; margin-top: .85rem; padding-top: .85rem; }
+.signal-core-static footer a { align-items: center; color: #edfafa; display: inline-flex; gap: .4rem; text-decoration: none; }
+
+@media (max-width: 767.98px) {
+  #hero { min-height: auto; padding-bottom: 2rem !important; }
+  #hero .content { min-height: auto !important; }
+  .signal-core-static { border-radius: 18px; margin-top: 1.5rem; padding: .85rem; }
+  .signal-orbit-static, .signal-static-copy h2 { display: none; }
+  .signal-static-copy ol { margin-top: .65rem; }
+  .signal-static-copy li { min-height: 44px; }
+  .signal-core-static footer { margin-top: .55rem; padding-top: .55rem; }
+  .hero-actions-static > * { flex: 0 0 100%; max-width: 100%; }
+  .hero-actions-static .btn { white-space: normal; width: 100%; }
+  .signal-core-static header, .signal-core-static footer { flex-wrap: wrap; gap: .5rem; }
+}

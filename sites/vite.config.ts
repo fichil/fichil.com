@@ -16,7 +16,7 @@ const localBindingConfig = {
   compatibility_flags: ["nodejs_compat"],
   assets: {
     binding: "ASSETS",
-    run_worker_first: ["/assets/*", "/favicon.ico*", "/favicon.png", "/og.png", "/author-fichil.png"],
+    run_worker_first: ["/assets/*", "/favicon.ico*", "/favicon.png", "/og.png"],
   },
   d1_databases: d1
     ? [
@@ -35,6 +35,9 @@ const localBindingConfig = {
         },
       ]
     : [],
+  ...(process.env.E2E_ADMIN_EMAIL
+    ? { vars: { AI_BLOG_ADMIN_EMAILS: process.env.E2E_ADMIN_EMAIL } }
+    : {}),
 };
 
 export default defineConfig(async () => {
