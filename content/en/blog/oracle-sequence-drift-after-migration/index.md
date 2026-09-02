@@ -170,4 +170,4 @@ Run the audit before enabling writes on the target database. A migration can cop
 
 This procedure targets ordinary ascending sequences used for numeric keys. Descending, cycling, session, scalable, or sharded sequences have different semantics and need their own analysis. In RAC or any multi-instance deployment, every writer and every database-instance cache must be considered; stopping a single front end is not sufficient.
 
-Finally, sequence gaps are not data loss. The unsafe operations are moving a generator backward, assuming a dictionary boundary is the exact next value, or declaring success after a single `NEXTVAL` without proving the transaction that depends on it.
+Finally, sequence gaps are normal. Risk comes from moving a generator backward, treating a dictionary boundary as the exact next value, or declaring a transaction recovered after a single `NEXTVAL` check.
