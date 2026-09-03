@@ -150,11 +150,14 @@ test("article TOC, copy feedback, progress, and back-to-top stay accessible", as
   await expect(page.locator('.article-main .sr-only[role="status"]')).toHaveText("Copy failed");
 
   const scrollToFooter = async () => {
-    await page.evaluate(() => {
+    await expect.poll(() => page.evaluate(async () => {
       document.documentElement.style.scrollBehavior = "auto";
       window.scrollTo(0, document.documentElement.scrollHeight);
-    });
-    await expect.poll(() => page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight - window.scrollY)).toBeLessThanOrEqual(2);
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      });
+      return document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
+    })).toBeLessThanOrEqual(2);
   };
   const expectBackToTopClear = async () => {
     const geometry = await page.evaluate(() => {
