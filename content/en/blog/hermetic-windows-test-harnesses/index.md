@@ -54,7 +54,7 @@ The second group contained 24 Git-fixture errors. Tests created shared clones an
 
 Both failures had the same structural cause: the harness consumed machine policy as hidden input.
 
-The public repair is visible in [the merged pull request](https://github.com/fichil/tech-invest-daily/pull/90). It changed only test helpers and regression coverage; the application workflow remained untouched.
+The completed repair changed only test helpers and regression coverage; the application workflow remained untouched. This article's review used a sanitized diff summary and completed check results as evidence.
 
 ## Own the subprocess text boundary
 
