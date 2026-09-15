@@ -12,6 +12,21 @@ export const aiVisitDaily = sqliteTable("ai_visit_daily", {
   index("idx_ai_visit_daily_locale_slug").on(table.locale, table.articleSlug),
 ]);
 
+export const aiVisitEvents = sqliteTable("ai_visit_events", {
+  id: text("id").primaryKey(),
+  articleSlug: text("article_slug").notNull(),
+  locale: text("locale", { enum: ["en", "zh-cn"] }).notNull(),
+  agentFamily: text("agent_family").notNull(),
+  agentName: text("agent_name").notNull(),
+  detectionSource: text("detection_source", { enum: ["user-agent", "self-declared"] }).notNull(),
+  visitedAt: text("visited_at").notNull(),
+  visitDate: text("visit_date").notNull(),
+  requestKind: text("request_kind", { enum: ["html", "json"] }).notNull(),
+}, (table) => [
+  index("idx_ai_visit_events_article_time").on(table.locale, table.articleSlug, table.visitedAt, table.id),
+  index("idx_ai_visit_events_daily").on(table.locale, table.articleSlug, table.agentFamily, table.visitDate),
+]);
+
 export const comments = sqliteTable("comments", {
   id: text("id").primaryKey(),
   articleSlug: text("article_slug").notNull(),

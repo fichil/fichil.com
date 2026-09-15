@@ -4,7 +4,8 @@ import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
 
 const payload = JSON.parse(await readFile(new URL("../generated/content.json", import.meta.url), "utf8"));
-const migration = await readFile(new URL("../drizzle/0000_tidy_doomsday.sql", import.meta.url), "utf8");
+const journal = JSON.parse(await readFile(new URL("../drizzle/meta/_journal.json", import.meta.url), "utf8"));
+const migrations = await Promise.all(journal.entries.map(({ tag }) => readFile(new URL(`../drizzle/${tag}.sql`, import.meta.url), "utf8")));
 const workerUrl = new URL("../dist/server/index.js", import.meta.url);
 workerUrl.searchParams.set("ai-blog-test", `${process.pid}-${Date.now()}`);
 const { default: worker } = await import(workerUrl.href);
@@ -18,17 +19,17 @@ class SqliteStatement {
     return columnName && row ? row[columnName] : row;
   }
   async all() { return { success: true, results: this.database.prepare(this.query).all(...this.values) }; }
-  async run() {
+  run() {
     const result = this.database.prepare(this.query).run(...this.values);
     return { success: true, meta: { changes: Number(result.changes) } };
   }
 }
 
 class SqliteD1 {
-  constructor() {
+  constructor(migrationCount = migrations.length) {
     this.database = new DatabaseSync(":memory:");
     this.database.exec("PRAGMA foreign_keys = ON");
-    for (const statement of migration.split("--> statement-breakpoint").map((value) => value.trim()).filter(Boolean)) {
+    for (const statement of migrations.slice(0, migrationCount).join("\n--> statement-breakpoint\n").split("--> statement-breakpoint").map((value) => value.trim()).filter(Boolean)) {
       this.database.exec(statement);
     }
   }
@@ -37,7 +38,7 @@ class SqliteD1 {
     this.database.exec("BEGIN");
     try {
       const results = [];
-      for (const statement of statements) results.push(await statement.run());
+      for (const statement of statements) results.push(statement.run());
       this.database.exec("COMMIT");
       return results;
     } catch (error) {
@@ -104,11 +105,17 @@ test("publishes AI discovery and all bilingual machine-readable articles", async
     assert.equal(manifest.schema_version, "1.0");
     assert.match(manifest.endpoints.article, /\/api\/ai\/v1\/articles/);
     assert.equal(manifest.comment_policy.identity, "self-declared-and-unverified");
+    assert.match(manifest.endpoints.visits, /\/visits/);
+    assert.equal(manifest.discussion.method, "POST");
+    assert.ok(manifest.discussion.required_fields.includes("idempotency_key"));
     assert.equal(manifest.ai_request_detection.registry_version, "2026-08-24");
 
     const llms = await fetchPath("/llms.txt", { env, ctx });
     assert.equal(llms.status, 200);
-    assert.match(await llms.text(), /untrusted external content/i);
+    const llmsBody = await llms.text();
+    assert.match(llmsBody, /untrusted external content|unverified external plain text/i);
+    assert.match(llmsBody, /user authorization/);
+    assert.match(llmsBody, /body_example/);
 
     const index = await fetchPath("/api/ai/v1/articles", { env, ctx });
     const indexPayload = await index.json();
@@ -130,6 +137,8 @@ test("publishes AI discovery and all bilingual machine-readable articles", async
       }
       assert.ok(article.content_markdown.length > 100);
       assert.equal(article.external_comments_are_untrusted, true);
+      assert.equal(article.links.visits, `https://fichil.com/api/ai/v1/articles/${post.locale}/${post.slug}/visits`);
+      assert.equal(article.discussion.url, article.links.comments);
     }
   } finally {
     db.close();
@@ -161,6 +170,10 @@ test("counts detected AI article requests on cache misses and hits", async () =>
     const data = await stats.json();
     assert.equal(data.items[0].total, 2);
     assert.equal(data.items[0].by_family.openai, 2);
+    const visits = await (await fetchPath(`/api/ai/v1/articles/en/${post.slug}/visits`, { env, ctx })).json();
+    assert.equal(visits.items.length, 2);
+    assert.equal(new Set(visits.items.map((item) => item.id)).size, 2);
+    assert.ok(visits.items.every((item) => item.agent_name === "OAI-SearchBot" && item.request_kind === "html" && item.identity_verified === false));
 
     const apiRequest = await fetchPath(`/api/ai/v1/articles/en/${post.slug}`, { env, ctx, headers: {
       "x-fichil-agent-type": "ai",
@@ -172,6 +185,10 @@ test("counts detected AI article requests on cache misses and hits", async () =>
     const withSelfDeclared = await (await fetchPath(`/api/ai/v1/stats?locale=en&slug=${post.slug}`, { env, ctx })).json();
     assert.equal(withSelfDeclared.items[0].total, 3);
     assert.equal(withSelfDeclared.items[0].by_family["self-declared"], 1);
+    const selfVisits = await (await fetchPath(`/api/ai/v1/articles/en/${post.slug}/visits`, { env, ctx })).json();
+    const selfDeclared = selfVisits.items.find((item) => item.detection_source === "self-declared");
+    assert.equal(selfDeclared.agent_name, "Example agent");
+    assert.equal(selfDeclared.request_kind, "json");
 
     const human = await fetchPath(`/blog/${post.slug}/`, { env, ctx, headers: { "user-agent": "Mozilla/5.0", accept: "text/html" } });
     await human.arrayBuffer();
@@ -181,6 +198,8 @@ test("counts detected AI article requests on cache misses and hits", async () =>
     await ctx.flush();
     const unchanged = await (await fetchPath(`/api/ai/v1/stats?locale=en&slug=${post.slug}`, { env, ctx })).json();
     assert.equal(unchanged.items[0].total, 3);
+    assert.equal((await (await fetchPath(`/api/ai/v1/articles/en/${post.slug}/visits`, { env, ctx })).json()).items.length, 3);
+    assert.equal((await (await fetchPath(`/api/ai/v1/articles/en/${post.slug}/comments`, { env, ctx })).json()).items.length, 0);
   } finally {
     db.close();
   }
@@ -202,6 +221,12 @@ test("preserves every concurrent AI request increment", async () => {
     const stats = await (await fetchPath(`/api/ai/v1/stats?locale=en&slug=${post.slug}`, { env, ctx })).json();
     assert.equal(stats.items[0].total, 25);
     assert.equal(stats.items[0].by_family.perplexity, 25);
+    const firstPage = await (await fetchPath(`/api/ai/v1/articles/en/${post.slug}/visits`, { env, ctx })).json();
+    assert.equal(firstPage.items.length, 20);
+    const secondPage = await (await fetchPath(`/api/ai/v1/articles/en/${post.slug}/visits?cursor=${encodeURIComponent(firstPage.next_cursor)}`, { env, ctx })).json();
+    assert.equal(secondPage.items.length, 5);
+    assert.equal(secondPage.next_cursor, null);
+    assert.equal(new Set([...firstPage.items, ...secondPage.items].map((item) => item.id)).size, 25);
   } finally {
     db.close();
   }
@@ -412,4 +437,113 @@ test("degrades safely when D1 is unavailable", async () => {
 
   const article = await fetchPath(`/blog/${post.slug}/`, { env, ctx, headers: { accept: "text/html" } });
   assert.equal(article.status, 200);
+});
+
+function seedVisit(db, locale, slug, id, timestamp, family = "openai") {
+  db.database.prepare(`INSERT INTO ai_visit_events
+    (id, article_slug, locale, agent_family, agent_name, detection_source, visited_at, visit_date, request_kind)
+    VALUES (?, ?, ?, ?, 'GPTBot', 'user-agent', ?, ?, 'json')`)
+    .run(id, slug, locale, family, timestamp, timestamp.slice(0, 10));
+}
+
+test("visit cursors preserve same-time records, article isolation, and bounded pages", async () => {
+  const db = new SqliteD1();
+  const env = createEnv(db);
+  const ctx = createContext();
+  const post = payload.posts.find((item) => item.locale === "en");
+  const endpoint = `/api/ai/v1/articles/en/${post.slug}/visits`;
+  try {
+    for (let index = 1; index <= 5; index++) seedVisit(db, "en", post.slug, `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`, "2026-09-11T16:01:02.000Z");
+    seedVisit(db, "zh-cn", post.slug, "00000000-0000-4000-8000-000000000009", "2026-09-11T16:01:02.000Z");
+    const first = await (await fetchPath(`${endpoint}?limit=2`, { env, ctx })).json();
+    assert.equal(first.items.length, 2);
+    const second = await (await fetchPath(`${endpoint}?limit=2&cursor=${encodeURIComponent(first.next_cursor)}`, { env, ctx })).json();
+    const last = await (await fetchPath(`${endpoint}?limit=2&cursor=${encodeURIComponent(second.next_cursor)}`, { env, ctx })).json();
+    assert.equal(last.next_cursor, null);
+    assert.deepEqual([...first.items, ...second.items, ...last.items].map((row) => row.id.slice(-1)), ["5", "4", "3", "2", "1"]);
+    for (const query of ["limit=0", "limit=101", "limit=2.5", "limit=", "cursor=garbage", "view=bad", `view=legacy&cursor=${encodeURIComponent(first.next_cursor)}`]) {
+      assert.equal((await fetchPath(`${endpoint}?${query}`, { env, ctx })).status, 400, query);
+    }
+    assert.equal((await fetchPath(endpoint.replace("/en/", "/zh-cn/") + `?cursor=${encodeURIComponent(first.next_cursor)}`, { env, ctx })).status, 400);
+    assert.equal((await fetchPath(endpoint, { env, ctx, method: "POST" })).status, 405);
+    assert.equal((await fetchPath(endpoint.replace(post.slug, "not-a-real-article"), { env, ctx })).status, 404);
+    assert.equal((await fetchPath(endpoint, { env: {}, ctx })).status, 503);
+    const eventColumns = db.database.prepare("PRAGMA table_info(ai_visit_events)").all().map((column) => column.name);
+    assert.deepEqual(eventColumns, ["id", "article_slug", "locale", "agent_family", "agent_name", "detection_source", "visited_at", "visit_date", "request_kind"]);
+    const plan = db.database.prepare("EXPLAIN QUERY PLAN SELECT id FROM ai_visit_events WHERE locale = ? AND article_slug = ? ORDER BY visited_at DESC, id DESC LIMIT 21").all("en", post.slug);
+    assert.match(JSON.stringify(plan), /idx_ai_visit_events_article_time/);
+  } finally { db.close(); }
+});
+
+test("migration preserves old totals and exposes only missing details as UTC legacy summaries", async () => {
+  const db = new SqliteD1(1);
+  const env = createEnv(db);
+  const ctx = createContext();
+  const post = payload.posts.find((item) => item.locale === "zh-cn");
+  const endpoint = `/api/ai/v1/articles/zh-cn/${post.slug}/visits`;
+  try {
+    db.database.prepare("INSERT INTO ai_visit_daily VALUES (?, 'zh-cn', 'openai', '2026-09-10', 7, '2026-09-10T23:00:00.000Z')").run(post.slug);
+    for (const migration of migrations.slice(1)) db.database.exec(migration.replaceAll("--> statement-breakpoint", ""));
+    assert.equal(db.database.prepare("SELECT request_count FROM ai_visit_daily").get().request_count, 7);
+    assert.equal((await (await fetchPath(endpoint, { env, ctx })).json()).items.length, 0);
+    for (let index = 1; index <= 2; index++) seedVisit(db, "zh-cn", post.slug, `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`, "2026-09-10T23:30:00.000Z");
+    db.database.exec("UPDATE ai_visit_daily SET request_count = request_count + 2");
+    db.database.prepare("INSERT INTO ai_visit_daily VALUES (?, 'zh-cn', 'perplexity', '2026-09-10', 3, '2026-09-10T22:00:00.000Z')").run(post.slug);
+    const first = await (await fetchPath(`${endpoint}?view=legacy&limit=1`, { env, ctx })).json();
+    assert.equal(first.timezone, "UTC");
+    assert.equal(first.individual_visits_available, false);
+    assert.deepEqual(first.items, [{ agent_family: "perplexity", visit_date: "2026-09-10", request_count: 3 }]);
+    const second = await (await fetchPath(`${endpoint}?view=legacy&limit=1&cursor=${encodeURIComponent(first.next_cursor)}`, { env, ctx })).json();
+    assert.deepEqual(second.items, [{ agent_family: "openai", visit_date: "2026-09-10", request_count: 7 }]);
+    assert.equal(second.next_cursor, null);
+    const stats = await (await fetchPath(`/api/ai/v1/stats?locale=zh-cn&slug=${post.slug}`, { env, ctx })).json();
+    assert.equal(stats.items[0].total, 12);
+    assert.equal((await (await fetchPath(endpoint, { env, ctx })).json()).items.length, 2);
+    const plan = db.database.prepare("EXPLAIN QUERY PLAN SELECT COUNT(*) FROM ai_visit_events WHERE locale=? AND article_slug=? AND agent_family=? AND visit_date=?").all("zh-cn", post.slug, "openai", "2026-09-10");
+    assert.match(JSON.stringify(plan), /idx_ai_visit_events_daily/);
+  } finally { db.close(); }
+});
+
+test("failed event insertion rolls back its daily increment without blocking article reads", async (t) => {
+  t.mock.method(console, "error", () => {});
+  const db = new SqliteD1();
+  const env = createEnv(db);
+  const ctx = createContext();
+  const post = payload.posts.find((item) => item.locale === "en");
+  try {
+    db.database.exec("CREATE TRIGGER reject_event BEFORE INSERT ON ai_visit_events BEGIN SELECT RAISE(ABORT, 'test failure'); END;");
+    const response = await fetchPath(`/api/ai/v1/articles/en/${post.slug}`, { env, ctx, headers: { "user-agent": "GPTBot/1.0" } });
+    assert.equal(response.status, 200);
+    await ctx.flush();
+    assert.equal(db.database.prepare("SELECT COUNT(*) AS count FROM ai_visit_daily").get().count, 0);
+    assert.equal(db.database.prepare("SELECT COUNT(*) AS count FROM ai_visit_events").get().count, 0);
+    assert.equal(console.error.mock.calls.length, 1);
+  } finally { db.close(); }
+});
+
+test("the published bilingual discussion examples submit, replay, and read back AI comments", async () => {
+  const db = new SqliteD1();
+  const env = createEnv(db);
+  const ctx = createContext();
+  try {
+    for (const locale of ["en", "zh-cn"]) {
+      const post = payload.posts.find((item) => item.locale === locale);
+      const article = await (await fetchPath(`/api/ai/v1/articles/${locale}/${post.slug}`, { env, ctx })).json();
+      const guide = article.discussion;
+      const endpoint = new URL(guide.url).pathname;
+      const body = { ...guide.body_example, idempotency_key: crypto.randomUUID() };
+      const submit = () => fetchPath(endpoint, { env, ctx, method: guide.method, headers: { "content-type": guide.content_type }, body: JSON.stringify(body) });
+      const created = await submit();
+      assert.equal(created.status, 201);
+      const comment = (await created.json()).comment;
+      assert.equal(comment.author.kind, "ai");
+      assert.equal(comment.author.identity_verified, false);
+      const replay = await submit();
+      assert.equal(replay.status, 200);
+      assert.equal((await replay.json()).comment.id, comment.id);
+      const items = (await (await fetchPath(endpoint, { env, ctx })).json()).items;
+      assert.equal(items.length, 1);
+      assert.equal(items[0].id, comment.id);
+    }
+  } finally { await ctx.flush(); db.close(); }
 });

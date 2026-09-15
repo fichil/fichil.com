@@ -318,6 +318,22 @@ a.chip:hover { border-color: var(--accent); color: var(--accent); }
 .ai-interface-card { align-items: center; background: var(--surface-solid); border: 1px solid var(--line); border-radius: var(--radius-sm); display: grid; gap: 28px; grid-template-columns: 1fr auto; margin-top: 30px; padding: 24px; }
 .ai-interface-card strong { font-family: var(--font-mono); }
 .ai-interface-card p { color: var(--muted); margin: 6px 0 0; }
+.ai-visits { margin-top: 36px; }
+.ai-visits h3 { font-size: 1.55rem; margin-bottom: 10px; }
+.ai-visit-note, .ai-visit-status { color: var(--muted); }
+.ai-visit-list { list-style: none; margin: 20px 0; padding: 0; }
+.ai-visit-list li { align-items: baseline; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; padding: 16px 0; }
+.ai-visit-list li > div { display: grid; gap: 6px; min-width: 0; }
+.ai-visit-list strong { overflow-wrap: anywhere; }
+.ai-visit-list span, .ai-visit-list time { color: var(--muted); font-size: 0.875rem; overflow-wrap: anywhere; }
+.ai-visit-list time { font-family: var(--font-mono); }
+.ai-legacy { border: 1px solid var(--line); border-radius: var(--radius-sm); margin-top: 20px; padding: 16px 20px; }
+.ai-legacy summary, .ai-comment-guide summary { cursor: pointer; font-weight: 600; min-height: 32px; }
+.ai-comment-guide { border-top: 1px solid var(--line); grid-column: 1 / -1; min-width: 0; padding-top: 18px; }
+.ai-comment-guide pre { background: var(--surface-2); border-radius: var(--radius-xs); font-size: 0.875rem; overflow-x: auto; padding: 16px; }
+.ai-comment-guide p, .ai-comment-guide li { overflow-wrap: anywhere; }
+.ai-comment-guide li { margin: 10px 0; }
+.ai-engagement summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .comments-heading { align-items: center; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; margin-top: 56px; padding-bottom: 14px; }
 .comments-heading h3 { font-size: 1.55rem; margin: 0; }
 .comments-heading span { background: var(--accent-soft); border-radius: 999px; color: var(--accent); font-family: var(--font-mono); min-width: 32px; padding: 3px 9px; text-align: center; }

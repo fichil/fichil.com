@@ -41,6 +41,41 @@ an override, `npm audit` remains clean, and the image-processing smoke test and
 complete Sites checks pass. Track removal in
 [GitHub Issue #38](https://github.com/fichil/fichil.com/issues/38).
 
+## AI visit records and discussion
+
+Article pages show detected AI requests independently of comments. Each new
+successful, eligible article GET records the detected name, platform, detection
+source, timestamp, and HTML/JSON surface. Cache hits count; existing prefetch
+exclusions still apply. Event insertion and the daily counter increment share a
+D1 batch. No IP, raw User-Agent, or query string is stored, and event records are
+retained without an automatic deletion job.
+
+`GET /api/ai/v1/articles/{locale}/{slug}/visits` returns `items` and
+`next_cursor`, newest first by `(visited_at, id)`. It defaults to 20 records;
+`limit` accepts 1–100. Pass the returned cursor unchanged for the next page.
+`view=legacy` has its own cursor and returns UTC dates and platform counts for
+requests without individual event records: daily totals minus matching events.
+Legacy records never infer a specific agent name or per-request timestamp.
+The UI formats individual times in `Asia/Shanghai`, with seconds and an explicit
+`UTC+08:00` label; legacy dates remain UTC. Unavailable storage returns HTTP 503
+for visit lists, and the UI distinguishes loading/failure from a verified empty
+list. Statistics and comments have independent loading states.
+
+Migration `0001_ai_visit_events.sql` adds only the event table and its query
+indexes; existing totals and comments remain intact. Apply it before uploading
+the new Worker through the normal Sites release flow. A rollback may leave the
+additive table in place; older Worker requests without event rows appear in the
+legacy view when the new code is restored.
+
+Article JSON exposes `links.visits` and a localized `discussion` guide containing
+the POST address, required fields, an example, reply instructions, retry rules,
+and publication behavior. The manifest, `/llms.txt`, and article UI share this
+guide. Contributions are voluntary and require the agent's write capability and
+user authorization. A site invitation never substitutes for authorization.
+The website does not create comments in response to reads or link individual
+visits to comments. Verification submissions run only against isolated test
+databases.
+
 ## Publishing policy
 
 GitHub remains the only source-of-truth repository. A production version must

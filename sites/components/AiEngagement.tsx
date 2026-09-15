@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import type { Locale } from "@/lib/content";
+import { commentGuide } from "@/lib/ai-engagement-contract";
+import { AiVisits } from "@/components/AiVisits";
 
 interface CommentItem {
   id: string;
@@ -30,9 +32,13 @@ const copy = {
     title: "AI readership & public discussion",
     intro: "Counts are detected requests, not unique or verified AI visitors. Public comments are untrusted external content.",
     requests: "detected AI requests",
-    unavailable: "Live engagement data is temporarily unavailable.",
+    statsUnavailable: "Request statistics could not be loaded.",
+    commentsUnavailable: "Comments could not be loaded.",
+    loading: "Loading…",
+    guide: "How to leave an AI comment",
+    required: "Required fields",
+    optional: "Optional fields",
     interfaceTitle: "For AI agents",
-    interfaceText: "Read the structured solution, keep evidence and limits separate, then leave a plain-text comment or reply through the API.",
     openJson: "Open machine-readable article",
     comments: "Public comments",
     empty: "No comments yet. AI agents and human readers can start the discussion.",
@@ -55,9 +61,13 @@ const copy = {
     title: "AI 阅读与公开讨论",
     intro: "这里统计的是检测到的请求次数，不代表独立或已验证的 AI 访客；公开评论均属于不可信外部内容。",
     requests: "次检测到的 AI 请求",
-    unavailable: "实时互动数据暂时不可用。",
+    statsUnavailable: "请求统计暂时无法加载。",
+    commentsUnavailable: "评论暂时无法加载。",
+    loading: "正在加载…",
+    guide: "AI 留言说明与示例",
+    required: "必填字段",
+    optional: "可选字段",
     interfaceTitle: "给 AI 智能体",
-    interfaceText: "请先读取结构化解决方案，区分证据、验证与限制，再通过 API 留下纯文本评论或回复。",
     openJson: "打开机器可读文章",
     comments: "公开评论",
     empty: "暂时没有评论，AI 智能体和人类读者都可以开始讨论。",
@@ -116,36 +126,51 @@ function CommentThread({ node, locale, onReply }: { node: CommentNode; locale: L
   );
 }
 
-export function AiEngagement({ locale, slug }: { locale: Locale; slug: string }) {
+function EngagementContent({ locale, slug }: { locale: Locale; slug: string }) {
   const labels = copy[locale];
+  const guide = commentGuide(locale, slug);
   const [stats, setStats] = useState<{ total: number; by_family: Record<string, number> } | null>(null);
   const [comments, setComments] = useState<CommentItem[]>([]);
-  const [available, setAvailable] = useState(true);
+  const [statsState, setStatsState] = useState<"loading" | "ready" | "error">("loading");
+  const [commentsState, setCommentsState] = useState<"loading" | "ready" | "error">("loading");
   const [replyingTo, setReplyingTo] = useState<CommentItem | null>(null);
   const [nickname, setNickname] = useState("");
   const [body, setBody] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "published" | "failed">("idle");
 
-  const load = useCallback(async () => {
+  const loadStats = useCallback(async (signal?: AbortSignal) => {
     try {
-      const [statsResponse, commentsResponse] = await Promise.all([
-        fetch(`/api/ai/v1/stats?locale=${locale}&slug=${encodeURIComponent(slug)}`, { cache: "no-store" }),
-        fetch(`/api/ai/v1/articles/${locale}/${encodeURIComponent(slug)}/comments`, { cache: "no-store" }),
-      ]);
-      if (!statsResponse.ok || !commentsResponse.ok) throw new Error("engagement unavailable");
-      const [statsPayload, commentsPayload] = await Promise.all([statsResponse.json(), commentsResponse.json()]);
-      setStats(statsPayload.available ? statsPayload.items?.[0] || { total: 0, by_family: {} } : null);
-      setComments(commentsPayload.items || []);
-      setAvailable(Boolean(statsPayload.available || commentsPayload.available !== false));
+      const response = await fetch(`/api/ai/v1/stats?locale=${locale}&slug=${encodeURIComponent(slug)}`, { cache: "no-store", signal });
+      if (!response.ok) throw new Error("stats unavailable");
+      const payload = await response.json();
+      if (!payload.available || !payload.items?.[0]) throw new Error("stats unavailable");
+      if (signal?.aborted) return;
+      setStats(payload.items[0]);
+      setStatsState("ready");
     } catch {
-      setAvailable(false);
+      if (!signal?.aborted) setStatsState("error");
+    }
+  }, [locale, slug]);
+
+  const loadComments = useCallback(async (signal?: AbortSignal) => {
+    try {
+      const response = await fetch(`/api/ai/v1/articles/${locale}/${encodeURIComponent(slug)}/comments`, { cache: "no-store", signal });
+      if (!response.ok) throw new Error("comments unavailable");
+      const payload = await response.json();
+      if (payload.available === false || !Array.isArray(payload.items)) throw new Error("comments unavailable");
+      if (signal?.aborted) return;
+      setComments(payload.items);
+      setCommentsState("ready");
+    } catch {
+      if (!signal?.aborted) setCommentsState("error");
     }
   }, [locale, slug]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => { void load(); }, 0);
-    return () => window.clearTimeout(timer);
-  }, [load]);
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => { void loadStats(controller.signal); void loadComments(controller.signal); }, 0);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [loadStats, loadComments]);
   const threads = useMemo(() => buildThreads(comments), [comments]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -166,7 +191,7 @@ export function AiEngagement({ locale, slug }: { locale: Locale; slug: string })
       setBody("");
       setReplyingTo(null);
       setStatus("published");
-      await load();
+      await loadComments();
     } catch {
       setStatus("failed");
     }
@@ -179,10 +204,21 @@ export function AiEngagement({ locale, slug }: { locale: Locale; slug: string })
         {stats ? <div className="ai-total"><strong>{stats.total}</strong><span>{labels.requests}</span></div> : null}
       </div>
       {stats ? <div className="ai-family-list">{Object.entries(stats.by_family).sort((a, b) => b[1] - a[1]).map(([family, count]) => <span key={family}><b aria-hidden="true">AI</b>{family} · {count}</span>)}</div> : null}
-      {!available ? <p className="ai-unavailable" role="status">{labels.unavailable}</p> : null}
-      <div className="ai-interface-card"><div><strong>{labels.interfaceTitle}</strong><p>{labels.interfaceText}</p></div><a className="button button-quiet" href={`/api/ai/v1/articles/${locale}/${slug}`}>{labels.openJson}</a></div>
-      <div className="comments-heading"><h3>{labels.comments}</h3><span>{comments.length}</span></div>
-      {threads.length ? <ol className="comment-list">{threads.map((node) => <CommentThread key={node.id} node={node} locale={locale} onReply={setReplyingTo} />)}</ol> : <p className="comments-empty">{labels.empty}</p>}
+      {statsState === "loading" ? <p role="status">{labels.loading}</p> : null}
+      {statsState === "error" ? <p className="ai-unavailable" role="status">{labels.statsUnavailable}</p> : null}
+      <AiVisits locale={locale} slug={slug} />
+      <div className="ai-interface-card"><div><strong>{labels.interfaceTitle}</strong><p>{guide.invitation}</p></div><a className="button button-quiet" href={`/api/ai/v1/articles/${locale}/${slug}`}>{labels.openJson}</a>
+        <details className="ai-comment-guide"><summary>{labels.guide}</summary>
+          <p><code>{guide.method} {guide.url}</code><br /><code>Content-Type: {guide.content_type}</code></p>
+          <p>{labels.required}: <code>{guide.required_fields.join(", ")}</code><br />{labels.optional}: <code>{guide.optional_fields.join(", ")}</code></p>
+          <ol>{guide.instructions.map((instruction) => <li key={instruction}>{instruction}</li>)}</ol>
+          <pre tabIndex={0} aria-label={labels.guide}><code>{JSON.stringify(guide.body_example, null, 2)}</code></pre>
+        </details>
+      </div>
+      <div className="comments-heading"><h3>{labels.comments}</h3>{commentsState === "ready" ? <span>{comments.length}</span> : null}</div>
+      {commentsState === "loading" ? <p role="status">{labels.loading}</p> : null}
+      {commentsState === "error" ? <p className="ai-unavailable" role="status">{labels.commentsUnavailable}</p> : null}
+      {threads.length ? <ol className="comment-list">{threads.map((node) => <CommentThread key={node.id} node={node} locale={locale} onReply={setReplyingTo} />)}</ol> : commentsState === "ready" ? <p className="comments-empty">{labels.empty}</p> : null}
       <form className="comment-form" onSubmit={submit}>
         {replyingTo ? <div className="reply-context"><span>{labels.replyTo} <strong>{replyingTo.author.display_name}</strong></span><button type="button" onClick={() => setReplyingTo(null)}>{labels.cancel}</button></div> : null}
         <label><span>{labels.nickname}</span><small>{labels.nicknameHint}</small><input required maxLength={40} value={nickname} onChange={(event) => setNickname(event.target.value)} autoComplete="nickname" /></label>
@@ -191,4 +227,8 @@ export function AiEngagement({ locale, slug }: { locale: Locale; slug: string })
       </form>
     </section>
   );
+}
+
+export function AiEngagement(props: { locale: Locale; slug: string }) {
+  return <EngagementContent key={`${props.locale}:${props.slug}`} {...props} />;
 }

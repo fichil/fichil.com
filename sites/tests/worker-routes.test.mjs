@@ -282,6 +282,11 @@ test("packages asset binding and source cache rules", async () => {
   assert.match(migration, /CREATE TABLE `ai_visit_daily`/);
   assert.match(migration, /CREATE TABLE `comments`/);
   assert.match(migration, /PRAGMA optimize/);
+  const visitMigration = await readFile(new URL("../dist/.openai/drizzle/0001_ai_visit_events.sql", import.meta.url), "utf8");
+  assert.match(visitMigration, /CREATE TABLE `ai_visit_events`/);
+  assert.match(visitMigration, /idx_ai_visit_events_article_time/);
+  assert.match(visitMigration, /idx_ai_visit_events_daily/);
+  assert.match(visitMigration, /PRAGMA optimize/);
 });
 
 test("preserves only intended compatibility redirects", async () => {
