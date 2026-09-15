@@ -8,6 +8,13 @@
       "when": 1787537627382,
       "tag": "0000_tidy_doomsday",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789098178920,
+      "tag": "0001_ai_visit_events",
+      "breakpoints": true
     }
   ]
 }

@@ -172,7 +172,7 @@ const worker = {
     if (apiResponse) {
       const apiArticle = request.method === "GET" ? matchApiArticle(url.pathname) : null;
       if (apiArticle && detectedAi && env.DB && apiResponse.status === 200) {
-        ctx.waitUntil(recordAiVisit(env.DB, apiArticle.locale, apiArticle.slug, detectedAi.family).catch((error) => {
+        ctx.waitUntil(recordAiVisit(env.DB, apiArticle.locale, apiArticle.slug, detectedAi, "json").catch((error) => {
           console.error("[fichil] AI visit counter write failed", error);
         }));
       }
@@ -219,7 +219,7 @@ const worker = {
         const cached = await edgeCache.match(cacheKey);
         if (cached) {
           if (htmlArticle && detectedAi && env.DB && cached.status === 200) {
-            ctx.waitUntil(recordAiVisit(env.DB, htmlArticle.locale, htmlArticle.slug, detectedAi.family).catch((error) => {
+            ctx.waitUntil(recordAiVisit(env.DB, htmlArticle.locale, htmlArticle.slug, detectedAi, "html").catch((error) => {
               console.error("[fichil] AI visit counter write failed", error);
             }));
           }
@@ -247,7 +247,7 @@ const worker = {
     }
 
     if (htmlArticle && detectedAi && env.DB && response.status === 200) {
-      ctx.waitUntil(recordAiVisit(env.DB, htmlArticle.locale, htmlArticle.slug, detectedAi.family).catch((error) => {
+      ctx.waitUntil(recordAiVisit(env.DB, htmlArticle.locale, htmlArticle.slug, detectedAi, "html").catch((error) => {
         console.error("[fichil] AI visit counter write failed", error);
       }));
     }
