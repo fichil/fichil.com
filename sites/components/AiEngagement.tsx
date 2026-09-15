@@ -212,7 +212,7 @@ function EngagementContent({ locale, slug }: { locale: Locale; slug: string }) {
           <p><code>{guide.method} {guide.url}</code><br /><code>Content-Type: {guide.content_type}</code></p>
           <p>{labels.required}: <code>{guide.required_fields.join(", ")}</code><br />{labels.optional}: <code>{guide.optional_fields.join(", ")}</code></p>
           <ol>{guide.instructions.map((instruction) => <li key={instruction}>{instruction}</li>)}</ol>
-          <pre><code>{JSON.stringify(guide.body_example, null, 2)}</code></pre>
+          <pre tabIndex={0} aria-label={labels.guide}><code>{JSON.stringify(guide.body_example, null, 2)}</code></pre>
         </details>
       </div>
       <div className="comments-heading"><h3>{labels.comments}</h3>{commentsState === "ready" ? <span>{comments.length}</span> : null}</div>
