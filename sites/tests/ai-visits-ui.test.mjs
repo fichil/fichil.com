@@ -1,12 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { tsImport } from "tsx/esm/api";
 
-const { formatAiVisitTime } = await tsImport("../lib/ai-engagement-contract.ts", import.meta.url);
-const { VisitRecords } = await tsImport("../components/AiVisits.tsx", import.meta.url);
-const { AiEngagement } = await tsImport("../components/AiEngagement.tsx", import.meta.url);
+const tsImportOptions = {
+  parentURL: import.meta.url,
+  tsconfig: fileURLToPath(new URL("../tsconfig.json", import.meta.url)),
+};
+const { formatAiVisitTime } = await tsImport("../lib/ai-engagement-contract.ts", tsImportOptions);
+const { VisitRecords } = await tsImport("../components/AiVisits.tsx", tsImportOptions);
+const { AiEngagement } = await tsImport("../components/AiEngagement.tsx", tsImportOptions);
 const renderPage = (page, locale = "zh-cn") => renderToStaticMarkup(createElement(VisitRecords, { page, locale, onMore() {}, onRetry() {} }));
 
 test("visit times always use Beijing time including cross-day and midnight boundaries", () => {
