@@ -57,7 +57,9 @@ export default defineConfig(async () => {
     plugins: [
       vinext(),
       sites(),
+      // Browser tests do not need the Worker debugger or inspector-port discovery.
       cloudflare({
+        ...(process.env.E2E_ADMIN_EMAIL ? { inspectorPort: false as const } : {}),
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
         config: localBindingConfig,
       }),
