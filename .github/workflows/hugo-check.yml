@@ -29,6 +29,12 @@ jobs:
           BLOG_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: bash tools/check-blog-pr-scope.sh
 
+      - name: Test cloud connector orchestration
+        run: node --test tools/tests/cloud-blog-github.test.mjs
+
+      - name: Test cloud orchestration contracts
+        run: python3 -m unittest discover -s tools/tests -p 'test_*.py' -v
+
       - name: Test content QA approval gate
         run: bash tools/tests/check-content-qa-approval.test.sh
 
