@@ -3,7 +3,7 @@ import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import matter from "gray-matter";
+import { parseFrontMatter } from "./front-matter.mjs";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
@@ -171,7 +171,7 @@ async function readPosts(locale) {
     if (!entry.isDirectory()) continue;
     const sourcePath = join(blogRoot, entry.name, "index.md");
     const source = await readFile(sourcePath, "utf8");
-    const parsed = matter(source);
+    const parsed = parseFrontMatter(source);
     if (parsed.data.draft === true) continue;
 
     const title = String(parsed.data.title || "").trim();
