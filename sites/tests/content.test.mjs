@@ -141,6 +141,8 @@ test("keeps editorial and homepage links on known internal routes", () => {
     knownRoutes.add(post.locale === "zh-cn" ? `/zh-cn/blog/${post.slug}/` : `/blog/${post.slug}/`);
   }
 
+  knownRoutes.add("/services/excel-csv-automation/");
+  knownRoutes.add("/zh-cn/services/excel-csv-automation/");
   const internalLinks = [];
   for (const post of payload.posts) {
     for (const match of post.html.matchAll(/href="([^"]+)"/g)) {

@@ -91,13 +91,13 @@ test("renders localized metadata and article structure", async () => {
   const englishHtml = await english.text();
   assert.match(englishHtml, /<html[^>]+lang="en"/i);
   assert.match(englishHtml, /Build\. Debug\. Ship\./);
-  assert.match(englishHtml, /Trace the failure\. Keep the evidence\./);
+  assert.match(englishHtml, /Make spreadsheet work repeatable\./);
   assert.match(englishHtml, /https:\/\/fichil\.com\//);
 
   const chinese = await fetchPath("/zh-cn/");
   const chineseHtml = await chinese.text();
   assert.match(chineseHtml, /<html[^>]+lang="zh-CN"/i);
-  assert.match(chineseHtml, /定位系统问题，留下可复核证据/);
+  assert.match(chineseHtml, /让重复表格工作更省事/);
   assert.match(chineseHtml, /AI 辅助开发与运维的 fichil\.com/);
   assert.doesNotMatch(chineseHtml, /Repo2AI|VPS 与 Nginx 恢复|自由职业后端/);
 
@@ -116,7 +116,7 @@ test("keeps the engineering signal reading interface discoverable and accessible
   assert.ok(latestEnglish);
   assert.match(homeHtml, /class="mobile-nav-trigger"[^>]+aria-expanded="false"[^>]+aria-controls="mobile-site-nav"/);
   assert.match(homeHtml, /class="theme-toggle"[^>]+aria-label="Switch to dark theme"[^>]+aria-pressed="false"/);
-  assert.match(homeHtml, new RegExp(`href="/blog/${latestEnglish.slug}/"[^>]+button button-primary`));
+  assert.match(homeHtml, /<a(?=[^>]*href="\/services\/excel-csv-automation\/")(?=[^>]*class="button button-primary")/);
   assert.match(homeHtml, /class="topic-grid topic-grid-home" aria-label="Categories"/);
   assert.match(homeHtml, /class="post-card post-card-featured"/);
   assert.match(homeHtml, /role="tablist"[^>]+From system signal to exact release/);
@@ -214,7 +214,7 @@ test("renders HTML when the platform edge cache is unavailable", async (t) => {
   const response = await fetchPath("/zh-cn/", "localhost", {}, createEnv(failingCache), createContext());
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("x-fichil-cache"), "BYPASS");
-  assert.match(await response.text(), /定位系统问题，留下可复核证据/);
+  assert.match(await response.text(), /让重复表格工作更省事/);
 });
 
 test("bypasses HTML cache for request-specific and noncanonical requests", async () => {

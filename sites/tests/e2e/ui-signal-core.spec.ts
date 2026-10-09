@@ -58,14 +58,14 @@ for (const scenario of homeCases) {
       viewport: window.innerWidth,
       scrollWidth: document.documentElement.scrollWidth,
       ctaBottom: document.querySelector(".hero-actions")?.getBoundingClientRect().bottom ?? 0,
-      latestTop: document.querySelector(".latest-section")?.getBoundingClientRect().top ?? 0,
+      servicesTop: document.querySelector("#services")?.getBoundingClientRect().top ?? 0,
       avatarRequests: performance.getEntriesByType("resource").filter((entry) => entry.name.includes("author-fichil")).length,
     }));
     expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.viewport);
     expect(metrics.avatarRequests).toBe(0);
     if (scenario.width <= 390) {
       expect(metrics.ctaBottom).toBeLessThanOrEqual(scenario.height);
-      expect(metrics.latestTop).toBeLessThanOrEqual(1100);
+      expect(metrics.servicesTop).toBeLessThanOrEqual(1100);
     }
     await expectNoSeriousAxeIssues(page);
     await saveEvidence(page, `home-${scenario.locale}-${scenario.width}x${scenario.height}-${scenario.theme}.png`);
