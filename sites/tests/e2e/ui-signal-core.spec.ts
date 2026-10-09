@@ -62,6 +62,16 @@ for (const scenario of homeCases) {
       avatarRequests: performance.getEntriesByType("resource").filter((entry) => entry.name.includes("author-fichil")).length,
     }));
     expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.viewport);
+    const trustCards = await page.locator(".trust-strip > *").evaluateAll(elements => elements.map(element => {
+      const bounds = element.getBoundingClientRect();
+      return { left: bounds.left, right: bounds.right, width: bounds.width };
+    }));
+    expect(trustCards).toHaveLength(3);
+    for (const card of trustCards) {
+      expect(card.width).toBeGreaterThan(0);
+      expect(card.left).toBeGreaterThanOrEqual(0);
+      expect(card.right).toBeLessThanOrEqual(metrics.viewport);
+    }
     expect(metrics.avatarRequests).toBe(0);
     if (scenario.width <= 390) {
       expect(metrics.ctaBottom).toBeLessThanOrEqual(scenario.height);

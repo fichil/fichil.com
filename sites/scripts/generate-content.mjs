@@ -291,7 +291,7 @@ async function readSiteCopy(config, locale) {
 async function readService(locale) {
   const slug = "excel-csv-automation";
   const source = await readFile(join(repositoryRoot, "content", locale, "services", slug, "index.md"), "utf8");
-  const { data, content } = matter(source);
+  const { data, content } = parseFrontMatter(source);
   for (const key of ["title", "description", "service_id", "eyebrow", "intro", "cta", "scope_note", "email_subject", "request_template"]) {
     if (typeof data[key] !== "string" || !data[key].trim()) throw new Error(`Missing service ${locale}.${key}`);
   }

@@ -498,9 +498,9 @@ a.chip:hover { border-color: var(--accent); color: var(--accent); }
   .signal-tabs button span { font-size: 0.5rem; }
   .signal-panel { min-height: 42px; padding: 7px 10px; }
   .signal-release { margin-top: 9px; padding-top: 9px; }
-  .trust-strip { border-radius: var(--radius-md); display: flex; margin: 0 20px 20px; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: inline proximity; }
-  .trust-strip > * { flex: 0 0 min(72vw, 240px); min-height: 82px; padding: 16px 18px; scroll-snap-align: start; }
-  .trust-strip > * + * { border-left: 1px solid var(--line); }
+  .trust-strip { border-radius: var(--radius-md); display: grid; grid-template-columns: minmax(0, 1fr); margin: 0 20px 20px; }
+  .trust-strip > * { min-width: 0; min-height: 82px; padding: 16px 18px; }
+  .trust-strip > * + * { border-left: 0; border-top: 1px solid var(--line); }
   .section-heading { align-items: flex-start; flex-direction: column; gap: 24px; }
   .post-grid, .blog-grid { grid-template-columns: 1fr; }
   .post-card, .post-card-featured { grid-row: auto; min-height: 340px; padding: 24px; }
