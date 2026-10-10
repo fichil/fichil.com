@@ -19,29 +19,33 @@ GitHub 始终是唯一可信源码。Sites 的构建、源仓库推送和版本�
 ## Change and review workflow / 修改与审核流程
 
 1. Create a bilingual Issue with scope and acceptance criteria.
-2. Use the long-lived `chatgpt` branch only for the weekday bilingual blog;
+2. Use the long-lived `chatgpt` branch only for the Friday bilingual blog;
    use a dedicated branch for every other change.
 3. Validate Hugo and Sites locally.
 4. Open a Draft PR from the selected branch to `main`.
-5. For the weekday bilingual blog task, validate the complete PR scope, mark it
-   ready, and enable GitHub native auto-merge. Other changes require owner review.
+5. For the Friday bilingual blog task, obtain explicit user approval for the
+   exact current head after full QA, validate scope and fresh required checks,
+   mark it ready, then use the normal protected merge API with explicit merge
+   method and expected head SHA. Do not enable native auto-merge. Other changes
+   require owner review.
 6. GitHub merges only after the protected `build` and `sites` checks pass on a
    PR that is current with `main`.
 7. `Site Build Check` validates the exact merged `main` commit.
 
-对应中文流程：先创建双语 Issue。工作日双语博客使用长期 `chatgpt` 分支，其他
-变更使用各自的专用分支；修改并验证后创建到 `main` 的 Draft PR。博客任务核对
-完整 PR 范围后启用 GitHub 原生自动合并，其他变更仍由 owner 人工审核。PR 必须
+对应中文流程：先创建双语 Issue。周五双语博客使用长期 `chatgpt` 分支，其他
+变更使用各自的专用分支；修改并验证后创建到 `main` 的 Draft PR。博客任务先由用户
+审核当前准确 SHA，再核对完整范围、QA 与检查，以受保护的普通 merge API 合并，
+明确 merge 方法与 expected head；不启用原生自动合并。其他变更仍由 owner 人工审核。PR 必须
 基于最新 `main`，并通过受保护的 `build` 与 `sites` 检查；合并后再由
 `Site Build Check` 验证准确的生产提交。
 
-The `chatgpt` branch is reserved for the weekday bilingual blog task. Its PR
+The `chatgpt` branch is reserved for the Friday bilingual blog task. Its PR
 body must contain `<!-- codex-workday-bilingual-blog -->`, and its complete diff
 may contain only paired `content/en/blog/<slug>/index.md` and
 `content/zh-cn/blog/<slug>/index.md` files. The automation must never use an
 administrator bypass, force-push, rebase, or delete the long-lived branch.
 
-`chatgpt` 分支专用于工作日双语博客任务。PR 正文必须包含
+`chatgpt` 分支专用于周五双语博客任务。PR 正文必须包含
 `<!-- codex-workday-bilingual-blog -->`，完整 diff 只能包含 slug 一致、成对出现的
 中英文博客 `index.md`。自动化不得使用管理员绕过、强推、rebase，也不得删除该
 长期分支。
@@ -54,12 +58,14 @@ same slug and must stay under `content/en/blog/` and `content/zh-cn/blog/`.
 
 ## Automated Sites publishing / Sites 自动发布
 
-The project-scoped Codex task `fichil.com Sites 自动发布` runs every weekday at
-10:00 Asia/Shanghai in an isolated worktree. A commit merged after that time is
-normally published on the next weekday.
+The approved cloud replacement runs every Friday at 09:10 Asia/Shanghai and
+combines bilingual content preparation with safe-main production synchronization.
+Scheduler replacement is a separate activation step; these repository changes do
+not enable it. Content still waits for explicit approval of its exact current SHA.
+See [cloud runner contract](docs/cloud-blog-runner.md) for connector/recovery details.
 
-项目级 Codex 定时任务 `fichil.com Sites 自动发布` 每个工作日北京时间 10:00
-在隔离 worktree 中运行。10:00 之后合并的提交通常在下一个工作日发布。
+批准的云端替代任务每周五北京时间 09:10 启动，合并内容准备与安全 main 同步。
+调度替换需单独启用，本仓库变更不会开启任务。逐稿当前 SHA 审核仍然保留。
 
 For each run, the publisher:
 
