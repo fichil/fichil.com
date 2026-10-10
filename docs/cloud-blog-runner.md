@@ -342,9 +342,98 @@ Keep the final test ref for inspection; deletion would require separate approval
 No PR, `main`, `chatgpt`, production state ref, Site, schedule, credential or access
 configuration is part of that trial. Provider CAS failure blocks activation.
 
-Remaining runtime functions are concrete: an approved isolated CAS trial binding;
-a fenced dispatcher that persists intent and reconciles result around every
-mutation; trusted source/semantic review producing a selected candidate; actual
-local article generation and registered full QA with screenshots; private packet
-save/reacquisition; exact-head approval verification; and build/source/save/deploy/
-smoke/rollback adapters. None is silently supplied by a valid plan.
+### Injectable runtime implementation (off by default)
+
+`cloud-blog-dispatcher.mjs` executes one trusted prepared intent at a time only
+when explicitly enabled. The default returns a disabled plan without invoking
+authorization, journal writes, reconciliation or mutation ports. Its supported
+intents cover Issue, atomic article commit, Draft PR, Ready transition, normal
+protected merge, exact-main source push, version save, deployment and rollback.
+Local release QA remains a separate local action, never a network mutation.
+
+An enabled dispatcher checks authoritative ownership, performs complete exact-key
+remote reconciliation, obtains operation-specific authorization, journals the
+opaque operation ID/kind/target through CAS, checks the fence, prepares and
+authorizes again, then checks the fence again. After the final awaited read it
+synchronously rejects expired leases or stale evidence before invoking once.
+Authorization includes an exclusive expiry derived from the oldest inherited
+gate evidence; the same post-await guard enforces that deadline, so a new plan
+timestamp cannot extend stale approval/check/diff evidence.
+The invocation response is not proof of success: only fresh unique authoritative
+readback permits journal resolution. Missing, ambiguous or uncertain outcomes
+stay pending; no timeout, negative lookup or exception triggers a retry.
+
+`recoverPending` deliberately does not rerun the old create/merge/deploy plan.
+Successful writes can legitimately make that plan no longer eligible. Instead,
+it reads the durable pending identity and only reconciles/resolves it; it never
+invokes a mutation. The trusted reconciler must map the exact opaque ID, kind and
+target to an authoritative provider identity, including after process loss. If
+the provider cannot look up this identity and no durable private mapping exists,
+it must report UNKNOWN. Similar content, latest-version position or a successful
+request response does not qualify. A fresh dispatcher has no local result cache.
+
+The ports are executable interfaces, not configured production adapters. A
+trusted `prepare` must invoke the existing appropriate plan validator on fresh
+authenticated evidence; an untrusted JSON plan is not authorization. An
+`authorize` callback must verify the operation-specific user approval and all
+required evidence, not merely echo its input. `invoke` must execute only the
+single bound intent and no hidden multi-write workflow. The adapter must keep
+any multi-step provider operation separately journaled. Unknown/rejected merge
+recovery, including restoration to Draft, remains an explicitly reconciled
+operation; this dispatcher does not silently issue cleanup writes.
+
+The lease is cooperative serialization, not provider-side fencing. Other
+uncontrolled publishers must be excluded before activation. Ownership cannot
+transfer on expiry. The isolated CAS trial remains unapproved and unexecuted.
+No production mutation adapter is installed by these modules.
+
+`cloud-blog-evidence.mjs` provides default-disabled trusted evidence ports for
+complete work/GitHub source collection, historical semantic review before
+scoring and before writing, registered QA packet verification, authenticated
+exact-head approval and a fresh verify-review invocation. Source bodies and
+message text are kept out of receipts. Receipts are immutable and process-local;
+serialized JSON cannot become a trusted receipt. Source/head/history/message
+changes fail closed. Original inherited gate timestamps and snapshot hashes are
+preserved: fresh head reads cannot refresh stale PR/check/diff/review evidence.
+The Ready/merge authorization bridge accepts only its own current trusted
+receipt, the exact operation digest and an explicitly verified operation scope.
+
+This quick reader does **not** run full QA or inspect screenshot pixels itself.
+Its QA port verifies an already-completed registered packet without changing
+that execution's completion time. Callbacks are bounded at 30 seconds and one
+collection at 60 seconds. Long QA generation must complete separately, followed
+by a wholly fresh gate snapshot. Semantic review, screenshot inspection and
+message-owner authentication have no stable generic algorithm/API supplied
+here: the runtime must provide the named actual operations. Test callbacks and
+mode labels are not evidence those operations happened.
+
+`cloud_blog_evidence_store.py` creates deterministic, bounded private packets
+using the existing restore and packet validators. It exports only the exact
+review-file/four-screenshot allowlist, opens path components without following
+symlinks, hashes the captured bytes, round-trips the archive, and atomically
+creates a new private file without overwriting an existing path. An injected
+private store saves once, verifies readback and separately reacquires in a fresh
+directory. Uncertain writes never retry automatically; errors are redacted.
+Restart verification uses a privately persisted exact identity/version and
+independently pinned hash/size/head/content. MOCK never claims durable storage,
+and all restores remain REVERIFY_REQUIRED. A real private storage adapter,
+receipt persistence, recipient authorization and credential screening remain
+runtime requirements; the code does not invent a Library upload API.
+
+`cloud-blog-release-runtime.mjs` binds the release/smoke plan validators to a
+bounded injected read-only HTTP interface. Each enabled step collects one
+uncached GET batch with manual redirects, unique query tokens, exact routes,
+response identity and cache checks. It preserves actual deployment identity and
+completion timestamps; checkpoint hashes establish integrity, not provenance.
+Rollback still requires a separate fenced mutation followed by independently
+read deployment/version evidence and the hash-bound known-good smoke manifest.
+The prior version's article routes must come from that manifest, not from the
+failed new article. A failed rollback observation requests human reconciliation
+and emits no further deploy intent. No HTTP or Sites production adapter is bound.
+
+Remaining integration includes authenticated provider bindings and their exact
+operation reconciliation mappings, the separately approved isolated CAS trial,
+actual semantic review/article generation, full registered QA with four actual
+inspected mobile screenshots, durable private storage binding, and actual
+exact-main build/source/save/Sites execution. Default-disabled mock coverage
+does not prove a live cutover or remove the cloud browser permission blocker.

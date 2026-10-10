@@ -19,7 +19,7 @@ export function validateState(state){
  if(state.pending!==null){
   need(Object.keys(state.pending).sort().join(',')==='id,kind,target_sha','Unexpected operation fields');
   need(state.status==='owned'&&ID.test(state.pending?.id||''),'Invalid pending operation');
-  need(['issue','commit','draft_pr','merge','sites_version','deploy'].includes(state.pending.kind),'Invalid operation kind');
+  need(['issue','commit','draft_pr','pr_ready','merge','source_push','sites_version','deploy'].includes(state.pending.kind),'Invalid operation kind');
   need(SHA.test(state.pending.target_sha||''),'Pending operation requires exact target SHA');
  }
  return state;
