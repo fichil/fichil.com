@@ -96,6 +96,36 @@ export interface BuildInfo {
   builtAt: string;
 }
 
+export interface ServicePageCopy {
+  locale: Locale;
+  slug: string;
+  title: string;
+  description: string;
+  service_id: string;
+  eyebrow: string;
+  intro: string;
+  cta: string;
+  scope_note: string;
+  highlights: string[];
+  email_subject: string;
+  request_template: string;
+  html: string;
+  toc: TocItem[];
+}
+
+export function getServiceCopy(locale: Locale): ServicePageCopy {
+  return payload.servicePages[locale] as ServicePageCopy;
+}
+
+export function servicePath(locale: Locale): string {
+  return localizedPath(locale, "/services/excel-csv-automation/");
+}
+
+export function consultationMailto(locale: Locale): string {
+  const copy = getServiceCopy(locale);
+  return `mailto:fichilzhang@gmail.com?subject=${encodeURIComponent(copy.email_subject)}&body=${encodeURIComponent(copy.request_template)}`;
+}
+
 export interface ContentPolicy {
   aiSchemaRequiredFrom: string;
 }
@@ -213,7 +243,7 @@ export function alternateTaxonomyPath(locale: Locale, kind: TaxonomyKind, slug: 
 }
 
 export function canonicalPaths(locale: Locale): string[] {
-  const paths = [localizedPath(locale, "/"), localizedPath(locale, "/blog/")];
+  const paths = [localizedPath(locale, "/"), localizedPath(locale, "/blog/"), servicePath(locale)];
   for (let page = 2; page <= getPageCount(locale); page += 1) {
     paths.push(localizedPath(locale, `/blog/page/${page}/`));
   }

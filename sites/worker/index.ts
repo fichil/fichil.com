@@ -5,6 +5,7 @@ import payload from "@/generated/content.json";
 import { detectAiAgent, matchApiArticle, matchHtmlArticle } from "@/lib/ai-agents";
 import { handleAiBlogApi, handleAiDiscovery, protectAdminPage, recordAiVisit } from "@/lib/ai-blog-api";
 import type { AiBlogEnv } from "@/lib/d1";
+import { handleServiceMetrics, recordServiceRead } from "@/lib/service-metrics";
 
 const BUILD_COMMIT = (payload as { build: { commit: string } }).build.commit;
 const HTML_CACHE_CONTROL = "public, max-age=60, s-maxage=3600, stale-while-revalidate=86400";
@@ -168,6 +169,9 @@ const worker = {
     const discovery = handleAiDiscovery(request, url);
     if (discovery) return discovery;
 
+    const serviceMetricsResponse = await handleServiceMetrics(request, env);
+    if (serviceMetricsResponse) return serviceMetricsResponse;
+
     const apiResponse = await handleAiBlogApi(request, env, ctx, url);
     if (apiResponse) {
       const apiArticle = request.method === "GET" ? matchApiArticle(url.pathname) : null;
@@ -179,7 +183,7 @@ const worker = {
       return apiResponse;
     }
 
-    if (url.pathname === "/admin/ai-blog/comments" || url.pathname === "/admin/ai-blog/comments/") {
+    if (/^\/admin\/(?:ai-blog\/comments|services\/metrics)\/?$/.test(url.pathname)) {
       const protectedResponse = protectAdminPage(request, env);
       if (protectedResponse) return protectedResponse;
     }
@@ -218,6 +222,8 @@ const worker = {
       try {
         const cached = await edgeCache.match(cacheKey);
         if (cached) {
+          const serviceRead = recordServiceRead(request, cached, env.DB);
+          if (serviceRead) ctx.waitUntil(serviceRead.catch(() => console.error("[fichil] Service read metric write failed")));
           if (htmlArticle && detectedAi && env.DB && cached.status === 200) {
             ctx.waitUntil(recordAiVisit(env.DB, htmlArticle.locale, htmlArticle.slug, detectedAi, "html").catch((error) => {
               console.error("[fichil] AI visit counter write failed", error);
@@ -238,7 +244,10 @@ const worker = {
     if (/\.(?:json|xml|txt)$/.test(appUrl.pathname)) appUrl.pathname += "/";
     const response = await handler.fetch(new Request(new Request(appUrl, request), { headers }), env, ctx);
 
-    if (url.pathname === "/admin/ai-blog/comments" || url.pathname === "/admin/ai-blog/comments/") {
+    const serviceRead = recordServiceRead(request, response, env.DB);
+    if (serviceRead) ctx.waitUntil(serviceRead.catch(() => console.error("[fichil] Service read metric write failed")));
+
+    if (/^\/admin\/(?:ai-blog\/comments|services\/metrics)\/?$/.test(url.pathname)) {
       const adminHeaders = new Headers(response.headers);
       adminHeaders.set("Cache-Control", "private, no-store");
       adminHeaders.set(CACHE_STATUS_HEADER, "BYPASS");
