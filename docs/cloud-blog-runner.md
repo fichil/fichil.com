@@ -296,3 +296,55 @@ semantics under simultaneous contenders, uncertain replies and stale workers.
 If the provider cannot guarantee atomic expected-head rejection, or if any
 mutator can outlive ownership without being fenced, stop rather than activate.
 The automation schedule itself supplies no assumed serialization guarantee.
+
+## Live read binding and disabled execution interfaces
+
+`cloud-blog-read-state.mjs` binds supported read-only GitHub and Sites adapters.
+It paginates PRs/Issues, reads all content-history commit trees and unique article
+blobs, verifies Git blob identity, gathers all saved versions and exact-main push
+CI, and rechecks refs at the end. `collection_complete` concerns those lists and
+article context only; `execution_evidence_complete` remains false. It does not
+claim full selected-PR QA/review or live production smoke. Secrets and temporary
+Sites screenshot/source credentials are excluded from normalized output. The
+provenance default is `MOCK`; actual read adapters opt into `LIVE_READ_ONLY`.
+
+`cloud-blog-execution-plan.mjs` now exposes six strictly nonmutating interfaces:
+`planIssue`, `planArticleCommit`, `planDraftPR`, `planMerge`, `planRelease`, and
+`planSmoke`. Outputs are frozen `PLAN_ONLY` descriptions, never dispatchable
+capabilities. Trusted evidence is required for full QA/four distinct inspected
+viewports, current exact-head user approval, real verify-review, latest exact
+push CI, matching build/source/saved version, and known-good rollback. The exact
+original nine core smoke paths are enforced, plus both canonical article routes,
+www canonical redirect and exact version. No network/tool/execute interface exists.
+
+`cloud_blog_rehearsal.py` replays a SHA-256-pinned captured live snapshot into a
+local plan, re-verifying every article Git blob. Fresh-directory replay is not a
+second live scan, a new executor restart, or successful fresh Git bootstrap. It
+keeps unqualified cloud tasks skipped, leaves semantic review explicitly undone,
+and never promotes unavailable screenshots or source facts into article approval.
+
+### Minimal proposed isolated CAS trial; separate approval required
+
+Proposed nonproduction ref: `automation/blog-runner-cas-rehearsal-20261010`.
+This differs from the future production state ref. Do not create either ref as
+part of installing this code. The existing CAS adapter must first gain an
+explicitly allowlisted isolated-test binding; no arbitrary branch override.
+
+After approval, a bounded trial would use four metadata-only commits with the
+same tree: one idle bootstrap, two competing owners from the same initial parent,
+and one final release. Create only the named test ref; race the two owner updates
+using the same expected SHA and force=false; require exactly one success. Simulate
+a lost client response without repeating the update, then recover the actual
+owner from a separate fresh read. Reconstruct ownership after discarding local
+state. An expired owner must still block takeover. Since no GitHub content or
+Sites request is dispatched, the confirmed sole owner may release the idle lease.
+Keep the final test ref for inspection; deletion would require separate approval.
+No PR, `main`, `chatgpt`, production state ref, Site, schedule, credential or access
+configuration is part of that trial. Provider CAS failure blocks activation.
+
+Remaining runtime functions are concrete: an approved isolated CAS trial binding;
+a fenced dispatcher that persists intent and reconciles result around every
+mutation; trusted source/semantic review producing a selected candidate; actual
+local article generation and registered full QA with screenshots; private packet
+save/reacquisition; exact-head approval verification; and build/source/save/deploy/
+smoke/rollback adapters. None is silently supplied by a valid plan.
