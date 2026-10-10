@@ -197,3 +197,102 @@ packet/package retrieval; review and merge the maintenance PR; verify its exact
 main push CI; complete nonpublishing fresh-run/restart rehearsal; then separately
 authorize scheduler replacement. Keep the original task untouched until the
 replacement is confirmed. Current patch does not itself enable a scheduler.
+
+## Nonpublishing batch implementation (additional checkpoint)
+
+`tools/cloud_blog_batch.py` now supplies executable nonpublishing orchestration:
+
+- Shanghai schedule/window identity, same-workspace process exclusion, complete
+  remote reconstruction gates, pending-PR-first recovery and two semantic-review
+  adapter passes around TOP_1 selection.
+- Separate `NO_NEW_TOPIC`, `NO_CHANGE`, review-wait, unknown mutation outcome and
+  `TECHNICAL_FAILURE` results. Technical failure blocks release planning.
+- SHA-256-verified bounded private archive extraction into fresh directories;
+  rejects traversal, duplicate entries, links and special files. Private packet
+  restoration verifies every file and the four bilingual viewport references,
+  binds the packet to head/content, and returns `RESTORED_REVERIFY_REQUIRED`.
+- Unique exact-key/target reconciliation for Issue, commit, PR, merge, Sites
+  version and deployment results. Missing reads or uncertain creates never turn
+  into a blind retry. Conflicting keys and multiple matches block progress.
+- Deployment restart recovery retains the actual ID and completion timestamp;
+  it cannot reset the stabilization deadline or reuse pre-restart samples.
+
+The runner has **no external mutation functions or execute switch**. Runtime
+ports must be trusted adapters, not JSON copied from PR descriptions. Tests mark
+all simulated ports `MOCK`; `LIVE_READ_ONLY` may be used only when all invoked
+ports actually collect fresh connector evidence. Reading a real ref separately
+is not a live end-to-end batch rehearsal. Semantic review is deliberately an
+adapter call, not keyword matching represented as semantic understanding.
+
+`local_guard` is a process lock, not distributed serialization. Different cloud
+workspaces do not share it. The exposed scheduling schema has not established
+an atomic one-writer guarantee. Before enabling writes, the runtime must supply
+a verified exclusive owner for the whole workflow, covering article and Sites
+mutations, plus restart recovery. An expired lease alone must not allow a second
+writer while an earlier external request is unresolved. An Issue comment or
+local lock cannot supply that guarantee. Until then, all plans remain read-only.
+
+### Remaining activation blockers
+
+1. Bind and demonstrate complete live source/history/Sites adapters, including
+   paginated closed Issues, historical semantic dedup and private evidence
+   reacquisition. The Python port tests do not establish connector completeness.
+2. Establish authoritative cross-workspace serialization; keep unknown external
+   operation outcomes unresolved until a unique remote result is recovered.
+3. Prove fresh bootstrap/submodule/toolchain access in the intended dot cloud
+   runtime without bypassing denied downloads. A local clone of an existing
+   checkout validates code isolation, not fresh network bootstrap.
+4. Complete actual full QA and four inspected mobile screenshots in that same
+   execution route. A blocked Chromium launch remains a blocker; mock evidence,
+   packet transport tests and earlier CI results do not waive it.
+5. Bind and test the full guarded write executor, including Issue creation,
+   atomic two-file commit/Draft PR after QA, exact-head approval, the existing
+   normal protected merge adapter, main push CI/build/Sites and smoke/rollback.
+6. Separately authorize scheduler cutover after maintenance review and all
+   nonpublishing live/fresh/restart rehearsals pass. No schedule is created or
+   changed by these additions.
+
+The existing Actions Python discovery automatically includes the new batch tests.
+No article, screenshot, private Library identity or private evidence belongs in
+this maintenance patch. Package reacquisition and package self-tests are distinct
+from actual article QA. Private packet transport tests use explicitly synthetic
+fixtures and cannot approve or publish an article.
+
+### Proposed GitHub CAS serialization adapter (not activated)
+
+`tools/cloud-blog-lease.mjs` implements a credential-free candidate protocol
+using the supported `github.update_ref` connector's `expected_sha` field with
+`force=false`. It targets a dedicated `automation/blog-runner-state` ref, not
+`main` or `chatgpt`. Bootstrap is deliberately absent and requires separate
+approval before any live trial. The read-only default returns a transition
+plan without creating commits or refs. `execute=true` is exercised only with
+mock tools in this patch.
+
+The existing state commit's unchanged tree is reused. Its commit message stores
+only a strict schema of opaque owner ID, monotonic epoch, bounded expiry and at
+most one opaque pending-operation ID/kind/target SHA. No claim maps, Library
+references, private evidence, article prose or credentials belong there. Each
+transition creates one single-parent state commit, advances the ref by CAS,
+and reads back the exact commit; rejection or uncertain response never causes
+a blind retry. A fence requires current state SHA + owner + epoch; immediately
+before a side effect, the pending operation and unexpired lease are re-read.
+Unknown operations remain journaled and prevent overlapping work or release.
+
+This is cooperative serialization, **not downstream-enforced Sites fencing**.
+The Sites API does not currently establish a fencing-token contract. Therefore
+an expiry never transfers ownership automatically: it stops new actions, and
+all competing workers remain blocked. The same sole owner may reconcile an
+already-started operation and explicitly release after no operation remains.
+If that owner is lost, manual recovery requires proof that it is quiescent,
+reconciliation of the remote outcome and a separately reviewed recovery change.
+No lock deletion, lease theft or timer-only recovery API is included.
+
+To turn this candidate into an authoritative workflow gate, separately approve
+creating the dedicated state ref and a no-publication CAS contention test using
+supported connectors. Then bind **every** GitHub/Sites mutation to the protocol,
+including persist-intent before request and verified-outcome before release.
+No uncontrolled alternate publisher may participate. Verify connector CAS
+semantics under simultaneous contenders, uncertain replies and stale workers.
+If the provider cannot guarantee atomic expected-head rejection, or if any
+mutator can outlive ownership without being fenced, stop rather than activate.
+The automation schedule itself supplies no assumed serialization guarantee.

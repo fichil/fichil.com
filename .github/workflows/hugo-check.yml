@@ -30,7 +30,7 @@ jobs:
         run: bash tools/check-blog-pr-scope.sh
 
       - name: Test cloud connector orchestration
-        run: node --test tools/tests/cloud-blog-github.test.mjs
+        run: node --test tools/tests/cloud-blog-*.test.mjs
 
       - name: Test cloud orchestration contracts
         run: python3 -m unittest discover -s tools/tests -p 'test_*.py' -v
