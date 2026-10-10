@@ -3,7 +3,7 @@ import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import matter from "gray-matter";
+import { parseFrontMatter } from "./front-matter.mjs";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
@@ -171,7 +171,7 @@ async function readPosts(locale) {
     if (!entry.isDirectory()) continue;
     const sourcePath = join(blogRoot, entry.name, "index.md");
     const source = await readFile(sourcePath, "utf8");
-    const parsed = matter(source);
+    const parsed = parseFrontMatter(source);
     if (parsed.data.draft === true) continue;
 
     const title = String(parsed.data.title || "").trim();
@@ -288,6 +288,16 @@ async function readSiteCopy(config, locale) {
   };
 }
 
+async function readService(locale) {
+  const slug = "excel-csv-automation";
+  const source = await readFile(join(repositoryRoot, "content", locale, "services", slug, "index.md"), "utf8");
+  const { data, content } = parseFrontMatter(source);
+  for (const key of ["title", "description", "service_id", "eyebrow", "intro", "cta", "scope_note", "email_subject", "request_template"]) {
+    if (typeof data[key] !== "string" || !data[key].trim()) throw new Error(`Missing service ${locale}.${key}`);
+  }
+  return { locale, slug, ...data, ...(await renderMarkdown(content)) };
+}
+
 async function readSourceCommit() {
   const { stdout } = await execFileAsync("git", ["rev-parse", "HEAD"], {
     cwd: repositoryRoot,
@@ -328,6 +338,7 @@ const payload = {
     builtAt,
   },
   posts: [...englishPosts, ...chinesePosts],
+  servicePages: { en: await readService("en"), "zh-cn": await readService("zh-cn") },
   site: {
     en: await readSiteCopy(config, "en"),
     "zh-cn": await readSiteCopy(config, "zh-cn"),

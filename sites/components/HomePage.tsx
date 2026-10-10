@@ -3,7 +3,8 @@ import { AppShell } from "@/components/AppShell";
 import { EngineeringSignalCore } from "@/components/EngineeringSignalCore";
 import { PostCard } from "@/components/PostCard";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { articlePath, getBuildInfo, getPosts, getSiteCopy, getTerms, localizedPath, taxonomyPath, type Locale } from "@/lib/content";
+import { consultationMailto, getServiceCopy, servicePath, getBuildInfo, getPosts, getSiteCopy, getTerms, localizedPath, taxonomyPath, type Locale } from "@/lib/content";
+import { Consultation } from "@/components/Consultation";
 import { labels } from "@/lib/i18n";
 
 export function HomePage({ locale }: { locale: Locale }) {
@@ -15,6 +16,7 @@ export function HomePage({ locale }: { locale: Locale }) {
   const categories = getTerms(locale, "categories").slice(0, 6);
   const blogPath = localizedPath(locale, "/blog/");
   const build = getBuildInfo();
+  const offer = getServiceCopy(locale);
   return (
     <AppShell locale={locale} alternatePath={alternate}>
       <ScrollReveal />
@@ -24,9 +26,14 @@ export function HomePage({ locale }: { locale: Locale }) {
           <h1>{site.hero.title}</h1>
           <h2>{site.hero.subtitle}</h2>
           <p>{site.hero.content}</p>
-          <div className="hero-actions"><Link className="button button-primary" href={latest[0] ? articlePath(locale, latest[0].slug) : blogPath}>{site.hero.buttonName}</Link><Link className="button button-quiet" href={blogPath}>{site.hero.secondaryButtonName}</Link></div>
+          <div className="hero-actions"><a className="button button-primary" href={site.hero.buttonLink}>{site.hero.buttonName}</a><a className="button button-quiet" href={site.hero.secondaryButtonLink}>{site.hero.secondaryButtonName}</a></div>
         </div>
-        <EngineeringSignalCore commit={build.commit} signal={site.hero.signal} />
+        <aside className="service-start"><p className="eyebrow">{offer.eyebrow}</p><h2>{offer.title}</h2><ul>{offer.highlights.map(item => <li key={item}>{item}</li>)}</ul><p className="service-note">{offer.scope_note}</p></aside>
+      </section>
+
+      <section id="services" className="section service-section service-offer" data-reveal tabIndex={-1}>
+        <div><div className="eyebrow"><span>02</span>{copy.nav.about}</div><h2>{site.services.title}</h2><p>{site.services.intro}</p></div>
+        <div><p>{offer.intro}</p><a className="button button-primary" href={servicePath(locale)}>{site.hero.buttonName}</a><p className="service-note">{offer.scope_note}</p></div>
       </section>
 
       <section className="trust-strip" aria-label={locale === "zh-cn" ? "公开信任证据" : "Public trust evidence"} data-reveal>
@@ -36,18 +43,13 @@ export function HomePage({ locale }: { locale: Locale }) {
       </section>
 
       <section className="section latest-section" data-reveal>
-        <div className="section-heading"><div><div className="eyebrow"><span>02</span>{copy.nav.blog}</div><h2>{copy.latestTitle}</h2><p>{copy.latestNote}</p></div><Link className="text-link" href={blogPath}>{copy.allNotes} <span aria-hidden="true">→</span></Link></div>
+        <div className="section-heading"><div><div className="eyebrow"><span>03</span>{copy.nav.blog}</div><h2>{copy.latestTitle}</h2><p>{copy.latestNote}</p></div><Link className="text-link" href={blogPath}>{copy.allNotes} <span aria-hidden="true">→</span></Link></div>
         <div className="post-grid latest-grid">{latest.map((post, index) => <PostCard featured={index === 0} key={post.slug} locale={locale} post={post} />)}</div>
       </section>
 
       <section className="section topic-section" data-reveal>
-        <div className="section-heading"><div><div className="eyebrow"><span>03</span>{copy.topicsKicker}</div><h2>{copy.topicsTitle}</h2><p>{copy.topicsNote}</p></div></div>
+        <div className="section-heading"><div><div className="eyebrow"><span>04</span>{copy.topicsKicker}</div><h2>{copy.topicsTitle}</h2><p>{copy.topicsNote}</p></div></div>
         <nav className="topic-grid topic-grid-home" aria-label={copy.categories}>{categories.map((category, index) => <Link href={taxonomyPath(locale, "categories", category.slug)} key={category.slug}><span>0{index + 1}</span><strong>{category.name}</strong><small>{category.count} {copy.articles}</small><i aria-hidden="true">↗</i></Link>)}<Link className="topic-all" href={taxonomyPath(locale, "categories")}><span>ALL</span><strong>{copy.allCategories}</strong><i aria-hidden="true">→</i></Link></nav>
-      </section>
-
-      <section id="services" className="section service-section" data-reveal tabIndex={-1}>
-        <div className="section-heading"><div><div className="eyebrow"><span>04</span>{copy.nav.about}</div><h2>{site.services.title}</h2><p>{site.services.intro}</p></div></div>
-        <div className="service-grid">{site.services.items.map((service, index) => <article className="service-card" key={service.title}><div className="service-index">0{index + 1}</div><h3>{service.title}</h3><p>{service.content}</p><div className="chip-row">{service.badges.map((badge) => <span className="chip" key={badge}>{badge}</span>)}</div></article>)}</div>
       </section>
 
       <section id="projects" className="section" data-reveal tabIndex={-1}>
@@ -63,12 +65,11 @@ export function HomePage({ locale }: { locale: Locale }) {
 
       <section id="about" className="section split-section" data-reveal tabIndex={-1}>
         <div className="section-heading sticky-heading"><div className="eyebrow"><span>06</span>{copy.workingMethod}</div><h2>{site.about.title}</h2></div>
-        <div className="about-content"><div className="prose compact-prose" dangerouslySetInnerHTML={{ __html: site.about.html }} /><h3>{site.about.skillsTitle}</h3><div className="skill-grid">{site.about.skills.map((skill, index) => <div key={skill}><span>{String(index + 1).padStart(2, "0")}</span>{skill}</div>)}</div></div>
+        <div className="about-content"><div className="prose compact-prose" dangerouslySetInnerHTML={{ __html: site.about.html }} /><h3>{site.about.skillsTitle}</h3><div className="skill-grid">{site.about.skills.map((skill, index) => <div key={skill}><span>{String(index + 1).padStart(2, "0")}</span>{skill}</div>)}</div><EngineeringSignalCore commit={build.commit} signal={site.hero.signal} /></div>
       </section>
 
-      <section id="contact" className="contact-section section-grid" data-reveal tabIndex={-1}>
-        <div><div className="eyebrow"><span>07</span>{copy.nav.contact}</div><h2>{site.contact.title}</h2></div>
-        <div><p>{site.contact.content}</p><Link className="button button-primary" href={site.contact.buttonLink}>{site.contact.buttonName}</Link></div>
+      <section id="contact" className="section" data-reveal tabIndex={-1}>
+        <h2>{site.contact.title}</h2><p>{site.contact.content}</p><Consultation locale={locale} template={offer.request_template} mailto={consultationMailto(locale)} />
       </section>
     </AppShell>
   );

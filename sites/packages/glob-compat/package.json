@@ -1,0 +1,14 @@
+{
+  "name": "@fichil/glob-compat",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bounded tinyglobby adapter for the pinned Next lint and vinext build consumers",
+  "type": "module",
+  "main": "index.mjs",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "dependencies": {
+    "tinyglobby": "0.2.17"
+  }
+}

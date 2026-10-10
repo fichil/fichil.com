@@ -69,3 +69,15 @@ export const commentAdminEvents = sqliteTable("comment_admin_events", {
 }, (table) => [
   index("idx_comment_admin_events_comment_created").on(table.commentId, table.createdAt),
 ]);
+
+export const serviceMetricsDaily = sqliteTable("service_metrics_daily", {
+  metricDate: text("metric_date").notNull(),
+  serviceId: text("service_id").notNull(),
+  locale: text("locale", { enum: ["en", "zh-cn"] }).notNull(),
+  eventKind: text("event_kind", { enum: ["service_read", "contact_click"] }).notNull(),
+  surface: text("surface").notNull(),
+  source: text("source").notNull(),
+  placement: text("placement").notNull(),
+  requestClass: text("request_class", { enum: ["detected_automation", "unknown"] }).notNull(),
+  requestCount: integer("request_count").notNull().default(0),
+}, (table) => [primaryKey({ columns: [table.metricDate, table.serviceId, table.locale, table.eventKind, table.surface, table.source, table.placement, table.requestClass], name: "pk_service_metrics_daily" })]);
