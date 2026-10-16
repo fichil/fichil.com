@@ -384,7 +384,8 @@ operation; this dispatcher does not silently issue cleanup writes.
 
 The lease is cooperative serialization, not provider-side fencing. Other
 uncontrolled publishers must be excluded before activation. Ownership cannot
-transfer on expiry. The isolated CAS trial remains unapproved and unexecuted.
+transfer on expiry. An isolated trial does not itself establish production CAS
+semantics or authorize production activation.
 No production mutation adapter is installed by these modules.
 
 `cloud-blog-evidence.mjs` provides default-disabled trusted evidence ports for
@@ -437,3 +438,51 @@ actual semantic review/article generation, full registered QA with four actual
 inspected mobile screenshots, durable private storage binding, and actual
 exact-main build/source/save/Sites execution. Default-disabled mock coverage
 does not prove a live cutover or remove the cloud browser permission blocker.
+
+## Isolated coordination rehearsal
+
+`tools/cloud-blog-cas-rehearsal.mjs` exposes a default-disabled connector-injected
+trial and a read-only `inspect()` recovery path. It accepts only the dedicated
+`automation/blog-runner-cas-rehearsal-20261010` ref and never bootstraps the
+production state ref. Separate approval is required before binding live tools.
+The bounded trial creates at most four same-tree metadata commits: idle
+bootstrap, two sibling contenders, and an owner release. Unknown write responses
+stop all later mutations; restarting only inspects authoritative state and does
+not grant a retry or takeover permit. Lease expiry never permits stealing.
+
+`resumeFromBootstrap()` is a separate, explicitly authorized continuation for
+an audited bootstrap-only stop. It requires a trusted host callback that consumes
+a one-use checkpoint before any contender creation and confirms exactly one
+existing metadata commit. Remote idle state alone is insufficient: earlier
+contenders could be dangling. The host must preserve consumption across restart,
+refuse reissue after uncertainty, and verify exact bootstrap/base/tree/ref pins.
+The resumed path never recreates a branch and creates at most three new commits.
+A local exclusive marker is only single-host trial bookkeeping, not a
+distributed production lock or cross-executor recovery authority.
+
+The optional rejection verifier is a trusted integration interface, not an
+implemented live provider guarantee. Generic connector errors do not prove that
+an update was rejected without effects. Even one winning sibling and one losing
+sibling with `force:false` cannot prove atomic `expected_sha` behavior, since
+ordinary non-fast-forward rejection can produce that outcome. A simulated lost
+client observation is not an injected real transport failure. These limits must
+remain visible in activation decisions.
+
+### Provider semantics and unknown outcomes
+
+GitHub documents conditional atomic updates for GraphQL `updateRefs`, using
+`RefUpdate.beforeOid`. GraphQL `updateRef` (singular) has no old-OID field;
+REST update-reference accepts `sha` and `force`, not an expected old SHA.
+See [GitHub GraphQL Git reference](https://docs.github.com/en/graphql/reference/git#updaterefs)
+and [REST update-reference](https://docs.github.com/en/rest/git/refs#update-a-reference).
+The connector promises an `expected_sha` guard but does not expose its underlying
+mutation or error classification. A generic GraphQL `UNKNOWN` does not establish
+a normal stale-head/non-fast-forward rejection. The adapter cannot infer an
+atomic implementation from a method name, error prose, or sibling contention.
+
+`createLeaseController.change()` returns `CAS_OUTCOME_UNKNOWN_STOP` after an
+unknown or contradictory acknowledgment, including when readback observes the
+requested SHA. That read is useful evidence but yields no usable owner/epoch
+fence and no retry permission. Production binding requires documented atomic
+provider semantics plus authenticated outcome reconciliation. Do not replace
+those requirements with a preliminary GET followed by an unconditional update.

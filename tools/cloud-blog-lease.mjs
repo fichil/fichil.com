@@ -5,7 +5,9 @@
  * Never store private evidence, credentials, source URLs or article prose here.
  */
 import {decode, GateError} from './cloud-blog-github.mjs';
-const REPO='fichil/fichil.com', REF='automation/blog-runner-state';
+const REPO='fichil/fichil.com';
+export const PRODUCTION_STATE_REF='automation/blog-runner-state';
+export const ISOLATED_CAS_REF='automation/blog-runner-cas-rehearsal-20261010';
 const API=`https://api.github.com/repos/${REPO}`;
 const SHA=/^[a-f0-9]{40}$/, ID=/^[a-zA-Z0-9_-]{1,96}$/;
 const need=(value,message)=>{if(!value)throw new GateError(message);};
@@ -48,10 +50,15 @@ export function transition(state,command,now){
  }
  return validateState(next);
 }
-export function createLeaseController(tools,{execute=false}={}){
+export function createLeaseController(tools,options={}){
+ need(options&&Object.getPrototypeOf(options)===Object.prototype&&Object.keys(options).every(k=>['execute','stateRef'].includes(k)),'Unsupported lease options');
+ const execute=Object.hasOwn(options,'execute')?options.execute:false;
+ const stateRef=Object.hasOwn(options,'stateRef')?options.stateRef:PRODUCTION_STATE_REF;
+ need(typeof execute==='boolean','Explicit boolean execution switch required');
+ need([PRODUCTION_STATE_REF,ISOLATED_CAS_REF].includes(stateRef),'Unapproved coordination ref');
  const call=async(name,args)=>decode(await tools[`mcp__codex_apps__github_${name}`](args));
  async function read(){
-  const ref=await call('fetch',{url:`${API}/git/ref/heads/${REF}`});need(SHA.test(ref.object?.sha||''),'State ref missing/invalid; owner must authorize bootstrap');
+  const ref=await call('fetch',{url:`${API}/git/ref/heads/${stateRef}`});need(SHA.test(ref.object?.sha||''),'State ref missing/invalid; owner must authorize bootstrap');
   const commit=await call('fetch',{url:`${API}/git/commits/${ref.object.sha}`});
   need(commit.sha===ref.object.sha&&SHA.test(commit.tree?.sha||''),'Invalid state commit identity');
   let state;try{state=JSON.parse(commit.message);}catch{throw new GateError('Invalid state commit payload');}
@@ -64,10 +71,16 @@ export function createLeaseController(tools,{execute=false}={}){
   const commit=await call('create_commit',{repository_full_name:REPO,parent_sha:before.sha,tree_sha:before.tree,message:JSON.stringify(next)});
   need(SHA.test(commit.sha||''),'State commit outcome unknown; do not update ref');
   let uncertain=false;
-  try{await call('update_ref',{repository_full_name:REPO,branch_name:REF,sha:commit.sha,expected_sha:before.sha,force:false});}
+  try{
+   const ack=await call('update_ref',{repository_full_name:REPO,branch_name:stateRef,sha:commit.sha,expected_sha:before.sha,force:false});
+   const matchingObject=ack?.object?.sha===commit.sha;
+   uncertain=!(ack?.success===true&&(!Object.hasOwn(ack,'object')||matchingObject)||!Object.hasOwn(ack,'success')&&matchingObject);
+  }
   catch{uncertain=true;}
-  // Both rejected CAS and lost success responses must be read back, never retried.
+  // Readback is an observation, not proof that an unknown provider request has
+  // terminated or that its expected-head condition was enforced atomically.
   const after=await read();
+  if(uncertain)return {status:'CAS_OUTCOME_UNKNOWN_STOP',observed_sha:after.sha,target_sha:commit.sha,uncertain:true};
   if(after.sha!==commit.sha)return {status:'CAS_NOT_CONFIRMED_STOP',observed_sha:after.sha,uncertain};
   need(JSON.stringify(after.state)===JSON.stringify(next),'Unexpected state payload');
   return {status:'CONFIRMED',sha:after.sha,owner:next.owner,epoch:next.epoch,until:next.until,pending:next.pending,uncertain};
