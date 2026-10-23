@@ -6,120 +6,99 @@ slug: "offline-mock-safety-harness-before-live-automation"
 draft: false
 tags: ["automation", "testing", "python", "safety", "architecture"]
 categories: ["Engineering"]
-description: "Build a mock-backed vertical slice across adapter, provider, policy, memory, and application layers, then test unsafe message paths before enabling a live desktop client."
+description: "Use a mock adapter, trusted policy, durable action state, and fault-injection tests to verify stop conditions before connecting message automation to a live client."
 ai:
   schema_version: 1
-  problem: "A desktop message-automation design could reach an external write boundary before its target checks, draft protection, deduplication, and uncertain outcomes had been exercised together."
+  problem: "A message-automation design needed executable evidence for authorization and stop conditions before any real client integration."
   symptoms:
-    - "Individual components looked plausible, but there was no executable proof that their combined control flow stopped unsafe writes."
-    - "Testing against a live client would mix policy defects with client state, account state, UI timing, and real external effects."
+    - "The proposed system had more responsibilities than the first completed implementation could verify."
+    - "A live-client test would combine policy behavior, interface timing, account state, and real external effects."
   evidence:
-    - "A completed offline vertical slice separated adapter, provider, policy, memory, and application responsibilities."
-    - "Synthetic fixtures exercised target mismatch, existing drafts, duplicate events, timeouts, own-message loops, disconnects, and unknown send outcomes."
-    - "Thirty-six unit tests passed without connecting to a real desktop client or model API."
-    - "The implementation was merged only with an explicit limitation that live compatibility and recipient delivery remained unverified."
-  root_cause: "The design lacked a deterministic boundary where message acquisition, generation, authorization, write attempts, and durable outcome recording could be tested as one flow without external side effects."
+    - "A completed offline milestone implemented domain models, a mock adapter, policy, application orchestration, and SQLite deduplication state."
+    - "Thirty-six unit tests passed with network socket creation blocked."
+    - "Tests covered target mismatch, existing drafts, duplicate events, own messages, disconnects, injected timeouts, and uncertain action results."
+    - "The default CLI mode was read-only; explicitly selected dry-run validated an action without submitting it."
+  root_cause: "The design needed a small executable boundary that separated observed message data, trusted authorization, action attempts, and recorded outcomes."
   resolution_steps:
-    - "Define narrow contracts for the client adapter and response provider."
-    - "Keep authorization policy independent from message text and generated output."
-    - "Persist event identity and write outcomes in a dedicated memory layer."
-    - "Run the application flow against mock implementations and synthetic conversations."
-    - "Represent attempted, confirmed, failed, and unknown writes as different states, and stop automatic retry after an uncertain boundary crossing."
+    - "Define separate contracts for message events, action requests, observed target state, and action results."
+    - "Keep polling separate from execution so reading an event does not automatically schedule a reply."
+    - "Check trusted policy and current target state before allowing an action."
+    - "Persist an action claim before submission, then recheck target, draft, and pause state."
+    - "Exercise the assembled path with a mock adapter and synthetic data."
   verification:
-    - "Unit tests covered the complete mock-backed flow as well as isolated policy, adapter, provider, and memory behavior."
-    - "Repeated events produced no second submission."
-    - "Wrong targets, existing drafts, disconnects, timeouts, and own messages stopped before a permitted write."
-    - "The default command completed in dry-run mode with zero mock submissions when no eligible event was supplied."
+    - "Rejected preflight cases made zero submission calls."
+    - "A recorded unknown result survived reopening the state store and prevented resubmission of the same request."
+    - "Message text could not change the configured allowlist or operating mode."
+    - "Explicit dry-run returned zero mock submissions even with an eligible synthetic event."
   limitations:
-    - "Mock evidence does not prove compatibility with a particular client version or operating-system build."
-    - "A UI-confirmed submission would not prove recipient delivery."
-    - "Real accounts, conversations, clipboard behavior, focus changes, and model-provider data handling still require separately authorized tests."
-    - "Consequential account operations remain outside this boundary."
+    - "No model provider, automatic reply generation, or conversational memory was implemented in this milestone."
+    - "Timeouts were injected in tests; real UI hard deadlines and cancellation were not implemented."
+    - "Mock confirmation did not prove real-client compatibility or recipient delivery."
+    - "Deduplication state was not a reliable-consumption queue; deleting it would lose replay protection."
   applies_to:
-    - "desktop UI automation that may send messages or submit forms"
-    - "agent workflows that need a safe offline milestone before live integration"
-  keywords: ["mock vertical slice", "message automation", "safety policy", "unknown outcome", "dry run"]
+    - "message or form automation that needs an offline safety milestone"
+    - "agent tools with separate observation and action boundaries"
+  keywords: ["mock adapter", "offline testing", "authorization policy", "action state", "dry run"]
 ---
 
-A desktop message agent can appear small on paper: read an event, generate a reply, and submit it. The risky behavior lives between those verbs. The selected conversation can change, a draft may already exist, an event can be delivered twice, or the interface can time out after accepting a write.
+A desktop message-automation design can look simple: observe a conversation and perform an action. The risky behavior sits between those steps. A selected target can change, a draft can appear, or an adapter can lose confirmation after a submission attempt.
 
-Connecting a prototype to a live client makes all of those variables arrive at once. A completed implementation therefore began with an offline, mock-backed vertical slice. It exercised the complete decision path while preventing real client access and paid model calls. Thirty-six unit tests passed against synthetic inputs.
+One completed implementation addressed those risks with a deliberately small offline milestone. It used synthetic messages, a mock adapter, trusted policy, and persistent action state. Thirty-six unit tests passed with network socket creation blocked. No real client, model API, or automatic reply generator participated.
 
-The result did not claim live compatibility. Its purpose was narrower: establish that the application has explicit places to observe, authorize, attempt, and record a write before any real account is involved.
+That scope matters. The evidence supports the assembled observation and action boundaries. A broader architecture diagram does not turn planned provider or conversational-memory layers into tested capabilities.
 
-## Start with one complete path
+## Make the smallest complete flow executable
 
-Unit-testing isolated helper functions cannot show whether the assembled application checks the target immediately before submission or records an uncertain result before a retry decision. A vertical slice connects the minimum set of layers needed to answer those questions.
+The implementation separated five responsibilities:
 
-The offline slice used five responsibilities:
+| Part | Implemented responsibility |
+|---|---|
+| Domain models | Describe targets, messages, action requests, observed state, and outcomes |
+| Mock adapter | Supply synthetic observations and simulate submission and confirmation |
+| Policy | Validate trusted targets, operating mode, operation type, and text length |
+| State store | Record event deduplication and action identity/outcomes in SQLite |
+| Application | Coordinate checks, pause behavior, attempts, and verification |
 
-| Layer | Responsibility | What the test can replace |
-|---|---|---|
-| Adapter | Observe a conversation and request a submission | Desktop client |
-| Provider | Produce a candidate response | Model service |
-| Policy | Decide whether this event and target may proceed | Authorization rules |
-| Memory | Store event identity and outcome | Durable local state |
-| Application | Coordinate the sequence and stop conditions | Live orchestration |
+The state store was operational state, not conversational memory. Model providers and reply generation remained future work.
 
-Each boundary is deliberately narrow. The adapter reports observations and accepts a typed submission request. It does not decide that the current target is authorized. The provider returns content but receives no authority to change allowed targets or retry budgets. Policy reads trusted configuration and structured observations, not instructions embedded in a message.
+Polling and execution were separate application operations. Polling filtered duplicate events and the account's own messages, but did not schedule replies. An action required a separately constructed request. This gave tests a concrete boundary at which to inspect authorization without involving a model or a real conversation.
 
-This separation made the whole path runnable with a mock adapter and mock provider. A test could arrange an observed conversation, execute one application cycle, and inspect both the attempted adapter calls and the persisted outcome.
+## Keep message text outside authorization
 
-## Keep observed data out of the control plane
+Trusted configuration supplied the target allowlist and operating mode. Adapter observations supplied connection state, target identity, and whether a draft existed. Received text stayed message data.
 
-Received text is untrusted data. A message that says “switch to another conversation,” “ignore the existing draft,” or “send this twice” must remain content. It cannot rewrite policy.
+One test supplied text asking to allow every conversation, switch to live mode, and run commands. The configured allowlist and read-only mode remained unchanged. The application did not treat that text as permission to act.
 
-The application therefore builds its decision from separate inputs:
+The prototype offered three modes:
 
-- trusted configuration identifies the allowed target and operating mode;
-- adapter observations describe the current target, draft state, event identity, and connection state;
-- the provider supplies only a proposed response;
-- policy combines the trusted configuration with structured observations;
-- the application performs the allowed action and records the outcome.
+- **Read-only**, the default: polling could inspect allowed synthetic events; an action request was denied.
+- **Dry-run**, explicitly selected: policy and current target checks ran, but submission did not occur and the action request ID was not consumed.
+- **Mock**, explicitly selected: the bundled simulated adapter could exercise an in-memory submission and confirmation path. There was no live execution mode.
 
-Tests supplied hostile or misleading message text while keeping the configured target unchanged. The policy result remained tied to the trusted target identity. This verifies a useful architectural property: changing received text alone cannot widen the write scope.
+The CLI used fixed synthetic events and a fixed action request. Its dry-run result of zero mock submissions demonstrated mode enforcement with an eligible event present. It was not evidence of an empty-input startup path.
 
-## Treat a write as a state transition
+## Check the boundary, not only the return value
 
-A single Boolean such as `sent=true` is too weak for a UI write. The implementation distinguished four outcomes:
+Preflight checks rejected an unauthorized or mismatched target, an existing draft, a disconnected adapter, or uncertain identity. Tests asserted both the returned reason and the absence of submission calls.
 
-- **attempted**: the application crossed the write boundary;
-- **confirmed**: the adapter observed the expected local confirmation;
-- **failed**: evidence showed that submission did not occur;
-- **unknown**: the boundary may have been crossed, but confirmation was incomplete.
+For an allowed mock action, the application persisted a claim before invoking the adapter. It then checked target, draft, and pause state again. The mock adapter also rechecked target and draft at its submission boundary. Tests changed these observations between checks to verify that the later check still stopped the action.
 
-The difference controls retry authority. A connection failure before any submission attempt can permit a bounded retry. A timeout after the adapter invoked submission cannot safely become an automatic retry. The client may have accepted the first attempt even though the confirmation was lost.
+This sequencing produced a useful test surface: arrange a state change, run the application, then inspect calls and stored outcomes. A reassuring return value alone would not prove that an earlier side effect had been prevented.
 
-Event identity is persisted before that retry decision. When the same synthetic event arrives again, memory exposes the earlier terminal or uncertain state and the application does not create a second submission. This behavior complements transport-level safeguards; it does not claim proof of recipient delivery.
+## Record uncertainty without inventing a retry
 
-## Test stop conditions as first-class behavior
+Action outcomes distinguished an attempt from simulated UI confirmation, known failure, and an unknown result. An injected submission timeout or incomplete confirmation became unknown.
 
-The test suite covered successful dry-run flow and the paths that must stop:
+The state store recorded action identity and outcome. Repeating the same request returned the recorded result instead of submitting again. Tests also reopened the SQLite store and verified that an unknown result survived the restart without another submission. Reusing a request ID with a different payload or target was rejected.
 
-1. **Target mismatch** — the observed conversation differs from the allowed target.
-2. **Existing draft** — automation would overwrite user-authored text.
-3. **Duplicate event** — the event identity already has a recorded decision.
-4. **Own-message loop** — the newest event originated from the automated account.
-5. **Disconnect** — current client state cannot be observed reliably.
-6. **Timeout** — the operation does not reach a known result within its bound.
-7. **Unknown write outcome** — submission may have occurred, so automatic retry stops.
+These checks establish behavior for the tested request identities and local store. Event deduplication is a separate concern: an event was marked seen before being handed to the caller, so the milestone did not guarantee successful downstream consumption. Clearing the store would also remove the history needed to suppress replays.
 
-Assertions checked absence as well as presence. A rejected case had to produce zero provider calls when generation was unnecessary, zero submission calls, and an explicit recorded reason. This prevents a superficially correct return value from hiding an earlier side effect.
+## State exactly what the tests proved
 
-The default dry-run command also completed with zero mock submissions when no eligible event was present. That check verified the safest startup state, rather than only testing a prepared success fixture.
+The suite covered target and draft protection, duplicate and own-message filtering, pause behavior, disconnects, injected exceptions, persistence reopening, and CLI modes. Rejected preflight cases asserted zero adapter submissions; there were no provider-call assertions because no provider existed.
 
-## Promote evidence in stages
+Timeout tests raised `TimeoutError` at controlled points. They verified the application's response to that exception. The synchronous prototype did not impose hard deadlines on real UI calls or implement cancellation. Those remain requirements for a future real adapter.
 
-Offline completion is a milestone, not a substitute for live acceptance. A later live test should add evidence one boundary at a time:
+The evidence also stopped short of live-client compatibility and recipient delivery. Even a future UI confirmation would need to be recorded separately from proof that another person received a message. Live accounts, real writes, and transmission of conversation data to a model service require their own authorized tests.
 
-1. pin the exact client version, operating-system build, and adapter revision;
-2. use one authorized test conversation and inspect no unrelated conversations;
-3. start with read-only observation;
-4. verify target identity and draft protection again immediately before a write;
-5. submit controlled, non-sensitive content only after explicit enablement;
-6. record UI confirmation separately from recipient delivery;
-7. keep an emergency stop and the automation library's fail-safe behavior enabled.
-
-Real model use adds another gate. Conversation content should not be transmitted until the operator has opted in to the selected provider and the retention boundary is understood. The offline provider keeps that decision out of the first implementation milestone.
-
-The reusable lesson is to make safety behavior executable before integration pressure arrives. A mock-backed vertical slice gives policy, persistence, and write outcomes one deterministic test surface. It cannot certify a live client, but it can prevent basic authorization and retry defects from reaching that client unexamined.
+The reusable lesson is to build an executable safety boundary before connecting external systems, then keep the completion claim as small as the evidence. A mock adapter can expose policy and sequencing defects early. It cannot certify integrations that have not been implemented or exercised.
