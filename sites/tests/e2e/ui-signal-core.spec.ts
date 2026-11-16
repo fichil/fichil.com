@@ -92,7 +92,7 @@ test("mobile menu restores focus, focuses same-page targets, and closes across b
   await expect(trigger).toBeFocused();
 
   await trigger.click();
-  await page.getByRole("link", { name: "Services" }).click();
+  await page.getByRole("link", { name: "Services", exact: true }).click();
   await page.waitForTimeout(300);
   await expect(page.locator("#services")).toBeFocused();
 
