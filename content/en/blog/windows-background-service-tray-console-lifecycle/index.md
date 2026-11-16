@@ -119,7 +119,7 @@ This boundary lets deployment and authentication evolve independently. A release
 
 ## Verify window behavior and release behavior separately
 
-The isolated desktop checks covered hidden automatic startup, visible manual startup, duplicate activation, close-to-tray, minimize-to-tray, explicit exit, first-run visibility, and recovery after a real shell restart. They also confirmed that a failed tray initialization produced a visible fallback.
+The isolated desktop checks covered hidden automatic startup, visible manual startup, duplicate activation, close-to-tray, minimize-to-tray, explicit exit, first-run visibility, and recovery after a real shell restart. The code implements a visible fallback for failed tray initialization, but the available execution records do not confirm that this failure branch was exercised.
 
 Package and deployment exercises covered an upgrade from an older revision, an upgrade while the tray console was running, a busy protected operation, a stopped console, an interrupted release switch, authenticated browser handoff, rollback, and reconnection.
 
