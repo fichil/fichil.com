@@ -5,6 +5,27 @@ draft: false
 tags: ["Deployment", "Backups", "Windows", "Operational Safety"]
 categories: ["DevOps"]
 description: "A Windows deployment case that recovered disk space by replacing verified duplicate snapshots with references and pruning only eligible release uploads."
+ai:
+  schema_version: 1
+  problem: A Windows deployment host was running low on disk space while the application still passed its health checks.
+  symptoms:
+    - Historical database snapshots appeared in successive rollback backups. Uploaded release packages also remained after their deployment requests finished.
+  evidence:
+    - Some snapshot copies matched their retained originals in both size and SHA-256 digest.
+    - Older uploads could be traced to their request and status records.
+  root_cause: Each release copied historical snapshots again, and completed uploads continued to accumulate.
+  resolution_steps:
+    - Record the original snapshot's relative location, size and digest in the backup manifest before deleting a verified duplicate.
+    - Protect the current release and three retained successful versions. Remove an older upload only when its request has been in an eligible terminal state for at least 24 hours and its digest matches.
+    - Preview the candidates, then recheck release identity and file evidence under the deployment lock before removal.
+  verification:
+    - Acceptance checks confirmed three rollback backups, four original snapshots with unchanged digests, database integrity, service health and automatic upload retention.
+    - The host had about six GiB more free space after cleanup.
+  limitations:
+    - A local reference depends on the retained original. Recovery after disk loss requires a separately stored and tested backup.
+  applies_to:
+    - Windows deployments that retain local rollback backups, historical database snapshots and uploaded release packages.
+  keywords: [rollback backups, database snapshots, deployment retention, SHA-256, Windows]
 ---
 
 A Windows production host was running low on disk space while the application was still healthy. The deployment inventory pointed to two sources of growth: historical database snapshots copied into successive rollback backups, and uploaded release packages that remained on disk after their deployment requests had finished.
